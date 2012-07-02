@@ -1,0 +1,1 @@
+int workspaceWidth, workspaceHeight;
