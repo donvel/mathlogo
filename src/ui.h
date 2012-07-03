@@ -1,6 +1,8 @@
 #pragma once
 
 #include "ofMain.h"
+#include "interpreter.h"
+#include "world.h"
 
 
 class logoApp : public ofBaseApp{

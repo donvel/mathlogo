@@ -1,5 +1,12 @@
 #pragma once
+
 #include <fstream>
+#include <iostream>
+#include <cstdlib>
+#include <ctime>
+#include <boost/thread.hpp>
+
+#include "world.h"
 
 using namespace std;
 
@@ -11,7 +18,7 @@ class Interpreter {
 		bool running;
 		fstream scriptFile;
 	public:
-		void loadScript(char*);
+		void loadScript(char* filename);
 		void execute();
 		void randomMoves();
 		void toggleRunning();

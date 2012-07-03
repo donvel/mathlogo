@@ -1,9 +1,8 @@
 #include "ui.h"
-#include "interpreter.h"
 
 //--------------------------------------------------------------
 void logoApp::setup(){
-	ofBackground(255,255,255);
+	ofBackground(World::instance()->getBackgroundColor());
 }
 
 //--------------------------------------------------------------
@@ -21,6 +20,8 @@ void logoApp::keyPressed(int key){
 	if(key == ' ') {
 		cout << "Space pressed" << endl;
 		Interpreter::instance()->toggleRunning();
+	} else if(key == 'q') {
+		exit(0);
 	}
 }
 

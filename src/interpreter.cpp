@@ -1,10 +1,4 @@
-#include <fstream>
-#include <iostream>
-#include <cstdlib>
-#include <boost/thread.hpp>
-
 #include "interpreter.h"
-#include "world.h"
 
 using namespace std;
 using namespace boost;
@@ -35,10 +29,13 @@ void Interpreter::execute() {
 }
 
 void Interpreter::randomMoves() {
+	srand(time(0));
 	while(true) {
 		this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
 		if(!running) continue;
 		cout << "a" << endl;
+		World::instance()->forward(rand() % 3);
+		World::instance()->rotate(rand() % 6 - 3);
 	}
 }
 
