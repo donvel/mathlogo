@@ -8,7 +8,8 @@ using namespace std;
 
 World* World::worldInstance = NULL;
 
-World::World() : width(300), height(300) {}
+World::World() : width(300), height(300),
+	frameTime(20) {}
 
 World* World::instance() {
 	if(worldInstance == NULL) {
@@ -25,6 +26,7 @@ void World::setup(char *filename) {
 		exit(1);
 	}
 	setupFile >> width >> height;
+	setupFile >> frameTime;
 	setupFile.close();
 }
 
@@ -36,3 +38,6 @@ int World::getHeight() {
 	return height;
 }
 
+int World::getFrameTime() {
+	return frameTime;
+}
