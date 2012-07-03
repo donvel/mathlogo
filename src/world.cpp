@@ -9,7 +9,7 @@ using namespace std;
 World* World::worldInstance = NULL;
 
 World::World() : width(300), height(300),
-	frameTime(20), turtle(), origin(150, 150) {}
+	frameTime(100), turtle(), origin(150, 150) {}
 
 World* World::instance() {
 	if(worldInstance == NULL) {

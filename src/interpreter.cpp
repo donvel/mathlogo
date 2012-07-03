@@ -1,12 +1,13 @@
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
-#include <ctime>
 #include <boost/thread.hpp>
 
 #include "interpreter.h"
+#include "world.h"
 
 using namespace std;
+using namespace boost;
 
 Interpreter* Interpreter::interpreterInstance = NULL;
 
@@ -29,14 +30,13 @@ void Interpreter::loadScript(char *filename) {
 
 void Interpreter::execute() {
 	if(!scriptFile.is_open()) {
-		boost::thread interpreterThread(&Interpreter::randomMoves, this); // start the app	
+		thread interpreterThread(&Interpreter::randomMoves, this); // start the app	
 	}
 }
 
 void Interpreter::randomMoves() {
 	while(true) {
-		int curentTime = time(0);
-		while(time(0) < curentTime + 2);
+		this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
 		if(!running) continue;
 		cout << "a" << endl;
 	}
