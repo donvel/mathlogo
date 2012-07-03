@@ -9,14 +9,14 @@ OF_ROOT = /home/bartek/Programy/of
 # for example search paths like:
 # USER_CFLAGS = -I src/objects
 
-USER_CFLAGS = 
+USER_CFLAGS = -I/opt/local/include 
 
 
 # USER_LDFLAGS allows to pass custom flags to the linker
 # for example libraries like:
 # USER_LDFLAGS = libs/libawesomelib.a
 
-USER_LDFLAGS =
+USER_LDFLAGS = -L/opt/local/lib -lboost_thread-mt
 
 
 EXCLUDE_FROM_SOURCE="bin,.xcodeproj,obj"

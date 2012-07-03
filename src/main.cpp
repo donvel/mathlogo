@@ -6,6 +6,8 @@
 #include "ofAppGlutWindow.h"
 
 using namespace std;
+
+
 //--------------------------------------------------------------
 int main(int argnum, char **argv) { 
 	
@@ -15,20 +17,21 @@ int main(int argnum, char **argv) {
 	}
 	//otherwise world default values are used.
 	
+	//if the number of arguments == 2 , then argv[2] = name of the script file
+	if(argnum >= 3) {
+		Interpreter::instance()->loadScript(argv[2]);
+		if(argnum >= 4) {
+			cout << "Expected at most 2 arguments." << endl;
+		}
+	} 
+	//otherwise let turtle move in a random way
+	
 
 	ofAppGlutWindow window; // create a window
 	// set width, height, mode (OF_WINDOW or OF_FULLSCREEN)
 	ofSetupOpenGL(&window, World::instance()->getWidth(), World::instance()->getHeight(), OF_WINDOW);
+
+	Interpreter::instance()->execute(); // start interpreter
 	ofRunApp(new logoApp()); // start the app
-	
-	//if the number of arguments == 2 , then argv[2] = name of the script file
-	if(argnum >= 3) {
-		Interpreter::instance()->execute(argv[2]);
-		if(argnum >= 4) {
-			cout << "Expected at most 2 arguments." << endl;
-		}
-	} else {
-		Interpreter::instance()->randomMoves();
-	}
-	//otherwise let turtle move in a random way
+//	thread uiThread(ofRunApp, new logoApp()); // start the app	
 }

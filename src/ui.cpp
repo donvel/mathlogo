@@ -1,9 +1,9 @@
 #include "ui.h"
+#include "interpreter.h"
 
 //--------------------------------------------------------------
 void logoApp::setup(){
 	ofBackground(255,255,255);
-	
 }
 
 //--------------------------------------------------------------
@@ -18,7 +18,10 @@ void logoApp::draw(){
 
 //--------------------------------------------------------------
 void logoApp::keyPressed(int key){
-
+	if(key == ' ') {
+		cout << "Space pressed" << endl;
+		Interpreter::instance()->toggleRunning();
+	}
 }
 
 //--------------------------------------------------------------
