@@ -19,7 +19,7 @@ class World {
 		int frameTime;
 		
 		Turtle turtle;
-		point origin; // Origin of the coordinate system - its location on the viewport 
+		gridPoint origin; // Origin of the coordinate system - its location on the viewport 
 		voxel ***map;
 
 	public:
@@ -28,10 +28,15 @@ class World {
 		int getHeight();
 		int getDepth();
 		int getFrameTime();
+		gridPoint getOrigin();
+		voxel* getVoxel(gridPoint gp);
+		bool outside(gridPoint gp);
+/// Those functions may be unnecessary, since world does not have to be a rectangle
 		int getLeft();
 		int getRight();
 		int getTop();
 		int getBottom();
+/// -------------------------------------------------------------------------------|
 		ofColor getBackgroundColor();
 		static World* instance();
 

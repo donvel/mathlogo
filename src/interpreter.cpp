@@ -33,7 +33,7 @@ void Interpreter::randomMoves() {
 	while(true) {
 		this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
 		if(!running) continue;
-		cout << "a" << endl;
+//		cout << "a" << endl;
 		World::instance()->forward(rand() % 3);
 		World::instance()->rotate(rand() % 6 - 3);
 	}

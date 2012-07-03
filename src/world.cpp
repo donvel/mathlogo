@@ -52,40 +52,60 @@ int World::getFrameTime() {
 	return frameTime;
 }
 
+gridPoint World::getOrigin() {
+	return origin;
+}
+
 ofColor World::getBackgroundColor() {
 	return backgroundColor;
 }
 
-int getLeft() {
+voxel* World::getVoxel(gridPoint gp) {
+	return &map[gp.x + origin.x][gp.y + origin.y][gp.z + origin.z];
+}
+
+int World::getLeft() {
 	return -origin.x;
 }
 
-int getRight() {
+int World::getRight() {
 	return -origin.x + width;
 }
 
-int getBottom() {
+int World::getBottom() {
 	return -origin.y;
 }
 
-int getTop() {
+int World::getTop() {
 	return -origin.y + height;
 }
 
-bool World::outside(point p) {
+bool World::outside(gridPoint p) {
 	return p.y < getBottom() || p.y > getTop() || p.x < getLeft() || p.x > getRight();
 }
 
 void World::rotate(long double angle) {// in degrees
-	
+	turtle.direction = turtle.direction.rotated(angle);	
 }
 
 
 void World::forward(long double distance) {
+
 	vect displacement = turtle.direction * distance;
 	point newPosition = turtle.position.translated(displacement);
-	if(!outside(newPosition)) {
-		
+	if(outside(gridPoint(newPosition))) {
+		return;
+		// This can be done in a better way better, e. g. by finding the intersection of the (position, newPosition) segment with the world borders
+		// The problem is that I don't know what those borders shall eventually look like (it may be even a 3D mesh), so for now I leave this solution	
 	}
+	
+	point currentPosition = turtle.position; 
+	while(dist(turtle.position, currentPosition) <= // Note: dist is a function, while distance is a parameter
+		   	dist(turtle.position, newPosition)) {
+		currentPosition = currentPosition.translated(turtle.direction);
+		gridPoint visitedVoxel = currentPosition; 
+		if(!outside(visitedVoxel)) getVoxel(visitedVoxel)->visit(turtle.isPenDown, turtle.penColor);
+	}	
+
 	turtle.position = newPosition;
 }
