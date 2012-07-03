@@ -28,5 +28,5 @@ void Interpreter::execute(char *filename) {
 }
 
 void Interpreter::randomMoves() {
-
+	
 }

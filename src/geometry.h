@@ -11,6 +11,7 @@ struct point {
 
 struct vect : point {
 	vect(point p = point(0.0, 1.0, 0.0));
+	long double length();
 	void normalize();	
 };
 

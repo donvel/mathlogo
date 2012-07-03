@@ -9,7 +9,7 @@ using namespace std;
 World* World::worldInstance = NULL;
 
 World::World() : width(300), height(300),
-	frameTime(20) {}
+	frameTime(20), turtle(), origin(150, 150) {}
 
 World* World::instance() {
 	if(worldInstance == NULL) {
@@ -27,6 +27,7 @@ void World::setup(char *filename) {
 	}
 	setupFile >> width >> height;
 	setupFile >> frameTime;
+		
 	setupFile.close();
 }
 
