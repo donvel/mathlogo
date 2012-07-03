@@ -29,19 +29,22 @@ void Interpreter::loadScript(char *filename) {
 
 void Interpreter::execute() {
 	if(!scriptFile.is_open()) {
-		boost::thread interpreterThread(randomMoves); // start the app	
+		boost::thread interpreterThread(&Interpreter::randomMoves, this); // start the app	
 	}
 }
 
 void Interpreter::randomMoves() {
-	while(1) {
-		while(!running);
+	while(true) {
+		int curentTime = time(0);
+		while(time(0) < curentTime + 2);
+		if(!running) continue;
 		cout << "a" << endl;
 	}
 }
 
 void Interpreter::toggleRunning() {
-	running = ~running;
+	running = !running;
+	cout << "State changed, running = " << (int)running << endl;
 }
 
 Interpreter::~Interpreter() {
