@@ -1,6 +1,7 @@
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
+#include <ctime>
 
 #include "interpreter.h"
 
@@ -28,5 +29,5 @@ void Interpreter::execute(char *filename) {
 }
 
 void Interpreter::randomMoves() {
-	
+	while(1) cout << "a" << endl;		
 }
