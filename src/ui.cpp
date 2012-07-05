@@ -21,6 +21,10 @@ void logoApp::draw(){
 			ofCircle(x, y, 1);
 		}
 	}
+	vector<point> turtleShape = World::instance()->getTurtleShape();	
+	ofSetColor(0, 0, 0);
+	ofTriangle(turtleShape[0].x, turtleShape[0].y, turtleShape[1].x, turtleShape[1].y, turtleShape[2].x, turtleShape[2].y);
+	
 	
 }
 
@@ -31,7 +35,7 @@ void logoApp::keyPressed(int key){
 		Interpreter::instance()->toggleRunning();
 	} else if(key == 'q') {
 		cout << "\"q\" pressed" << endl;
-		exit(); // This doesn't work yet.
+		ofExit(0); // This doesn't work yet.
 	}
 }
 

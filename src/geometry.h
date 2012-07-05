@@ -10,10 +10,12 @@
 const static long double EPS = 1.0e-3;
 
 struct vect; // Previous declaration is needed, since vect appears in the definition of point
+struct gridPoint;
 
 struct point {
 	long double x, y, z; // decent precision;
 	point(long double _x = 0.0, long double _y = 0.0, long double _z = 0.0);
+	point(const gridPoint&);
 	bool operator==(const point&);
 	void operator+=(const vect&);	
 //	virtual point operator+(const vect&) const;

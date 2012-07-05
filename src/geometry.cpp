@@ -5,6 +5,7 @@
 //----------------POINT-----------------------------------------//
 
 point::point(long double _x, long double _y, long double _z) : x(_x), y(_y), z(_z) {}
+point::point(const gridPoint& gp) : x(gp.x), y(gp.y), z(gp.z) {}
 
 bool point::operator==(const point& p) {
 	return abs(x - p.x) < EPS && abs(y - p.y) < EPS && abs(z - p.z) < EPS;

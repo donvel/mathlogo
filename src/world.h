@@ -3,6 +3,7 @@
 #include <fstream>
 #include <iostream>
 #include <cstdlib>
+#include <vector>
 
 #include "turtle.h"
 #include "geometry.h"
@@ -29,16 +30,20 @@ class World {
 		int getHeight();
 		int getDepth();
 		int getFrameTime();
-		gridPoint getOrigin();
-		voxel* getVoxel(gridPoint gp);
-		bool outside(gridPoint gp);
+
 /// Those functions may be unnecessary, since world does not have to be a rectangle
 		int getLeft();
 		int getRight();
 		int getTop();
 		int getBottom();
 /// -------------------------------------------------------------------------------|
+	
+		gridPoint getOrigin();
+		voxel* getVoxel(gridPoint gp);
+		bool outside(gridPoint gp);
 		ofColor getBackgroundColor();
+		vector<point> getTurtleShape();
+
 		static World* instance();
 
 		// Turtle handling

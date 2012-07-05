@@ -1,10 +1,12 @@
 #pragma once
 
 #include <cstdio>
+#include <vector>
 
 #include "ofMain.h"
 #include "interpreter.h"
 #include "world.h"
+#include "geometry.h"
 
 
 class logoApp : public ofBaseApp{

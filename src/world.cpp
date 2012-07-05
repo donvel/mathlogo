@@ -31,6 +31,7 @@ void World::setup(char *filename) {
 		exit(1);
 	}
 	setupFile >> width >> height >> depth;
+	setupFile >> origin.x >> origin.y >> origin.z;
 	setupFile >> frameTime;
 		
 	setupFile.close();
@@ -111,4 +112,16 @@ void World::forward(long double distance) {
 	}	
 
 	turtle.position = newPosition;
+}
+
+vector<point> World::getTurtleShape() {
+	vector<point> res(3);
+	res[0] = turtle.position.translated(turtle.direction * 30.0);
+	res[1] = turtle.position.translated(turtle.direction.rotated(90.0) * 10.0);
+	res[2] = turtle.position.translated(turtle.direction.rotated(-90.0) * 10.0);	
+	for (int i = 0; i < 3; i++) {
+		res[i] = res[i].translated((vect)(point)origin);
+	}
+
+	return res;
 }
