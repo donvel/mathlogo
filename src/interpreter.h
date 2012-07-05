@@ -8,6 +8,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <algorithm>
 #include <boost/thread.hpp>
 
 #include "world.h"
@@ -25,17 +26,26 @@ private:
     fstream scriptFile;
     vector<string> script;
     
+   
     void parseScriptFile();
     void randomMoves();
-    void runScript();
+    bool isData();
+    LogoData getData();
+    LogoData runFunction(string name, vector<LogoData> parameters = vector<LogoData>());
+    LogoData runMyFunction(string name, vector<LogoData> parameters = vector<LogoData>());
+    void executeLast(vector<LogoData> &values, vector<string> &stack, vector<int> valuesNeeded, vector<int> valuesAvailable);
+    void initiateParameters(int &FirstToken, vector<LogoData> parameters);
     
     vector<map<string, LogoData> > variables;
     set<string> operators;
     set<string> keywords;
-    set<string> functions;
+    map<string, int> functions; // Number of values needed
+    map<string, int> myFunctions;
+    map<string, int> precedence;
+    map<string, pair<int, int> > functionFrames;
     
-    bool isData();
-    LogoData getData();
+
+
     
     
 
