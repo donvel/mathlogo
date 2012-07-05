@@ -6,7 +6,9 @@ World* World::worldInstance = NULL;
 
 World::World() : width(300), height(300), depth(1),
 	frameTime(10), backgroundColor(255, 255, 255), origin(150, 150)  {
-	
+}
+
+void World::createMap() {
 	map = new voxel**[width];
 	for(int i = 0; i < width; i++) {
 		map[i] = new voxel*[height];	
@@ -14,6 +16,16 @@ World::World() : width(300), height(300), depth(1),
 			map[i][j] = new voxel[depth];
 		}
 	}
+}
+
+World::~World() {
+	for(int i = 0; i < width; i++) {
+		for(int j = 0; j < height; j++) {
+			delete[] map[i][j];
+		}
+		delete[] map[i];
+	}
+	delete[] map;
 }
 
 World* World::instance() {
@@ -33,8 +45,11 @@ void World::setup(char *filename) {
 	setupFile >> width >> height >> depth;
 	setupFile >> origin.x >> origin.y >> origin.z;
 	setupFile >> frameTime;
-		
+	cout << width << " " << height << " " << depth << " " << endl;
+	cout << origin.x << " " << origin.y << " " << origin.z;
+	cout << frameTime << endl;
 	setupFile.close();
+	cout << "World setup complete" << endl;
 }
 
 int World::getWidth() {

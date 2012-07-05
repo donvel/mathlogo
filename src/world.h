@@ -13,7 +13,9 @@ class World {
 	// So far the world is just a rectangle	
 	private:
 		World(); // World is a singleton
+		~World();
 		static World *worldInstance;
+		bool outside(gridPoint gp);
 		
 		int width, height, depth;
 		int frameTime;
@@ -26,6 +28,8 @@ class World {
 
 	public:
 		void setup(char* filename);
+		void createMap(); 
+	
 		int getWidth();
 		int getHeight();
 		int getDepth();
@@ -40,7 +44,7 @@ class World {
 	
 		gridPoint getOrigin();
 		voxel* getVoxel(gridPoint gp);
-		bool outside(gridPoint gp);
+
 		ofColor getBackgroundColor();
 		vector<point> getTurtleShape();
 

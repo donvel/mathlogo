@@ -15,6 +15,7 @@ int main(int argnum, char **argv) {
 	if(argnum >= 2) { // note that arg[0] is always passed, so argnum >= 1
 		World::instance()->setup(argv[1]);
 	}
+	World::instance()->createMap();
 	//otherwise world default values are used.
 	
 	//if the number of arguments == 2 , then argv[2] = name of the script file
