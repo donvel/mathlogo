@@ -7,14 +7,17 @@ Interpreter* Interpreter::interpreterInstance = NULL;
 
 Interpreter::Interpreter() : running(false) {
 	
-	keywords.insert("if");
-	keywords.insert("while");
-	
+
+	myFunctions["if"] = 1;
+	myFunctions["while"] = 1;	
 	myFunctions["make"] = 2;	
 	myFunctions["forward"] = 1;
 	myFunctions["right"] = 1;
 	myFunctions["left"] = 1;
 	myFunctions["print"] = 1;
+	myFunctions["penup"] = 0;
+	myFunctions["pendown"] = 0;
+	myFunctions["setxy"] = 2;
 
 	for(map<string, int>::iterator it = myFunctions.begin(); it != myFunctions.end(); it++) {
 		functions.insert(*it);
@@ -55,6 +58,7 @@ void Interpreter::loadScript(char *filename) {
 
 void Interpreter::parseScriptFile() {
 	string token, waitingFunction;
+	vector<pair<int, int> > waitingKeywords;
 	while(!scriptFile.eof()) {
 		scriptFile >> token;
 		if(token == "to") {
@@ -62,7 +66,16 @@ void Interpreter::parseScriptFile() {
 			functionFrames[waitingFunction].first = script.size();
 		} else if(token == "end") {
 			functionFrames[waitingFunction].second = script.size() - 1;
-		} else {
+		} else if(token == "while") {
+			waitingKeywords.push_back(make_pair(script.size(), 0));
+		} else if(token == "ifelse") {
+			waitingKeywords.push_back(make_pair(script.size(), 1));
+			waitingKeywords.push_back(make_pair(script.size(), 0));
+		} else if(token == "[") {
+			blockFrames[waitingKeywords.back()].first = script.size();
+		} else if(token == "]") {
+			blockFrames[waitingKeywords.back()].second = script.size() - 1;
+		} else{
 			string firstCharacter(1);
 			copy(token.begin(), token.begin() + 1, firstCharacter.begin());
 			if(operators.find(firstCharacter) != operators.end() || firstCharacter == "(" ||
@@ -70,8 +83,9 @@ void Interpreter::parseScriptFile() {
 				script.push_back(firstCharacter);
 				token.erase(token.begin());
 				if(!token.empty()) script.push_back(token);
+			} else {
+				script.push_back(token);
 			}
-			script.push_back(token);
 		}
 	}
 }
@@ -111,13 +125,24 @@ LogoData Interpreter::getData(string token) {
 	}
 	if(token[0] == ":") {
 		token.erase(token.begin());	
-		for(int i = variables.size() - 1; i >= 0; i--) {
-			if(variables[i].find(token) != variables[i].end()) return variables[i][token];
-		}
+//		for(int i = variables.size() - 1; i >= 0; i--) {
+//			if(variables[i].find(token) != variables[i].end()) return variables[i][token];
+//		}
+
+		if(variables.back().find(token) != variables.end()) return variables.back()[token];
+		if(variables.front().find(token) != variables.end()) return variables.front()[token];
 		cout << "variable " << token << " not defined." << endl;
 		ofExit(0);
 	}
 	return LogoData(token);
+}
+
+LogoData executeOperator(string oper, LogoData a, LogoData b) {
+	if(oper == "+") return LogoData(a + b);
+	if(oper == "-") return LogoData(a - b);
+	if(oper == "/") return LogoData(a / b);
+	if(oper == "*") return LogoData(a * b);
+	if(oper == "=") return LogoData(a == b);
 }
 
 void Interpreter::executeLast(vector<LogoData> &values, vector<string> &stack, vector<int> valuesNeeded, vector<int> valuesAvailable) {
@@ -155,7 +180,7 @@ void Interpreter::initiateParameters(int &firstToken, vector<LogoData> parameter
 	}
 }
 
-LogoData Interpreter::runMyFunction(string name, vector<LogoData> parametres) {
+LogoData Interpreter::runMyFunction(string name, int &fisrtToken, vector<LogoData> parametres) {
 	if(name == "print") {
 		cout << parametres[0].toString() << endl;
 	} else if(name == "make") {
@@ -166,16 +191,22 @@ LogoData Interpreter::runMyFunction(string name, vector<LogoData> parametres) {
 		World::instance()->rotate(parametres[0].toDouble());
 	} else if(name == "left") {
 		World::instance()->rotate(parametres[0].toDouble());
-	} 
+	} else if(name == "ifelse") {
+		if(parameters[0].toBoolean) {
+			runScript();
+		} else {
+			
+		}
+	}
 	return LogoData("");
 }
 
-LogoData Interpreter::runFunction(string name, vector<LogoData> parameters) {
+LogoData Interpreter::runFunction(string name, vector<LogoData> parameters, bool setParameters) {
 	if(myFunctions.find(name) != myFunctions.end()) return runMyFunction(name, parameters);
 	
 	int firstToken = functionFrames[name], lastToken = functionFrames[name];
 	
-	initiateParameters(firstToken, parameters);
+	if(setParameters) initiateParameters(firstToken, parameters);
 	
 	vector<int> valuesNeeded;
 	valuesNeeded.push_back(0); // guardian
@@ -212,6 +243,10 @@ LogoData Interpreter::runFunction(string name, vector<LogoData> parameters) {
 			}
 			stack.pop_back();
 		}
+	}
+	
+	while(valuesAvailable.back() > 0 && valuesAvailable.back() == valuesNeeded.back()) {
+		executeLast(values, stack, valuesNeeded, valuesAvailable);
 	}
 	return values[0];
 }

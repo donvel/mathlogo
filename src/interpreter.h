@@ -31,8 +31,8 @@ private:
     void randomMoves();
     bool isData();
     LogoData getData();
-    LogoData runFunction(string name, vector<LogoData> parameters = vector<LogoData>());
-    LogoData runMyFunction(string name, vector<LogoData> parameters = vector<LogoData>());
+    LogoData runFunction(string name, vector<LogoData> parameters = vector<LogoData>(), bool setParameters = false);
+    LogoData runMyFunction(string name, int &fisrtToken, vector<LogoData> parameters = vector<LogoData>());
     void executeLast(vector<LogoData> &values, vector<string> &stack, vector<int> valuesNeeded, vector<int> valuesAvailable);
     void initiateParameters(int &FirstToken, vector<LogoData> parameters);
     
@@ -43,6 +43,7 @@ private:
     map<string, int> myFunctions;
     map<string, int> precedence;
     map<string, pair<int, int> > functionFrames;
+    map<pair<int, int>, pair<int, int> > blockFrames;
     
 
 
