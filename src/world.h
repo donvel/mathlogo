@@ -15,8 +15,9 @@ class World {
 		static World *worldInstance;
 		
 		int width, height, depth;
-		ofColor backgroundColor;
 		int frameTime;
+		ofColor backgroundColor;
+
 		
 		Turtle turtle;
 		gridPoint origin; // Origin of the coordinate system - its location on the viewport 

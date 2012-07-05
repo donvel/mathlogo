@@ -85,7 +85,9 @@ voxel::voxel(ofColor _color) : visited(false), color(_color) {}
 
 void voxel::visit(bool changeColor, ofColor newColor) {
 	visited = true;
-	color = newColor;
+	if(changeColor) {
+        color = newColor;
+      }
 }
 
 //----------------GRIDPOINT-----------------------------------------//

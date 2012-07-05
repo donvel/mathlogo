@@ -5,7 +5,7 @@ using namespace std;
 World* World::worldInstance = NULL;
 
 World::World() : width(300), height(300), depth(1),
-	frameTime(100), backgroundColor(255, 255, 255), origin(150, 150)  {
+	frameTime(10), backgroundColor(255, 255, 255), origin(150, 150)  {
 	
 	map = new voxel**[width];
 	for(int i = 0; i < width; i++) {
@@ -81,7 +81,7 @@ int World::getTop() {
 }
 
 bool World::outside(gridPoint p) {
-	return p.y < getBottom() || p.y > getTop() || p.x < getLeft() || p.x > getRight();
+	return p.y < getBottom() || p.y >= getTop() || p.x < getLeft() || p.x >= getRight();
 }
 
 void World::rotate(long double angle) {// in degrees
@@ -93,6 +93,9 @@ void World::forward(long double distance) {
 
 	vect displacement = turtle.direction * distance;
 	point newPosition = turtle.position.translated(displacement);
+    
+//    cout << "Turtle position: " << newPosition.x << " " << newPosition.y << endl;
+    
 	if(outside(gridPoint(newPosition))) {
 		return;
 		// This can be done in a better way better, e. g. by finding the intersection of the (position, newPosition) segment with the world borders

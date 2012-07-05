@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstdio>
+
 #include "ofMain.h"
 #include "interpreter.h"
 #include "world.h"
