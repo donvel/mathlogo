@@ -30,7 +30,12 @@ int main(int argnum, char **argv) {
 
 	ofAppGlutWindow window; // create a window
 	// set width, height, mode (OF_WINDOW or OF_FULLSCREEN)
-	ofSetupOpenGL(&window, World::instance()->getWidth(), World::instance()->getHeight(), OF_WINDOW);
+	int width = World::instance()->getWidth();
+	int height = World::instance()->getHeight();
+	if(World::instance()->getMode() == TRANSFORM) {
+		width *= 2;
+	}
+	ofSetupOpenGL(&window, width, height, OF_WINDOW);
 
 	Interpreter::instance()->execute(); // start interpreter
 	ofRunApp(new logoApp()); // start the app

@@ -42,6 +42,12 @@ struct voxel {
 	void visit(bool changeColor = false, ofColor newColor = ofColor());
 };
 
+struct segment {
+	point a, b;
+	ofColor color;
+	segment(point _a, point _b, ofColor _color);
+};
+
 struct gridPoint {
 	int x, y, z;
 	gridPoint(const point&);

@@ -1,4 +1,5 @@
 #include "world.h"
+#include "transformation.h"
 
 using namespace std;
 
@@ -97,6 +98,10 @@ voxel* World::getVoxel(gridPoint gp) {
 	return &map[gp.x + origin.x][gp.y + origin.y][gp.z + origin.z];
 }
 
+vector<segment> getTrace(int id) {
+	return trace[id];
+}
+
 int World::getLeft() {
 	return -origin.x;
 }
@@ -117,40 +122,57 @@ bool World::outside(gridPoint p) {
 	return p.y < getBottom() || p.y >= getTop() || p.x < getLeft() || p.x >= getRight();
 }
 
+void World::updateTurtle(int id, pair<point, vect> coords) {
+	if(turtle[id].isPenDown) {
+		trace[id].push_back(segment(turtle[id].position, coords.first, turtle[id].penColor));
+	}
+	turtle[id].position = coords.first;
+	turtle[id].direction = coords.second;
+}
+
 void World::rotate(long double angle) {// in degrees
-	turtle.direction = turtle.direction.rotated(angle);	
+	updateTurtle(activeTurtle, make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction.rotated(angle)));	
+	if(mode == TRANSFORM) {
+		updateTurtle(!activeTurtle, 
+			trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction)));	
+	}
 }
 
 
 void World::forward(long double distance) {
 
-	vect displacement = turtle.direction * distance;
-	point newPosition = turtle.position.translated(displacement);
-    
+	vect displacement = turtle[activeTurtle].direction * distance;
+	point newPosition = turtle[activeTurtle].position.translated(displacement);
+    point newPosition2 = trans[activeTurtle].setCoords(make_pair(newPosition, vect())).first;
 //    cout << "Turtle position: " << newPosition.x << " " << newPosition.y << endl;
     
-	if(outside(gridPoint(newPosition))) {
+	if(outside(gridPoint(newPosition)) || outside(newPosition2)) {
 		return;
 		// This can be done in a better way better, e. g. by finding the intersection of the (position, newPosition) segment with the world borders
 		// The problem is that I don't know what those borders shall eventually look like (it may be even a 3D mesh), so for now I leave this solution	
 	}
 	
-	point currentPosition = turtle.position; 
-	while(dist(turtle.position, currentPosition) <= // Note: dist is a function, while distance is a parameter
-		   	dist(turtle.position, newPosition)) {
-		currentPosition = currentPosition.translated(turtle.direction);
-		gridPoint visitedVoxel = currentPosition; 
-		if(!outside(visitedVoxel)) getVoxel(visitedVoxel)->visit(turtle.isPenDown, turtle.penColor);
+	point currentPosition = turtle[activeTurtle].position; 
+	while(dist(turtle[activeTurtle].position, currentPosition) <= // Note: dist is a function, while distance is a parameter
+		   	dist(turtle[activeTurtle].position, newPosition)) {
+		currentPosition = currentPosition.translated(turtle[activeTurtle].direction);
+//		gridPoint visitedVoxel = currentPosition; 
+//		if(!outside(visitedVoxel)) getVoxel(visitedVoxel)->visit(false); // We draw trace with segments, not with voxels
+		updateTurtle(activeTurtle, make_pair(currentPosition, turtle[activeTurtle].direction));
+		if(mode == TRANSFORM) updateTurtle(!activeTurtle, 
+			trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction)));
 	}	
 
-	turtle.position = newPosition;
+	updateTurtle(activeTurtle, make_pair(currentPosition, turtle[activeTurtle].direction));
+	if(mode == TRANSFORM) updateTurtle(!activeTurtle, 
+			trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction)));
 }
 
-vector<point> World::getTurtleShape() {
+vector<point> World::getTurtleShape(int id) {
 	vector<point> res(3);
-	res[0] = turtle.position.translated(turtle.direction * 30.0);
-	res[1] = turtle.position.translated(turtle.direction.rotated(90.0) * 10.0);
-	res[2] = turtle.position.translated(turtle.direction.rotated(-90.0) * 10.0);	
+	res[0] = turtle[id].position.translated(turtle[id].direction * 30.0);
+	res[1] = turtle[id].position.translated(turtle[id].direction.rotated(90.0) * 10.0);
+	res[2] = turtle[id].position.translated(turtle[id].direction.rotated(-90.0) * 10.0);	
 	for (int i = 0; i < 3; i++) {
 		res[i] = res[i].translated((vect)(point)origin);
 	}

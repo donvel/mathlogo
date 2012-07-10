@@ -91,6 +91,10 @@ void voxel::visit(bool changeColor, ofColor newColor) {
       }
 }
 
+//----------------SEGMENT----------------------------------------//
+
+segment::segment(point _a, point _b, ofColor _color) : a(_a), b(_b), color(_color) {}
+
 //----------------GRIDPOINT-----------------------------------------//
 
 gridPoint::gridPoint(const point &p) : x(p.x), y(p.y), z(p.z) {}
