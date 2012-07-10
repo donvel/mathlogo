@@ -35,6 +35,7 @@ int main(int argnum, char **argv) {
 	if(World::instance()->getMode() == TRANSFORM) {
 		width *= 2;
 	}
+	cout << width << " " << height << endl;
 	ofSetupOpenGL(&window, width, height, OF_WINDOW);
 
 	Interpreter::instance()->execute(); // start interpreter

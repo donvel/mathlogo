@@ -51,7 +51,7 @@ class World {
 /// -------------------------------------------------------------------------------|
 	
 		gridPoint getOrigin(int id);
-		voxel* getVoxel(gridPoint gp);
+//		voxel* getVoxel(gridPoint gp);
 
 		ofColor getBackgroundColor();
 		vector<point> getTurtleShape(int id);

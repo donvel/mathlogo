@@ -97,6 +97,7 @@ segment::segment(point _a, point _b, ofColor _color) : a(_a), b(_b), color(_colo
 
 //----------------GRIDPOINT-----------------------------------------//
 
+gridPoint::gridPoint() {}
 gridPoint::gridPoint(const point &p) : x(p.x), y(p.y), z(p.z) {}
 gridPoint::gridPoint(int _x, int _y, int _z) : x(_x), y(_y), z(_z) {}
 

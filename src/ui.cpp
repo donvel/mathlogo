@@ -3,6 +3,7 @@
 //--------------------------------------------------------------
 void logoApp::setup(){
 	ofBackground(World::instance()->getBackgroundColor());
+	fbo.allocate(World::instance()->getWidth(), World::instance()->getHeight(), GL_RGB);
 }
 
 //--------------------------------------------------------------
@@ -24,21 +25,31 @@ void logoApp::draw(){
 //	vector<point> turtleShape = World::instance()->getTurtleShape();	
 //	ofSetColor(0, 0, 0);
 //	ofTriangle(turtleShape[0].x, turtleShape[0].y, turtleShape[1].x, turtleShape[1].y, turtleShape[2].x, turtleShape[2].y);
-	fbo.begin();
-	int numVieports = 1 + (World::instance()->getMode() == TRANSFORM);
+	
+	int numVieports = 1;
+	ofBackground(World::instance()->getBackgroundColor());
+	if(World::instance()->getMode() == TRANSFORM) {
+		numVieports = 2;
+		ofLine(World::instance()->getWidth(), 0, World::instance()->getWidth(), World::instance()->getHeight());
+	}
 	for(int i = 0; i < numVieports; i++) {
+		fbo.begin();
+		ofBackground(255, 0, 0);
 		gridPoint ori = World::instance()->getOrigin(i);
-		vector<segment> trace = World().instance()->getTrace(i);
-		for(int i = 0; i < (int)trace.size(); i++) {
-			ofSetColor(trace[i].color);
-			ofLine(trace[i].a.x - ori.x, trace[i].a.y - ori.y, trace[i].b.x - ori.x, trace[i].b.y - ori.y);
+//		cout << ori.x << " " << ori.y << endl;
+		vector<segment> trace = World::instance()->getTrace(i);
+		for(int j = 0; j < (int)trace.size(); j++) {
+			ofSetColor(trace[j].color);
+		//	ofLine(trace[j].a.x - ori.x, trace[j].a.y - ori.y, trace[j].b.x - ori.x, trace[j].b.y - ori.y);
 		}
 		vector<point> turtleShape = World::instance()->getTurtleShape(i);	
 		ofSetColor(0, 0, 0);
+
 		ofTriangle(turtleShape[0].x, turtleShape[0].y, turtleShape[1].x, turtleShape[1].y, turtleShape[2].x, turtleShape[2].y);
+		fbo.end();
+		fbo.draw(i * World::instance()->getWidth(), 0);
 	}
-	fbo.end();
-	fbo.draw(0, 0);
+	
 }
 
 //--------------------------------------------------------------

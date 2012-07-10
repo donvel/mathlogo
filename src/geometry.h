@@ -50,6 +50,7 @@ struct segment {
 
 struct gridPoint {
 	int x, y, z;
+	gridPoint();
 	gridPoint(const point&);
 	gridPoint(int _x, int _y, int _z = 0);
 };
