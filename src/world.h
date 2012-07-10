@@ -5,7 +5,7 @@
 #include <cstdlib>
 #include <vector>
 
-#include "transformation.h"
+#include "trans.h"
 #include "turtle.h"
 #include "geometry.h"
 #include "ofMain.h"
@@ -22,9 +22,9 @@ class World {
 		
 		int width, height, depth;
 		int frameTime;
-		int activeTurtle;
 		ofColor backgroundColor;
 		Mode mode;
+		int activeTurtle;
 		
 		Turtle turtle[2];
 		vector<segment> trace[2];  

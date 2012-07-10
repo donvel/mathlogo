@@ -3,7 +3,7 @@
 //--------------------------------------------------------------
 void logoApp::setup(){
 	ofBackground(World::instance()->getBackgroundColor());
-	fbo.allocate(World::instance()->getWidth(), World::instance()->getHeight(), GL_RGB);
+//	fbo.allocate(World::instance()->getWidth(), World::instance()->getHeight(), GL_RGB);
 }
 
 //--------------------------------------------------------------
@@ -33,21 +33,21 @@ void logoApp::draw(){
 		ofLine(World::instance()->getWidth(), 0, World::instance()->getWidth(), World::instance()->getHeight());
 	}
 	for(int i = 0; i < numVieports; i++) {
-		fbo.begin();
-		ofBackground(255, 0, 0);
+//		fbo.begin();
+
 		gridPoint ori = World::instance()->getOrigin(i);
 //		cout << ori.x << " " << ori.y << endl;
 		vector<segment> trace = World::instance()->getTrace(i);
 		for(int j = 0; j < (int)trace.size(); j++) {
 			ofSetColor(trace[j].color);
-		//	ofLine(trace[j].a.x - ori.x, trace[j].a.y - ori.y, trace[j].b.x - ori.x, trace[j].b.y - ori.y);
+			ofLine(trace[j].a.x + ori.x, trace[j].a.y + ori.y, trace[j].b.x + ori.x, trace[j].b.y + ori.y);
 		}
 		vector<point> turtleShape = World::instance()->getTurtleShape(i);	
 		ofSetColor(0, 0, 0);
 
 		ofTriangle(turtleShape[0].x, turtleShape[0].y, turtleShape[1].x, turtleShape[1].y, turtleShape[2].x, turtleShape[2].y);
-		fbo.end();
-		fbo.draw(i * World::instance()->getWidth(), 0);
+//		fbo.end();
+//		fbo.draw(i * World::instance()->getWidth(), 0);
 	}
 	
 }

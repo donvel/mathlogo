@@ -6,7 +6,7 @@ using namespace std;
 World* World::worldInstance = NULL;
 
 World::World() : width(300), height(300), depth(1),
-	frameTime(10), backgroundColor(255, 255, 255) {
+	frameTime(10), backgroundColor(255, 255, 255), activeTurtle(0) {
 	origin[0] = gridPoint(150, 150, 0);
 	origin[1] = gridPoint(450, 150, 0);
 }
@@ -130,16 +130,17 @@ void World::updateTurtle(int id, pair<point, vect> coords) {
 	if(turtle[id].isPenDown) {
 		trace[id].push_back(segment(turtle[id].position, coords.first, turtle[id].penColor));
 	}
-	//turtle[id].position = coords.first;
-	//turtle[id].direction = coords.second;
+	turtle[id].position = coords.first;
+	turtle[id].direction = coords.second;
+	cout << turtle[id].position.x << " " << turtle[id].position.y << " " << turtle[id].direction.x << " " << turtle[id].direction.y << endl;
 }
 
 void World::rotate(long double angle) {// in degrees
 	updateTurtle(activeTurtle, make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction.rotated(angle)));	
-//	if(mode == TRANSFORM) {
-//		updateTurtle(!activeTurtle, 
-//			trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction)));	
-//	}
+	if(mode == TRANSFORM) {
+		updateTurtle(!activeTurtle, 
+			trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction)));	
+	}
 }
 
 
@@ -147,29 +148,31 @@ void World::forward(long double distance) {
 
 	vect displacement = turtle[activeTurtle].direction * distance;
 	point newPosition = turtle[activeTurtle].position.translated(displacement);
-    //point newPosition2 = trans[activeTurtle].setCoords(make_pair(newPosition, vect())).first;
+    point newPosition2 = trans[activeTurtle].setCoords(make_pair(newPosition, vect())).first;
 //    cout << "Turtle position: " << newPosition.x << " " << newPosition.y << endl;
     
-	if(outside(gridPoint(newPosition)) ){//|| outside(newPosition2)) {
+	if(outside(gridPoint(newPosition))  || outside(newPosition2)) {
 		return;
 		// This can be done in a better way better, e. g. by finding the intersection of the (position, newPosition) segment with the world borders
 		// The problem is that I don't know what those borders shall eventually look like (it may be even a 3D mesh), so for now I leave this solution	
 	}
 	
 	point currentPosition = turtle[activeTurtle].position; 
-	while(dist(turtle[activeTurtle].position, currentPosition) <= // Note: dist is a function, while distance is a parameter
-		   	dist(turtle[activeTurtle].position, newPosition)) {
+	point begPosition = currentPosition;
+	
+	while(dist(begPosition, currentPosition) <= // Note: dist is a function, while distance is a parameter
+		   	dist(begPosition, newPosition)) {
 		currentPosition = currentPosition.translated(turtle[activeTurtle].direction);
 //		gridPoint visitedVoxel = currentPosition; 
 //		if(!outside(visitedVoxel)) getVoxel(visitedVoxel)->visit(false); // We draw trace with segments, not with voxels
 		updateTurtle(activeTurtle, make_pair(currentPosition, turtle[activeTurtle].direction));
-//		if(mode == TRANSFORM) updateTurtle(!activeTurtle, 
-//			trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction)));
+		if(mode == TRANSFORM) updateTurtle(!activeTurtle, 
+			trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction)));
 	}	
 
 	updateTurtle(activeTurtle, make_pair(currentPosition, turtle[activeTurtle].direction));
-//	if(mode == TRANSFORM) updateTurtle(!activeTurtle, 
-//			trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction)));
+	if(mode == TRANSFORM) updateTurtle(!activeTurtle, 
+			trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction)));
 }
 
 vector<point> World::getTurtleShape(int id) {

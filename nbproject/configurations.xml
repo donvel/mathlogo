@@ -24,8 +24,9 @@
         <in>logodata.cpp</in>
         <in>logodata.h</in>
         <in>main.cpp</in>
-        <in>transformation.cpp</in>
-        <in>transformation.h</in>
+        <in>trans.cpp</in>
+        <in>trans.h</in>
+        <in>transform.h</in>
         <in>turtle.cpp</in>
         <in>turtle.h</in>
         <in>ui.cpp</in>
@@ -148,11 +149,11 @@
           </incDir>
         </ccTool>
       </item>
-      <item path="src/transformation.cpp" ex="false" tool="1" flavor="0">
+      <item path="src/trans.cpp" ex="false" tool="1" flavor="0">
         <ccTool>
           <incDir>
-            <pElem>../../Programy/of/libs/openFrameworks</pElem>
-            <pElem>/usr/include/gio-unix-2.0</pElem>
+            <pElem>/usr/include/gio-unix-2.0/</pElem>
+            <pElem>../../Programy/of/libs/openFrameworks/</pElem>
           </incDir>
         </ccTool>
       </item>
@@ -167,8 +168,8 @@
       <item path="src/ui.cpp" ex="false" tool="1" flavor="0">
         <ccTool>
           <incDir>
-            <pElem>/usr/include/gio-unix-2.0/</pElem>
-            <pElem>../../Programy/of/libs/openFrameworks/</pElem>
+            <pElem>../../Programy/of/libs/openFrameworks</pElem>
+            <pElem>/usr/include/gio-unix-2.0</pElem>
           </incDir>
         </ccTool>
       </item>
