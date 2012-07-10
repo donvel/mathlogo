@@ -9,6 +9,8 @@
 #include "geometry.h"
 #include "ofMain.h"
 
+enum Mode {NORMAL, TRANSFORM, ESCAPE};
+
 class World {
 	// So far the world is just a rectangle	
 	private:
@@ -20,7 +22,7 @@ class World {
 		int width, height, depth;
 		int frameTime;
 		ofColor backgroundColor;
-
+		Mode mode;
 		
 		Turtle turtle;
 		gridPoint origin; // Origin of the coordinate system - its location on the viewport 
@@ -34,7 +36,9 @@ class World {
 		int getHeight();
 		int getDepth();
 		int getFrameTime();
+		Mode getMode();
 
+		
 /// Those functions may be unnecessary, since world does not have to be a rectangle
 		int getLeft();
 		int getRight();

@@ -39,6 +39,8 @@ void logoApp::keyPressed(int key){
 	}
 }
 
+/* Obsolete commands
+
 //--------------------------------------------------------------
 void logoApp::keyReleased(int key){
 
@@ -78,3 +80,4 @@ void logoApp::gotMessage(ofMessage msg){
 void logoApp::dragEvent(ofDragInfo dragInfo){ 
 
 }
+*/

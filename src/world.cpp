@@ -42,6 +42,18 @@ void World::setup(char *filename) {
 		cout << "Corrupted config file." << endl;
 		exit(1);
 	}
+	
+	string tmpString;
+	
+	setupFile >> tmpString;
+	if(tmpString == "TRANSFORM") {
+		mode = TRANSFORM;
+	} else if (tmpString == "ESCAPE") {
+		mode = ESCAPE;
+	} else {
+		mode = NORMAL;
+	}
+	
 	setupFile >> width >> height >> depth;
 	setupFile >> origin.x >> origin.y >> origin.z;
 	setupFile >> frameTime;
@@ -67,6 +79,11 @@ int World::getDepth() {
 int World::getFrameTime() {
 	return frameTime;
 }
+
+Mode World::getMode() {
+	return mode;
+}
+
 
 gridPoint World::getOrigin() {
 	return origin;

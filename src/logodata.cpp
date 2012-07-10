@@ -1,5 +1,5 @@
-#include "LogoData.h"
+#include "logodata.h"
 
-LogoData::LogoData(const string& value) : stringData(value) {}
+//LogoData::LogoData(const string& value) : stringData(value) {}
 
 
