@@ -31,10 +31,10 @@ private:
     void randomMoves();
     bool isData();
     LogoData getData();
-    LogoData runFunction(string name, vector<LogoData> parameters = vector<LogoData>(), bool setParameters = false);
-    LogoData runMyFunction(string name, int &fisrtToken, vector<LogoData> parameters = vector<LogoData>());
-    void executeLast(vector<LogoData> &values, vector<string> &stack, vector<int> valuesNeeded, vector<int> valuesAvailable);
-    void initiateParameters(int &FirstToken, vector<LogoData> parameters);
+    LogoData runFunction(int firstToken, int lastToken, vector<LogoData> parameters = vector<LogoData>(), bool setParameters = false);
+    LogoData runMyFunction(string name, vector<LogoData> parameters, int &iterator);
+    void executeLast(vector<LogoData> &values, vector<string> &stack, vector<int> valuesNeeded, vector<int> valuesAvailable, int &iterator);
+    void initiateParameters(int &firstToken, vector<LogoData> parameters);
     
     vector<map<string, LogoData> > variables;
     set<string> operators;

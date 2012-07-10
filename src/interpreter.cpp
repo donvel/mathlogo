@@ -94,7 +94,8 @@ void Interpreter::execute() {
 	if(script.empty()) {
 		thread interpreterThread(&Interpreter::randomMoves, this); // start the app	
 	} else {
-		thread interpreterThread(&Interpreter::runFunction, this, "main"); // start the app	
+		pair<int, int> mainFrame = functionFrames["main"];
+		thread interpreterThread(&Interpreter::runFunction, this, mainFrame.first, mainFrame.second); // start the app	
 	}
 }
 
@@ -145,13 +146,19 @@ LogoData executeOperator(string oper, LogoData a, LogoData b) {
 	if(oper == "=") return LogoData(a == b);
 }
 
-void Interpreter::executeLast(vector<LogoData> &values, vector<string> &stack, vector<int> valuesNeeded, vector<int> valuesAvailable) {
+void Interpreter::executeLast(vector<LogoData> &values, vector<string> &stack, 
+		vector<int> valuesNeeded, vector<int> valuesAvailable, int &iterator) {
+	
 	if(functions.find(stack.back()) != functions.end()) {
 		int numArgs = valuesNeeded.back();
 		vector<LogoData> args(numArgs);
-		copy(values.begin() + (values.size() - numArgs), values.end(), args.begin);
+		copy(values.begin() + (values.size() - numArgs), values.end(), args.begin());
 		values.resize(values.begin() + (values.size() - numArgs));
-		values.push_back(runFunction(stack.end(), args));
+		if(myFunctions.find(stack.end()) != myFunctions.end()) {
+			values.push_back(runMyFunction(stack.end(), args, iterator));
+		} else {
+			values.push_back(runFunction(stack.end(), args));
+		}
 		stack.pop_back();
 		valuesAvailable.pop_back();
 		valuesAvailable.back()++;
@@ -180,31 +187,42 @@ void Interpreter::initiateParameters(int &firstToken, vector<LogoData> parameter
 	}
 }
 
-LogoData Interpreter::runMyFunction(string name, int &fisrtToken, vector<LogoData> parametres) {
+LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, int &iterator) {
+	string name = script[namePos];
 	if(name == "print") {
-		cout << parametres[0].toString() << endl;
+		cout << parameters[0].toString() << endl;
 	} else if(name == "make") {
-		variables.back()[parametres[0].toString()] = parametres[1];
+		variables.back()[parameters[0].toString()] = parameters[1];
 	} else if(name == "forward") {
-		World::instance()->forward(parametres[0].toDouble());
+		World::instance()->forward(parameters[0].toDouble());
 	} else if(name == "right") {
-		World::instance()->rotate(parametres[0].toDouble());
+		World::instance()->rotate(parameters[0].toDouble());
 	} else if(name == "left") {
-		World::instance()->rotate(parametres[0].toDouble());
+		World::instance()->rotate(parameters[0].toDouble());
 	} else if(name == "ifelse") {
-		if(parameters[0].toBoolean) {
-			runScript();
+		if(parameters[0].toBoolean()) {
+			pair<int, int> frame= blockFrames[make_pair(namePos, 0)];
+			runFunction(frame.first, frame.second);
 		} else {
-			
+			pair<int, int> frame= blockFrames[make_pair(namePos, 1)];
+			runFunction(frame.first, frame.second);
+		}
+		iterator = blockFrames[make_pair(namePos, 1)].second + 1;
+	} else if(name == "while") {
+		if(parameters[0].toBoolean()) {
+			pair<int, int> frame= blockFrames[make_pair(namePos, 0)];
+			runFunction(frame.first, frame.second);
+			iterator = namePos;
+		} else {
+			iterator = blockFrames[make_pair(namePos, 1)].second();
 		}
 	}
 	return LogoData("");
 }
 
-LogoData Interpreter::runFunction(string name, vector<LogoData> parameters, bool setParameters) {
-	if(myFunctions.find(name) != myFunctions.end()) return runMyFunction(name, parameters);
-	
-	int firstToken = functionFrames[name], lastToken = functionFrames[name];
+LogoData Interpreter::runFunction(int firstToken, int lastToken, vector<LogoData> parameters, bool setParameters) {
+//	if(myFunctions.find(name) != myFunctions.end()) return runMyFunction(name, firstToken, parameters);
+//	int lastToken = functionFrames[name].second;
 	
 	if(setParameters) initiateParameters(firstToken, parameters);
 	
@@ -214,39 +232,45 @@ LogoData Interpreter::runFunction(string name, vector<LogoData> parameters, bool
 	valuesAvailable.push_back(0); // guardian
 	
 	vector<LogoData> values;
-	vector<string> stack;
+	vector<int> stack; // Keeps function / operator names
 	
 	cout << "Running script file." << endl;
 	
-	for(vector<string>::iterator it = script.begin() + firstToken; it != script.begin() + lastToken; it++) {
-		cout << *it << endl;
+//	for(vector<string>::iterator it = script.begin() + firstToken; it != script.begin() + lastToken; it++) {
+	for(int iterator = firstToken; iterator <= lastToken; iterator++) {
+//		vector<string>::iterator it = script.begin() + iterator;
+		string token = script[iterator];
 		
-		while(valuesAvailable.back() > 0 && valuesAvailable.back() == valuesNeeded.back() && operators.find(*it) == operators.end()) {
-			executeLast(values, stack, valuesNeeded, valuesAvailable);
+		while(valuesAvailable.back() > 0 && valuesAvailable.back() == valuesNeeded.back() && operators.find(token) == operators.end()) {
+			executeLast(values, stack, valuesNeeded, valuesAvailable, iterator);
 		}
-		if(functions.find(*it) != functions.end()) {
-			stack.push_back(*it);
+		token = script[iterator];
+		
+		if(functions.find(token) != functions.end()) {
+			stack.push_back(iterator);
 			valuesAvailable.push_back(0);
-			valuesNeeded.push_back(functions[*it]);
-		} else if(isData(*it)) {
-			values.push_back(getData(*it));
+			valuesNeeded.push_back(functions[token]);
+		} else if(isData(token)) {
+			values.push_back(getData(token));
 			valuesAvailable.back++;
-		} else if(operators.find(*it) != operators.end()) {
-			while(!stack.empty() && operators.find(*it) != operators.end() && precedence[*it] <= precedence[stack.front()]) {
-				executeLast();
+		} else if(operators.find(token) != operators.end()) {
+			while(!stack.empty() && operators.find(token) != operators.end() && precedence[token] <= precedence[stack.front()]) {
+				executeLast(values, stack, valuesNeeded, valuesAvailable, iterator);
 			}
-		} else if(*it == "(") {
-			stack.push_back(*it);
-		} else if(*it == ")") {
-			while(stack.back() != "(") {
-				executeLast();
+			stack.push_back(iterator);
+			
+		} else if(token == "(") {
+			stack.push_back(iterator);
+		} else if(token == ")") {
+			while(script[stack.back()] != "(") {
+				executeLast(values, stack, valuesNeeded, valuesAvailable, iterator);
 			}
 			stack.pop_back();
 		}
 	}
 	
 	while(valuesAvailable.back() > 0 && valuesAvailable.back() == valuesNeeded.back()) {
-		executeLast(values, stack, valuesNeeded, valuesAvailable);
+		executeLast(values, stack, valuesNeeded, valuesAvailable, iterator);
 	}
 	return values[0];
 }
