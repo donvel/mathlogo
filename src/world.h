@@ -66,6 +66,11 @@ class World {
 		void rotate(long double angle);
 		void forward(long double distance);
 		void toggleTurtle();
+		void penUp();
+		void penDown();
+		void setPenColor(int hex);
+		void clear();
+		
 		
 		// Transform handling
 		void setMobius(comp a, comp b, comp c, comp d);

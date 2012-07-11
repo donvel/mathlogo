@@ -66,7 +66,7 @@ void Interpreter::parseScriptFile() {
 		useBareCommands = true;
 		while(!scriptFile.eof()) {
 			scriptFile >> token;
-			cout << "token = " << token << endl;
+//			cout << "token = " << token << endl;
 			script.push_back(token);
 		}
 	} else {
@@ -110,7 +110,7 @@ void Interpreter::runCommands() {
 	while(iterator < (int)script.size()) {
 		this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
 		if(!running) continue;
-		cout << script[iterator] << endl;
+//		cout << script[iterator] << endl;
 		if(script[iterator] == "FORWARD") {
 			World::instance()->forward(strtod(script[++iterator].c_str(), NULL));
 		} else if(script[iterator] == "LEFT") {
@@ -127,6 +127,14 @@ void Interpreter::runCommands() {
 			}
 
 			World::instance()->setMobius(args[0], args[1], args[2], args[3]);
+		} else if(script[iterator] == "PENUP") {
+			World::instance()->penUp();
+		} else if(script[iterator] == "PENDOWN") {
+			World::instance()->penDown();
+		} else if(script[iterator] == "CLEAR") {
+			World::instance()->clear();
+		} else if(script[iterator] == "PENCOLOR") {
+			World::instance()->setPenColor(strtol(script[++iterator].c_str(), NULL, 10));
 		} else { 
 			cout << "Unknown command" << endl;
 			toggleRunning();

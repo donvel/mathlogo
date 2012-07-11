@@ -126,6 +126,31 @@ bool World::outside(gridPoint p) {
 	return p.y < getBottom() || p.y >= getTop() || p.x < getLeft() || p.x >= getRight();
 }
 
+bool World::crop(segment& seg) {
+	if(outside(seg.a) && outside(seg.b)) return false;
+	if(!outside(seg.a) && !outside(seg.b)) return true;
+	if(!outside(seg.a)) {
+		point tmp = seg.a;
+		seg.a = seg.b;
+		seg.b = tmp;
+	}
+	point corners[4];
+	corners[0] = point(getTop(), getRight());
+	corners[1] = point(getBottom(), getRight());
+	corners[2] = point(getBottom(), getLeft());
+	corners[3] = point(getTop(), getLeft());
+	
+	for(int i = 0; i < 4; i++) {
+		point tmp;
+		if (intersect(seg, segment(corners[i], corners[(i + 1) % 4]), tmp)) {
+			seg.a = tmp;
+		}
+	}
+	return true;
+}
+
+//---- TURTLE handling ------------------------------//
+
 void World::updateTurtle(int id, pair<point, vect> coords) {
 	if(turtle[id].isPenDown && !(coords.first == turtle[id].position)) {
 		trace[id].push_back(segment(turtle[id].position, coords.first, turtle[id].penColor));
@@ -140,6 +165,26 @@ void World::toggleTurtle() {
 	activeTurtle = !activeTurtle; // 0 = !1, 1 = !0
 }
 
+void World::clear() {
+	for(int i = 0; i < 2; i++) {
+		trans[i] = transformation();
+		trace[i].clear();
+		turtle[i] = Turtle();
+	}
+}
+
+void World::penDown() {
+	turtle[activeTurtle].isPenDown= true;
+}
+
+void World::penUp() {
+	turtle[activeTurtle].isPenDown= false;
+}
+
+void World::setPenColor(int hex) {
+	turtle[activeTurtle].penColor = ofColor(hex);
+}
+
 void World::rotate(long double angle) {// in degrees
 	updateTurtle(activeTurtle, make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction.rotated(angle)));	
 	if(mode == TRANSFORM) {
@@ -147,7 +192,6 @@ void World::rotate(long double angle) {// in degrees
 			trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction)));	
 	}
 }
-
 
 void World::forward(long double distance) {
 
@@ -206,29 +250,7 @@ void World::setMobius(comp a, comp b, comp c, comp d) {
 	trace[!activeTurtle].clear();
 	for(vector<segment>::iterator it = trace[activeTurtle].begin(); it < trace[activeTurtle].end(); it++) {
 		trace[!activeTurtle].push_back(segment(trans[activeTurtle].setPos(it->a), 
-				trans[activeTurtle].setPos(it->b)));
+				trans[activeTurtle].setPos(it->b), it->color));
 	}
 }
 
-bool World::crop(segment& seg) {
-	if(outside(seg.a) && outside(seg.b)) return false;
-	if(!outside(seg.a) && !outside(seg.b)) return true;
-	if(!outside(seg.a)) {
-		point tmp = seg.a;
-		seg.a = seg.b;
-		seg.b = tmp;
-	}
-	point corners[4];
-	corners[0] = point(getTop(), getRight());
-	corners[1] = point(getBottom(), getRight());
-	corners[2] = point(getBottom(), getLeft());
-	corners[3] = point(getTop(), getLeft());
-	
-	for(int i = 0; i < 4; i++) {
-		point tmp;
-		if (intersect(seg, segment(corners[i], corners[(i + 1) % 4]), tmp)) {
-			seg.a = tmp;
-		}
-	}
-	return true;
-}
