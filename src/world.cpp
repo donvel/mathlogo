@@ -127,12 +127,17 @@ bool World::outside(gridPoint p) {
 }
 
 void World::updateTurtle(int id, pair<point, vect> coords) {
-	if(turtle[id].isPenDown) {
+	if(turtle[id].isPenDown && !(coords.first == turtle[id].position)) {
 		trace[id].push_back(segment(turtle[id].position, coords.first, turtle[id].penColor));
+		cout << trace[id].size() << endl;
 	}
 	turtle[id].position = coords.first;
 	turtle[id].direction = coords.second;
-	cout << turtle[id].position.x << " " << turtle[id].position.y << " " << turtle[id].direction.x << " " << turtle[id].direction.y << endl;
+	//cout << turtle[id].position.x << " " << turtle[id].position.y << " " << turtle[id].direction.x << " " << turtle[id].direction.y << endl;
+}
+
+void World::toggleTurtle() {
+	activeTurtle = !activeTurtle; // 0 = !1, 1 = !0
 }
 
 void World::rotate(long double angle) {// in degrees
@@ -151,7 +156,7 @@ void World::forward(long double distance) {
     point newPosition2 = trans[activeTurtle].setCoords(make_pair(newPosition, vect())).first;
 //    cout << "Turtle position: " << newPosition.x << " " << newPosition.y << endl;
     
-	if(outside(gridPoint(newPosition))  || outside(newPosition2)) {
+	if(outside(newPosition) && outside(newPosition2)) { // It is enough when one turtle is inside viewport
 		return;
 		// This can be done in a better way better, e. g. by finding the intersection of the (position, newPosition) segment with the world borders
 		// The problem is that I don't know what those borders shall eventually look like (it may be even a 3D mesh), so for now I leave this solution	
@@ -185,4 +190,44 @@ vector<point> World::getTurtleShape(int id) {
 	}
 
 	return res;
+}
+
+void World::setMobius(comp a, comp b, comp c, comp d) {
+	if(a * d - b * c == 0) {
+		cout << "a * d - b * c == 0" << endl;
+		return;
+	}
+	if(outside(turtle[activeTurtle].position)) {
+		cout << "Active turtle outside viewport" << endl;
+		return;
+	}
+	trans[activeTurtle].setValues(a, b, c, d);
+	trans[!activeTurtle].setValues(-d, b, c, -a);
+	trace[!activeTurtle].clear();
+	for(vector<segment>::iterator it = trace[activeTurtle].begin(); it < trace[activeTurtle].end(); it++) {
+		trace[!activeTurtle].push_back(segment(trans[activeTurtle].setPos(it->a), 
+				trans[activeTurtle].setPos(it->b)));
+	}
+}
+
+bool World::crop(segment& seg) {
+	if(outside(seg.a) && outside(seg.b)) return false;
+	if(!outside(seg.a) && !outside(seg.b)) return true;
+	if(!outside(seg.a)) {
+		point tmp = seg.a;
+		seg.a = seg.b;
+		seg.b = tmp;
+	}
+	point corners[4];
+	corners[0] = point(getTop(), getRight());
+	corners[1] = point(getBottom(), getRight());
+	corners[2] = point(getBottom(), getLeft());
+	corners[3] = point(getTop(), getLeft());
+	
+	for(int i = 0; i < 4; i++) {
+		point tmp;
+		if (intersect(seg, segment(corners[i], corners[(i + 1) % 4]), tmp)) {
+			seg.a = tmp;
+		}
+	}
 }

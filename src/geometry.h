@@ -45,7 +45,7 @@ struct voxel {
 struct segment {
 	point a, b;
 	ofColor color;
-	segment(point _a, point _b, ofColor _color);
+	segment(point _a, point _b, ofColor _color = ofColor(0));
 };
 
 struct gridPoint {
@@ -56,3 +56,4 @@ struct gridPoint {
 };
 
 long double dist(point, point);
+bool intersect(segment a, segment b, point &p);

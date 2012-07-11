@@ -108,3 +108,20 @@ long double dist(point p1, point p2) {
 	v3 = v1 + (-v2);
 	return v3.length();
 }
+
+long double crossProductThreePoints(point a, point b, point c) {
+	return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
+}
+
+bool intersect(segment s1, segment s2, point &p) {
+	long double c1 = crossProductThreePoints(s1.a, s1.b, s2.a);
+	long double c2 = crossProductThreePoints(s1.a, s1.b, s2.b);
+	if(c1 * c2 >= 0) return false;
+	long double c3 = crossProductThreePoints(s2.a, s2.b, s1.a);
+	long double c4 = crossProductThreePoints(s2.a, s1.b, s1.b);
+	if(c3 * c4 >= 0) return false;
+	// Now we know that s1 and s2 intersect
+	
+	
+	return true;
+}

@@ -40,12 +40,23 @@ void logoApp::draw(){
 		vector<segment> trace = World::instance()->getTrace(i);
 		for(int j = 0; j < (int)trace.size(); j++) {
 			ofSetColor(trace[j].color);
-			ofLine(trace[j].a.x + ori.x, trace[j].a.y + ori.y, trace[j].b.x + ori.x, trace[j].b.y + ori.y);
+			ofLine();
+			segment cSeg = trace[j];
+			if(World::instance()->crop(cSeg)) {
+				ofLine(cSeg.a.x + ori.x, cSeg.a.y + ori.y, cSeg.b.x + ori.x, cSeg.b.y + ori.y);
+			}
 		}
 		vector<point> turtleShape = World::instance()->getTurtleShape(i);	
 		ofSetColor(0, 0, 0);
-
-		ofTriangle(turtleShape[0].x, turtleShape[0].y, turtleShape[1].x, turtleShape[1].y, turtleShape[2].x, turtleShape[2].y);
+		segment turtleSide;
+		for(int j = 0; j < 3; j++) {
+			turtleSide = segment(turtleShape[j], turtleShape[(j + 1) % 3]);
+			if(World::instance()->crop(turtleSide)) {
+				ofLine(turtleSide.a.x + ori.x, turtleSide.a.y + ori.y, turtleSide.b.x + ori.x, turtleSide.b.y + ori.y);
+			}
+		}
+		
+//		ofTriangle(turtleShape[0].x, turtleShape[0].y, turtleShape[1].x, turtleShape[1].y, turtleShape[2].x, turtleShape[2].y);
 //		fbo.end();
 //		fbo.draw(i * World::instance()->getWidth(), 0);
 	}

@@ -4,9 +4,14 @@
 
 using namespace std;
 
+typedef complex<long double> comp;
+
 struct transformation {
-	//complex<long double> a, b, c, d; // f(z) = (az + b) / (cz + d)
+	comp a, b, c, d; // f(z) = (az + b) / (cz + d)
+	transformation();
 	pair<point, vect> setCoords(pair<point, vect> coords);
+	point setPos(point pos);
+	void setValues(comp _a, comp _b, comp _c, comp _d); 
 };
 
 

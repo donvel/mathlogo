@@ -53,8 +53,11 @@ class World {
 		gridPoint getOrigin(int id);
 //		voxel* getVoxel(gridPoint gp);
 
+		/// Graphics handling
+		
 		ofColor getBackgroundColor();
 		vector<point> getTurtleShape(int id);
+		bool crop(segment &seg);
 
 		static World* instance();
 
@@ -62,5 +65,9 @@ class World {
 		void updateTurtle(int id, pair<point, vect> coords);
 		void rotate(long double angle);
 		void forward(long double distance);
+		void toggleTurtle();
+		
+		// Transform handling
+		void setMobius(comp a, comp b, comp c, comp d);
 
 };
