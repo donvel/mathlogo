@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cassert>
 
 #include "ofMain.h"
 /* Open Frameworks supplies its own geometry primitives. Maybe they should replace "geometry.h"
@@ -18,7 +19,6 @@ struct point {
 	point(const gridPoint&);
 	bool operator==(const point&);
 	void operator+=(const vect&);	
-//	virtual point operator+(const vect&) const;
 	point translated(const vect&);	
 };
 
@@ -33,6 +33,7 @@ struct vect : point { // vector == std::vector, so it is better to use another n
 	vect rotated(long double angle); // in degrees
 };
 
+const static point pointInInfinity(1000000.0, 1000000.0); // Maybe not in infinity, but at least outside the viewport
 const static vect vec0 = vect(point(0.0, 0.0, 0.0));
 		
 struct voxel {

@@ -13,7 +13,7 @@
 
 #include "world.h"
 #include "logodata.h"
-#include <ofMain.h>
+#include "ofMain.h"
 
 using namespace std;
 
@@ -26,7 +26,6 @@ private:
 	bool useBareCommands;
     fstream scriptFile;
     vector<string> script;
-    
    
     void parseScriptFile();
     void randomMoves();
@@ -50,11 +49,10 @@ private:
 //    map<pair<int, int>, pair<int, int> > blockFrames;
     
    
-
 public:
+	static Interpreter* instance();
     void loadScript(char* filename);
     void execute();
-    static Interpreter* instance();
     void toggleRunning();
 
 };

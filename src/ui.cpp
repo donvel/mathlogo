@@ -3,7 +3,6 @@
 //--------------------------------------------------------------
 void logoApp::setup(){
 	ofBackground(World::instance()->getBackgroundColor());
-//	fbo.allocate(World::instance()->getWidth(), World::instance()->getHeight(), GL_RGB);
 }
 
 //--------------------------------------------------------------
@@ -13,54 +12,41 @@ void logoApp::update(){
 
 //--------------------------------------------------------------
 void logoApp::draw(){
-//	// Works only when the world is a plane <=> its depth == 1
-//	gridPoint ori = World::instance()->getOrigin();
-//	for(int x = 0; x < World::instance()->getWidth(); x++) {
-//		for(int y = 0; y < World::instance()->getHeight(); y++) {
-//			gridPoint gp(x - ori.x, y - ori.y, 0);
-//			ofSetColor(World::instance()->getVoxel(gp)->color);
-//			ofCircle(x, y, 1);
-//		}
-//	}
-//	vector<point> turtleShape = World::instance()->getTurtleShape();	
-//	ofSetColor(0, 0, 0);
-//	ofTriangle(turtleShape[0].x, turtleShape[0].y, turtleShape[1].x, turtleShape[1].y, turtleShape[2].x, turtleShape[2].y);
-	
 	int numVieports = 1;
 	ofBackground(World::instance()->getBackgroundColor());
-	if(World::instance()->getMode() == TRANSFORM) {
+	if(World::instance()->getMode() == TRANSFORM) {// In this mode we have two viewports
 		numVieports = 2;
 		ofLine(World::instance()->getWidth(), 0, World::instance()->getWidth(), World::instance()->getHeight());
+		//Draws a line separating the two viewports
 	}
-	for(int i = 0; i < numVieports; i++) {
-//		fbo.begin();
-
+	
+	for(int i = 0; i < numVieports; i++) { // NOTE: this procedure is in fact quite slow, 
+		//because for every frame it redraws entire turtle trace
+		//it could be modified as to draw only new segments
+		//however so far it is enough fast
 		gridPoint ori = World::instance()->getOrigin(i);
-//		cout << ori.x << " " << ori.y << endl;
+		//We need to know the relative position of the origin, so 'Turtle coordinates' may be translated into OF coordinates
 		vector<segment> trace = World::instance()->getTrace(i);
+		//Entire turtle trace
 		for(int j = 0; j < (int)trace.size(); j++) {
 			ofSetColor(trace[j].color);
+			// different parts may have different colors
 			segment cSeg = trace[j];
-			if(World::instance()->crop(cSeg)) {
+			if(World::instance()->crop(cSeg)) {// Draw only the part of the segment which is visible in the viewport
 				ofLine(cSeg.a.x + ori.x, cSeg.a.y + ori.y, cSeg.b.x + ori.x, cSeg.b.y + ori.y);
 			}
 		}
+		//We get three points which define the turtle's triangular shape
 		vector<point> turtleShape = World::instance()->getTurtleShape(i);	
-		ofSetColor(0, 0, 0);
+		ofSetColor(0, 0, 0); // Let the turtle be always black
 		segment turtleSide;
 		for(int j = 0; j < 3; j++) {
 			turtleSide = segment(turtleShape[j], turtleShape[(j + 1) % 3]);
-			if(World::instance()->crop(turtleSide)) {
-//				cout << "Drawing line" << endl;
+			if(World::instance()->crop(turtleSide)) {// Draw only the part of the side which is visible in the viewport
 				ofLine(turtleSide.a.x + ori.x, turtleSide.a.y + ori.y, turtleSide.b.x + ori.x, turtleSide.b.y + ori.y);
 			}
 		}
-		
-//		ofTriangle(turtleShape[0].x, turtleShape[0].y, turtleShape[1].x, turtleShape[1].y, turtleShape[2].x, turtleShape[2].y);
-//		fbo.end();
-//		fbo.draw(i * World::instance()->getWidth(), 0);
 	}
-	
 }
 
 //--------------------------------------------------------------
@@ -70,7 +56,7 @@ void logoApp::keyPressed(int key){
 		Interpreter::instance()->toggleRunning();
 	} else if(key == 'q') {
 		cout << "\"q\" pressed" << endl;
-		ofExit(0); // This doesn't work yet.
+		ofExit(0); // exit entire program
 	}
 }
 

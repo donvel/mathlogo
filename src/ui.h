@@ -17,7 +17,6 @@ class logoApp : public ofBaseApp{
 		void draw();
 		
 		void keyPressed(int key);
-		ofFbo fbo;
 		/*Obsolete commands*/
 //		void keyReleased(int key);
 //		void mouseMoved(int x, int y);

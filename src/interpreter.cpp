@@ -58,11 +58,11 @@ void Interpreter::loadScript(char *filename) {
 
 void Interpreter::parseScriptFile() {
 	string token, waitingFunction;
-	vector<pair<int, int> > waitingKeywords;
+	vector<pair<int, int> > waitingKeywords; //some of these variables are not in use yet
 	string type;
 	scriptFile >> type;
 	
-	if(type == "COMMANDS") {
+	if(type == "COMMANDS") { // This means that the file conatains only basic commands
 		useBareCommands = true;
 		while(!scriptFile.eof()) {
 			scriptFile >> token;
@@ -101,58 +101,73 @@ void Interpreter::parseScriptFile() {
 				}
 			}
 		}*/
+		// TODO
 	}
-	script.pop_back(); // Reads last token twice, so we want to get rid of the duplicate.
+	script.pop_back(); // Reads last token twice (I don't know why), so we want to get rid of the duplicate.
 }
 
 void Interpreter::runCommands() {
 	int iterator = 0;
 	while(iterator < (int)script.size()) {
 		this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
+		//Turtle may stop after executing every command, so we can see it moving. 
+		//Alternatively, it could pause after each 1 px movement
 		if(!running) continue;
-//		cout << script[iterator] << endl;
+		//This makes the turtle inactive when interpreter is not running
+		
+		// A long list of commands, maybe there is a mor elegant way of implementing it
 		if(script[iterator] == "FORWARD") {
 			World::instance()->forward(strtod(script[++iterator].c_str(), NULL));
+			
 		} else if(script[iterator] == "LEFT") {
 			World::instance()->rotate(strtod(script[++iterator].c_str(), NULL));
+			
 		} else if(script[iterator] == "RIGHT") {
 			World::instance()->rotate(-strtod(script[++iterator].c_str(), NULL));
+			
 		} else if(script[iterator] == "TOGGLE") {
 			World::instance()->toggleTurtle();
+			
 		} else if(script[iterator] == "MOBIUS") {
 			comp args[4];
 			for (int j = 0; j < 4; j++) {
 				args[j].real(strtod(script[++iterator].c_str(), NULL));
 				args[j].imag(strtod(script[++iterator].c_str(), NULL));
 			}
-
 			World::instance()->setMobius(args[0], args[1], args[2], args[3]);
+			
 		} else if(script[iterator] == "PENUP") {
 			World::instance()->penUp();
+			
 		} else if(script[iterator] == "PENDOWN") {
 			World::instance()->penDown();
+			
 		} else if(script[iterator] == "CLEAR") {
 			World::instance()->clear();
+			
 		} else if(script[iterator] == "PENCOLOR") {
 			World::instance()->setPenColor(strtol(script[++iterator].c_str(), NULL, 10));
+			
 		} else { 
 			cout << "Unknown command" << endl;
-			toggleRunning();
+			toggleRunning(); // Switch off the intepreter
 		}
 		iterator++;
 	}
 	cout << "End of commands" << endl;
+//	randomMoves(); We may want the turtle to move randomly, when we have no further ideas for commands
 }
 
 void Interpreter::execute() {
 	if(script.empty()) {
-		thread interpreterThread(&Interpreter::randomMoves, this); // start the app	
+		thread interpreterThread(&Interpreter::randomMoves, this); // start it in separate thread
+		//actually it should accept input from the console
 	} else {
 		if(useBareCommands) {
 			thread interpreterThread(&Interpreter::runCommands, this);
 		} else {
 //			pair<int, int> mainFrame = functionFrames["main"];
-//			thread interpreterThread(&Interpreter::runFunction, this, mainFrame.first, mainFrame.second); // start the app	
+//			thread interpreterThread(&Interpreter::runFunction, this, mainFrame.first, mainFrame.second); // TODO
 		}
 	}
 }
@@ -163,7 +178,7 @@ void Interpreter::randomMoves() {
 		this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
 		if(!running) continue;
 		World::instance()->forward(rand() % 3);
-		World::instance()->rotate(rand() % 6 - 3);
+		World::instance()->rotate(rand() % 6 - 3); // possible values: -3, ... 2 , so generally turns to one side
 	}
 }
 
@@ -172,7 +187,7 @@ void Interpreter::toggleRunning() {
 	cout << "State changed, running = " << (int)running << endl;
 }
 
-//
+// -------------------TODO----------------------------------//
 //bool Interpreter::isData(string token) {
 //	return ((token[0] >= '0' && token[0] <= '9') || token[0] == '-' || token[0] == "\"" || token[0] == ":");
 //}

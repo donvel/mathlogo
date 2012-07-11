@@ -8,7 +8,8 @@ point::point(long double _x, long double _y, long double _z) : x(_x), y(_y), z(_
 point::point(const gridPoint& gp) : x(gp.x), y(gp.y), z(gp.z) {}
 
 bool point::operator==(const point& p) {
-	return abs(x - p.x) < EPS && abs(y - p.y) < EPS && abs(z - p.z) < EPS;
+	return abs(x - p.x) < EPS && abs(y - p.y) < EPS && abs(z - p.z) < EPS; // two points are considered equal
+	// when they are very close to each other
 }
 
 void point::operator+= (const vect& v) {
@@ -59,7 +60,7 @@ long double vect::length() {
 	return sqrt(x * x + y * y + z * z);
 }
 
-void vect::normalize() {
+void vect::normalize() {// makes this->length 1
 	if(*this == vec0) return;
 	long double myLength = length(); // this != vec0 ==> myLength != 0
 	x /= myLength;
@@ -75,7 +76,7 @@ vect vect::rotated(long double angle) {
 	/*
 	 * x' = x cos phi - y sin phi
 	 * y' = x sin phi + y cos phi
-	 * It works only when the turtle is ona a plane, i. e. zDirection = [0, 0, 1]
+	 * It works only when the turtle is on a plane, i. e. zDirection = [0, 0, 1]
 	 */
 	return res;
 }
@@ -114,7 +115,8 @@ long double crossProductThreePoints(point a, point b, point c) {
 	return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 }
 
-bool intersect(segment s1, segment s2, point &p) {
+bool intersect(segment s1, segment s2, point &p) {// function returns true if s1 and s2 intersect
+	//and sets p as the intersection point
 	long double c1 = crossProductThreePoints(s1.a, s1.b, s2.a);
 	long double c2 = crossProductThreePoints(s1.a, s1.b, s2.b);
 	if(c1 * c2 >= 0) return false;
@@ -123,18 +125,21 @@ bool intersect(segment s1, segment s2, point &p) {
 	if(c3 * c4 >= 0) return false;
 	// Now we know that s1 and s2 intersect
 	
+	//Code adapted from "Algorytmika praktyczna" by Piotr Stanczyk
 	point p1 = s1.a, p2 = s1.b, l1 = s2.a, l2 = s2.b;
 	//(l2 -> p2) x (l1 -> l2)
 	long double s = (l2.x - p2.x) * (l1.y - l2.y) - (l2.y - p2.y) * (l1.x - l2.x);
 	//(p1 -> p2) x (l1 -> l2)
 	long double t = (p1.x - p2.x) * (l1.y - l2.y) - (p1.y - p2.y) * (l1.x - l2.x);
 	
-	if(t == 0) {
-		cout << "t == 0, and this shoulnd't have happened..." << endl;
+	assert(t != 0);
+	if(t == 0) {// double assertion, but I am not sure which one I should use
+		cout << "t == 0, and this shouldn't have happened..." << endl;
 		return false;
 	}
 	long double w = s / t;
 	
+	assert(w > 0 && w < 1);
 	if(w <= 0 || w >= 1) {
 		cout << "w not in (0, 1)" << endl;
 		return false;
@@ -143,7 +148,7 @@ bool intersect(segment s1, segment s2, point &p) {
 	p.x = p1.x * w + p2.x * (1 - w);
 	p.y = p1.y * w + p2.y * (1 - w);
 	
-	cout << "Cross point: " << p.x << " " << p.y << endl;
+//	cout << "Intersection point: " << p.x << " " << p.y << endl;
 	
 	return true;
 }
