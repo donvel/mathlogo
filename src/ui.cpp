@@ -40,7 +40,6 @@ void logoApp::draw(){
 		vector<segment> trace = World::instance()->getTrace(i);
 		for(int j = 0; j < (int)trace.size(); j++) {
 			ofSetColor(trace[j].color);
-			ofLine();
 			segment cSeg = trace[j];
 			if(World::instance()->crop(cSeg)) {
 				ofLine(cSeg.a.x + ori.x, cSeg.a.y + ori.y, cSeg.b.x + ori.x, cSeg.b.y + ori.y);
@@ -52,6 +51,7 @@ void logoApp::draw(){
 		for(int j = 0; j < 3; j++) {
 			turtleSide = segment(turtleShape[j], turtleShape[(j + 1) % 3]);
 			if(World::instance()->crop(turtleSide)) {
+//				cout << "Drawing line" << endl;
 				ofLine(turtleSide.a.x + ori.x, turtleSide.a.y + ori.y, turtleSide.b.x + ori.x, turtleSide.b.y + ori.y);
 			}
 		}

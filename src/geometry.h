@@ -45,6 +45,7 @@ struct voxel {
 struct segment {
 	point a, b;
 	ofColor color;
+	segment();
 	segment(point _a, point _b, ofColor _color = ofColor(0));
 };
 

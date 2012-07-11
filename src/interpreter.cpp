@@ -119,8 +119,14 @@ void Interpreter::runCommands() {
 			World::instance()->rotate(-strtod(script[++iterator].c_str(), NULL));
 		} else if(script[iterator] == "TOGGLE") {
 			World::instance()->toggleTurtle();
-		} else if(script[iterator] == "MOBIUS") { 
-//			World
+		} else if(script[iterator] == "MOBIUS") {
+			comp args[4];
+			for (int j = 0; j < 4; j++) {
+				args[j].real(strtod(script[++iterator].c_str(), NULL));
+				args[j].imag(strtod(script[++iterator].c_str(), NULL));
+			}
+
+			World::instance()->setMobius(args[0], args[1], args[2], args[3]);
 		} else { 
 			cout << "Unknown command" << endl;
 			toggleRunning();

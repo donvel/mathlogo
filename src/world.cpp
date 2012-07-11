@@ -129,7 +129,7 @@ bool World::outside(gridPoint p) {
 void World::updateTurtle(int id, pair<point, vect> coords) {
 	if(turtle[id].isPenDown && !(coords.first == turtle[id].position)) {
 		trace[id].push_back(segment(turtle[id].position, coords.first, turtle[id].penColor));
-		cout << trace[id].size() << endl;
+//		cout << trace[id].size() << endl;
 	}
 	turtle[id].position = coords.first;
 	turtle[id].direction = coords.second;
@@ -185,15 +185,15 @@ vector<point> World::getTurtleShape(int id) {
 	res[0] = turtle[id].position.translated(turtle[id].direction * 30.0);
 	res[1] = turtle[id].position.translated(turtle[id].direction.rotated(90.0) * 10.0);
 	res[2] = turtle[id].position.translated(turtle[id].direction.rotated(-90.0) * 10.0);	
-	for (int i = 0; i < 3; i++) {
-		res[i] = res[i].translated((vect)(point)origin[id]);
-	}
+//	for (int i = 0; i < 3; i++) {
+//		res[i] = res[i].translated((vect)(point)origin[id]);
+//	}
 
 	return res;
 }
 
 void World::setMobius(comp a, comp b, comp c, comp d) {
-	if(a * d - b * c == 0) {
+	if(a * d - b * c == comp(0, 0)) {
 		cout << "a * d - b * c == 0" << endl;
 		return;
 	}
@@ -230,4 +230,5 @@ bool World::crop(segment& seg) {
 			seg.a = tmp;
 		}
 	}
+	return true;
 }

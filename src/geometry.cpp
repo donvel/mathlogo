@@ -94,6 +94,7 @@ void voxel::visit(bool changeColor, ofColor newColor) {
 //----------------SEGMENT----------------------------------------//
 
 segment::segment(point _a, point _b, ofColor _color) : a(_a), b(_b), color(_color) {}
+segment::segment() {}
 
 //----------------GRIDPOINT-----------------------------------------//
 
@@ -110,7 +111,7 @@ long double dist(point p1, point p2) {
 }
 
 long double crossProductThreePoints(point a, point b, point c) {
-	return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
+	return (b.x - a.x) * (c.y - a.y) - (b.y - a.y) * (c.x - a.x);
 }
 
 bool intersect(segment s1, segment s2, point &p) {
@@ -118,10 +119,31 @@ bool intersect(segment s1, segment s2, point &p) {
 	long double c2 = crossProductThreePoints(s1.a, s1.b, s2.b);
 	if(c1 * c2 >= 0) return false;
 	long double c3 = crossProductThreePoints(s2.a, s2.b, s1.a);
-	long double c4 = crossProductThreePoints(s2.a, s1.b, s1.b);
+	long double c4 = crossProductThreePoints(s2.a, s2.b, s1.b);
 	if(c3 * c4 >= 0) return false;
 	// Now we know that s1 and s2 intersect
 	
+	point p1 = s1.a, p2 = s1.b, l1 = s2.a, l2 = s2.b;
+	//(l2 -> p2) x (l1 -> l2)
+	long double s = (l2.x - p2.x) * (l1.y - l2.y) - (l2.y - p2.y) * (l1.x - l2.x);
+	//(p1 -> p2) x (l1 -> l2)
+	long double t = (p1.x - p2.x) * (l1.y - l2.y) - (p1.y - p2.y) * (l1.x - l2.x);
+	
+	if(t == 0) {
+		cout << "t == 0, and this shoulnd't have happened..." << endl;
+		return false;
+	}
+	long double w = s / t;
+	
+	if(w <= 0 || w >= 1) {
+		cout << "w not in (0, 1)" << endl;
+		return false;
+	}
+	
+	p.x = p1.x * w + p2.x * (1 - w);
+	p.y = p1.y * w + p2.y * (1 - w);
+	
+	cout << "Cross point: " << p.x << " " << p.y << endl;
 	
 	return true;
 }

@@ -38,7 +38,7 @@ pair<point, vect> transformation::setCoords(pair<point, vect> coords) {
 	
 	w -= z;
 	
-	vect ndir(w.real(), w.imag());
+	vect ndir(point(w.real(), w.imag()));
 	ndir.normalize();
 	
 	return make_pair(npos, ndir);
