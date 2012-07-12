@@ -48,8 +48,7 @@ private:
 	bool isOperator();
 	bool isBracket();
     LogoData getData();
-    LogoData runCode(string functionName, int firstToken, int lastToken, vector<LogoData> parameters = vector<LogoData>(), 
-		bool setParameters = false);
+    LogoData runCode(string functionName, int firstToken, int lastToken, vector<LogoData> parameters = vector<LogoData>());
     LogoData runMyFunction(string name, vector<LogoData> parameters, int &iterator);
 
     void executeLast(vector<LogoData> &values, vector<string> &stack, vector<int> valuesNeeded, 
