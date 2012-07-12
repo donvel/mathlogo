@@ -20,11 +20,12 @@ using namespace std;
 struct Function {
 	string name;
 	int argNum;
+	bool builtin;
 	vector<string> args;
 	vector<string> body;
-	bool builtin;
+
 	Function(int _argNum = 0, bool _builtin = true, vector<string> _args = vector<string>(), 
-		vector<string> _body = vector<string>()) {}
+		vector<string> _body = vector<string>());
 };
 
 class Interpreter {
@@ -44,15 +45,15 @@ private:
 	void lowerCase(string &token);
 	void extend(string &token);
 	
-    bool isData();
-	bool isOperator();
-	bool isBracket();
-    LogoData getData();
+    bool isData(string token);
+	bool isOperator(string token);
+	bool isBracket(string token);
+    LogoData getData(string token);
     LogoData runCode(string functionName, int firstToken, int lastToken, vector<LogoData> parameters = vector<LogoData>());
-    LogoData runMyFunction(string name, vector<LogoData> parameters, int &iterator);
+    LogoData runMyFunction(int namePos, vector<LogoData> parameters, string functionName, int &iterator);
 
-    void executeLast(vector<LogoData> &values, vector<string> &stack, vector<int> valuesNeeded, 
-		vector<int> valuesAvailable, int &iterator);
+    void executeLast(vector<LogoData> &values, vector<int> &stack, vector<int> &valuesNeeded, 
+		vector<int> &valuesAvailable, string functionName, int &iterator);
     void initiateParameters(int &firstToken, vector<LogoData> parameters);
 
     vector<map<string, LogoData> > variables;

@@ -1,27 +1,30 @@
 #pragma once
 #include <string>
+#include <cstdlib>
+#include <sstream>
+
+#include "geometry.h"
 
 using namespace std;
 
 class LogoData {
 public:
 	LogoData();
-	LogoData(const string& value);
-	~LogoData();
-	long double toDouble();
+	LogoData(const string& _value);
+	LogoData(double num);
+//	~LogoData();
+	double toDouble();
 	string toString();
 	bool toBoolean();
+	LogoData operator< (const LogoData &ld) const;
+	LogoData operator> (const LogoData &ld) const;
 	LogoData operator+ (const LogoData &ld) const;
 	LogoData operator- (const LogoData &ld) const;
 	LogoData operator* (const LogoData &ld) const;
 	LogoData operator/ (const LogoData &ld) const;
 	LogoData operator== (const LogoData &ld) const;
 private:
-    enum DataType {STRING, FLOAT, INTEGER, LIST, ARRAY};
-    DataType dataType;
-    string stringData;
-    long double floatData;
-    long long intData;
+    string value;
 };
 
 

@@ -23,6 +23,8 @@ Interpreter::Interpreter() : running(false) {
 	functions["setxy"] = Function(2);
 	
 	precedence["="] = 0;
+	precedence["<"] = 0;
+	precedence[">"] = 0;
 	precedence["+"] = 1;
 	precedence["-"] = 1;
 	precedence["*"] = 2;
@@ -73,16 +75,16 @@ void Interpreter::extend(string &token) {
 
 void Interpreter::parseScriptFile() {
 	string token, name;
-	int firstToken, lastToken;
+	int firstToken = 0, lastToken;
 	vector<string> args, body;
-	vector<pair<int, int> > waitingKeywords; //some of these variables are not in use yet
+	vector<pair<string, pair<int, int> > > waitingKeywords; //some of these variables are not in use yet
 	string type;
 	scriptFile >> type;
 	
 	while(!scriptFile.eof()) {
 		scriptFile >> token;
 
-		string firstCharacter(1);
+		string firstCharacter("#");
 		copy(token.begin(), token.begin() + 1, firstCharacter.begin());
 		if(isOperator(firstCharacter) || isBracket(firstCharacter)) {
 			script.push_back(firstCharacter);
@@ -92,7 +94,16 @@ void Interpreter::parseScriptFile() {
 
 		lowerCase(token);
 		extend(token);
-		script.push_back(token);
+		
+		string lastCharacter("#");
+		copy(token.end() - 1, token.end(), lastCharacter.begin());
+		if(isOperator(lastCharacter) || isBracket(lastCharacter)) {
+			token.erase(token.end() - 1);
+			if(!token.empty()) script.push_back(token);
+			script.push_back(lastCharacter);
+		} else {
+			script.push_back(token);
+		}
 	}
 	script.pop_back(); // Reads last token twice (I don't know why), so we want to get rid of the duplicate.
 	
@@ -103,18 +114,23 @@ void Interpreter::parseScriptFile() {
 			
 		for(int i = 0; i < (int)script.size(); i++) {
 			token = script[i];
+			cout << token << endl;
+
 			if(token == "to") {
 				name = script[++i];
+				cout << name << endl;
 				firstToken = i + 1;
 			} else if(token == "end") {
 				lastToken = i - 1;
 				args.clear(), body.clear();
+				bool begin = true;
 				for(int j = firstToken; j <= lastToken; j++) {
-					string cToken = string[j];
-					if(cToken[0] == ":") {
-						cToken.erase(cToken.begin())
+					string cToken = script[j];
+					if(cToken[0] == ':' && begin) {
+						cToken.erase(cToken.begin());
 						args.push_back(cToken);
 					} else {
+						begin = false;
 						body.push_back(cToken);
 					}
 					functions[name] = Function(args.size(), 0, args, body);
@@ -132,6 +148,18 @@ void Interpreter::parseScriptFile() {
 			} 
 		}
 	}
+	for(map<string, Function>::iterator it = functions.begin(); it != functions.end(); it++) {
+		cout << it->first << " " << it->second.argNum << " " << it->second.builtin << endl;
+		for(int i = 0; i < (int)it->second.args.size(); i++) cout << it->second.args[i] << " ";
+		cout << endl;
+		for(int i = 0; i < (int)it->second.body.size(); i++) cout << it->second.body[i] << " ";
+		cout << endl;
+	}
+	for(map<pair<string, pair<int, int> >, pair<int, int> >::iterator it = blockFrames.begin(); it != blockFrames.end(); it++) {
+		cout << "(" << it->first.first << " (" << it->first.second.first << " " << 
+				it->first.second.second << ")) (" << it->second.first << " " << it->second.second << ")" << endl;
+	}
+	ofExit(0);
 }
 
 void Interpreter::runCommands() {
@@ -217,15 +245,15 @@ void Interpreter::toggleRunning() {
 
 // -------------------TODO----------------------------------//
 bool Interpreter::isData(string token) {
-	return ((token[0] >= '0' && token[0] <= '9') || token[0] == "\"" || token[0] == ":");
+	return ((token[0] >= '0' && token[0] <= '9') || token[0] == '\"' || token[0] == ':');
 }
 
 LogoData Interpreter::getData(string token) {
-	if(token[0] == "\"") {
+	if(token[0] == '\"') {
 		token.erase(token.begin());
 		return LogoData(token);
 	}
-	if(token[0] == ":") {
+	if(token[0] == ':') {
 		token.erase(token.begin());	
 		for(int i = variables.size() - 1; i >= 0; i--) {
 			if(variables[i].find(token) != variables[i].end()) return variables[i][token]; // dynamic scope
@@ -245,20 +273,21 @@ LogoData executeOperator(string oper, LogoData a, LogoData b) {
 	if(oper == "/") return a / b;
 	if(oper == "*") return a * b;
 	if(oper == "=") return a == b;
+	return LogoData();
 }
 
-void Interpreter::executeLast(vector<LogoData> &values, vector<string> &stack, 
-		vector<int> valuesNeeded, vector<int> valuesAvailable, string functionName, int &iterator) {
-	
-	if(functions.find(stack.back()) != functions.end()) {
+void Interpreter::executeLast(vector<LogoData> &values, vector<int> &stack, 
+		vector<int> &valuesNeeded, vector<int> &valuesAvailable, string functionName, int &iterator) {
+	string name = functions[functionName].body[stack.back()];
+	if(functions.find(name) != functions.end()) {
 		int numArgs = valuesNeeded.back();
 		vector<LogoData> args(numArgs);
 		copy(values.begin() + (values.size() - numArgs), values.end(), args.begin());
-		values.resize(values.begin() + (values.size() - numArgs));
-		if(functions[stack.back()].builtin) {
-			values.push_back(runMyFunction(stack.end(), args, functionName, iterator));
+		values.resize(values.size() - numArgs);
+		if(functions[name].builtin) {
+			values.push_back(runMyFunction(stack.back(), args, functionName, iterator));
 		} else {
-			values.push_back(runCode(stack.end(), 0, (int)functions[stack.end()].body.size() - 1, args));
+			values.push_back(runCode(name, 0, (int)functions[name].body.size() - 1, args));
 		}
 		stack.pop_back();
 		valuesAvailable.pop_back();
@@ -267,7 +296,7 @@ void Interpreter::executeLast(vector<LogoData> &values, vector<string> &stack,
 	} else {
 		LogoData a = values[values.size() - 2], b = values[values.size() - 1];
 		values.resize(values.size() - 2);
-		values.push_back(executeOperator(stack.back(), a, b));
+		values.push_back(executeOperator(name, a, b));
 		stack.pop_back();
 		valuesAvailable.pop_back();
 		valuesAvailable.back()++;
@@ -315,7 +344,7 @@ LogoData Interpreter::runCode(string functionName, int firstToken, int lastToken
 //	int lastToken = functionFrames[name].second;
 	vector<string> &code = functions[functionName].body;
 	
-	variables.push_back(map<string, LogoData>);
+	variables.push_back(map<string, LogoData>());
 	for(int i = 0; i < (int)parameters.size(); i++) {
 		variables.back()[functions[functionName].args[i]] = parameters[i];
 	} 
@@ -331,7 +360,8 @@ LogoData Interpreter::runCode(string functionName, int firstToken, int lastToken
 	cout << "Executing code " << functionName << " " << firstToken << " " << lastToken << endl;
 	
 //	for(vector<string>::iterator it = script.begin() + firstToken; it != script.begin() + lastToken; it++) {
-	for(int iterator = firstToken; iterator <= lastToken; iterator++) {
+	int iterator = firstToken;
+	for(; iterator <= lastToken; iterator++) {
 //		vector<string>::iterator it = script.begin() + iterator;
 		string token = code[iterator];
 		
@@ -350,10 +380,10 @@ LogoData Interpreter::runCode(string functionName, int firstToken, int lastToken
 			valuesAvailable.back()++;
 		} else if(isOperator(token)) {
 			while(!stack.empty() && isOperator(code[stack.front()]) && precedence[token] <= precedence[code[stack.front()]]) {
-				executeLast(values, stack, valuesNeeded, valuesAvailable, iterator);
+				executeLast(values, stack, valuesNeeded, valuesAvailable, functionName, iterator);
 			}
-			if(!stack.empty() && !isOperator[code[stack().back()]] && (valuesAvailable.back().size() == 0 || 
-					code[stack().back()] == "(")) {
+			if(!stack.empty() && !isOperator(code[stack.back()]) && (valuesAvailable.back() == 0 || 
+					code[stack.back()] == "(")) {
 				values.push_back(LogoData("0")); // special case for leading "-"
 			}
 			stack.push_back(iterator);
@@ -361,7 +391,7 @@ LogoData Interpreter::runCode(string functionName, int firstToken, int lastToken
 			stack.push_back(iterator);
 		} else if(token == ")") {
 			while(script[stack.back()] != "(") {
-				executeLast(values, stack, valuesNeeded, valuesAvailable, iterator);
+				executeLast(values, stack, valuesNeeded, valuesAvailable, functionName, iterator);
 			}
 			stack.pop_back();
 		}

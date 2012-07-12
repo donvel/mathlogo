@@ -8,14 +8,14 @@
 /* Open Frameworks supplies its own geometry primitives. Maybe they should replace "geometry.h"
 */
 
-const static long double EPS = 1.0e-3;
+const static double EPS = 1.0e-3;
 
 struct vect; // Previous declaration is needed, since vect appears in the definition of point
 struct gridPoint;
 
 struct point {
-	long double x, y, z; // decent precision;
-	point(long double _x = 0.0, long double _y = 0.0, long double _z = 0.0);
+	double x, y, z; // decent precision;
+	point(double _x = 0.0, double _y = 0.0, double _z = 0.0);
 	point(const gridPoint&);
 	bool operator==(const point&);
 	void operator+=(const vect&);	
@@ -24,13 +24,13 @@ struct point {
 
 struct vect : point { // vector == std::vector, so it is better to use another name
 	vect(point p = point(0.0, 1.0, 0.0));
-	long double length();
+	double length();
 	void normalize();
-	void operator*=(const long double&);
-	vect operator*(const long double&) const;	
+	void operator*=(const double&);
+	vect operator*(const double&) const;	
 	vect operator+(const vect&) const;	
 	vect operator- () const;
-	vect rotated(long double angle); // in degrees
+	vect rotated(double angle); // in degrees
 };
 
 const static point pointInInfinity(1000000.0, 1000000.0); // Maybe not in infinity, but at least outside the viewport
@@ -57,5 +57,5 @@ struct gridPoint {
 	gridPoint(int _x, int _y, int _z = 0);
 };
 
-long double dist(point, point);
+double dist(point, point);
 bool intersect(segment a, segment b, point &p);

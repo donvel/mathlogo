@@ -1,0 +1,15 @@
+SCRIPT
+to spiro :side :angle :max
+	while 1 < 2
+		[subspiro :side :angle :max]
+end
+
+to subspiro :side :angle :max
+	make "count 1
+	while :count < :max
+		[forward (side * count)
+		right :angle
+		make "count count + 1
+		]
+end
+
