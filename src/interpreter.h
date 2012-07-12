@@ -23,6 +23,8 @@ struct Function {
 	bool builtin;
 	vector<string> args;
 	vector<string> body;
+	map<pair<int, int>, pair<int, int> > blockFrames; // if, when, etc.
+	void parseBody();
 
 	Function(int _argNum = 0, bool _builtin = true, vector<string> _args = vector<string>(), 
 		vector<string> _body = vector<string>());
@@ -61,7 +63,6 @@ private:
     map<string, Function> functions;
     map<string, int> myFunctions;
     map<string, int> precedence;
-    map<pair<string, pair<int, int> >, pair<int, int> > blockFrames;
     
    
 public:

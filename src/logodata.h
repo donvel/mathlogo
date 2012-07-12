@@ -15,6 +15,7 @@ public:
 //	~LogoData();
 	double toDouble();
 	string toString();
+	bool empty();
 	bool toBoolean();
 	LogoData operator< (const LogoData &ld) const;
 	LogoData operator> (const LogoData &ld) const;
@@ -24,6 +25,7 @@ public:
 	LogoData operator/ (const LogoData &ld) const;
 	LogoData operator== (const LogoData &ld) const;
 private:
+	bool valid;
     string value;
 };
 

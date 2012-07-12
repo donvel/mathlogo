@@ -13,3 +13,6 @@ to subspiro :side :angle :max
 		]
 end
 
+to main
+spiro 10 10 100
+end

@@ -1,10 +1,14 @@
 #include "logodata.h"
 
-LogoData::LogoData() : value("undefinded") {}
+LogoData::LogoData() : valid(false) {}
 
-LogoData::LogoData(const string& _value) : value(_value) {}
+bool LogoData::empty() {
+	return !valid;
+}
 
-LogoData::LogoData(double num) {
+LogoData::LogoData(const string& _value) : valid(true), value(_value) {}
+
+LogoData::LogoData(double num) : valid(true) {
 	stringstream output;
 	if(num - (int)num < EPS) {
 		output << (int)num;
@@ -12,7 +16,7 @@ LogoData::LogoData(double num) {
 		cout.precision(10);
 		output << fixed << num;
 	}
-	LogoData(output.str());
+	value = output.str();
 }
 
 string LogoData::toString() {
@@ -28,6 +32,7 @@ double LogoData::toDouble() {
 
 LogoData LogoData::operator+(const LogoData& ld) const {
 	double res = strtod(value.c_str(), NULL) + strtod(ld.value.c_str(), NULL);
+	cout << "res = " << res << endl;
 	return LogoData(res);
 }
 
