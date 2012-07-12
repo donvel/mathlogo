@@ -26,7 +26,6 @@
         <in>main.cpp</in>
         <in>trans.cpp</in>
         <in>trans.h</in>
-        <in>transform.h</in>
         <in>turtle.cpp</in>
         <in>turtle.h</in>
         <in>ui.cpp</in>
