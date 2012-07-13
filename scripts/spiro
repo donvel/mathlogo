@@ -7,12 +7,12 @@ end
 to subspiro :side :angle :max
 	make "count 1
 	while :count < :max
-		[forward (side * count)
+		[forward (:side * :count)
 		right :angle
-		make "count count + 1
+		make "count :count + 1
 		]
 end
 
 to main
-spiro 10 10 100
+spiro 20 30 4
 end

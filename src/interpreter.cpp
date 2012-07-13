@@ -12,7 +12,8 @@ Interpreter* Interpreter::interpreterInstance = NULL;
 Interpreter::Interpreter() : running(false) {
 	
 	functions["if"] = Function(1);
-	functions["while"] = Function(1);	
+	functions["while"] = Function(1);
+	functions["repeat"] = Function(1);
 	functions["make"] = Function(2);	
 	functions["forward"] = Function(1);
 	functions["right"] = Function(1);
@@ -20,7 +21,21 @@ Interpreter::Interpreter() : running(false) {
 	functions["print"] = Function(1);
 	functions["penup"] = Function(0);
 	functions["pendown"] = Function(0);
+	functions["setpencolor"] = Function(1);
+	functions["clearscreen"] = Function(0);
 	functions["setxy"] = Function(2);
+	
+/* -------- Transformations -------------------*/
+	
+	transFunctions["mobius"] = Function(8);
+	transFunctions["threepointsmobius"] = Function(12);
+	transFunctions["translate"] = Function(2);
+	transFunctions["inverse"] = Function(3);
+	transFunctions["mirror"] =  Function(0);
+	transFunctions["rotate"] = Function(3);
+	transFunctions["homothety"] = Function(3);
+	transFunctions["cleartransform"] = Function(0);
+	
 	
 	precedence["="] = 0;
 	precedence["<"] = 0;
@@ -30,6 +45,11 @@ Interpreter::Interpreter() : running(false) {
 	precedence["*"] = 2;
 	precedence["/"] = 2;
 	
+	if(World::instance()->getMode() == TRANSFORM) {
+		for(map<string, Function>::iterator it = transFunctions.begin(); it != transFunctions.end(); it++) {
+			functions.insert(*it);
+		}
+	}
 
 }
 
@@ -68,9 +88,12 @@ void Interpreter::extend(string &token) {
 	if(token == "fd") token = "forward";
 	if(token == "rt") token = "right";
 	if(token == "lt") token = "left";
-	if(token == "cs") token = "clear";
+	if(token == "cs") token = "clearscreen";
 	if(token == "pu") token = "penup";
 	if(token == "pd") token = "pendown";
+	if(token == "ct") token = "cleartransform";
+	if(token == "tpm") token = "threepointsmobius";
+	
 }
 
 void Interpreter::parseScriptFile() {
@@ -153,7 +176,7 @@ void Function::parseBody() {
 	vector<pair<int, int> > waitingKeywords; 
 	for(int i = 0; i < (int)body.size(); i++) {
 		token = body[i];
-		if(token == "while") {
+		if(token == "while" || token == "repeat") {
 			waitingKeywords.push_back(make_pair(i, 0));
 		} else if(token == "ifelse") {
 			waitingKeywords.push_back(make_pair(i, 1));
@@ -171,6 +194,7 @@ void Function::parseBody() {
 	}
 }
 
+//This function is obsolete
 void Interpreter::runCommands() {
 	int iterator = 0;
 	while(iterator < (int)script.size()) {
@@ -210,7 +234,7 @@ void Interpreter::runCommands() {
 		} else if(script[iterator] == "clear") {
 			World::instance()->clear();
 			
-		} else if(script[iterator] == "pencolor") {
+		} else if(script[iterator] == "setpencolor") {
 			World::instance()->setPenColor(strtol(script[++iterator].c_str(), NULL, 10));
 			
 		} else { 
@@ -352,15 +376,20 @@ LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, st
 	string name = code[namePos];
 	if(name == "print") {
 		cout << parameters[0].toString() << endl;
+		
 	} else if(name == "make") {
 		variables.back()[parameters[0].toString()] = parameters[1];
 		cout << "new variable " << parameters[0].toString() << " =  " << variables.back()[parameters[0].toString()].toString() << endl;
+		
 	} else if(name == "forward") {
 		World::instance()->forward(parameters[0].toDouble());
+		
 	} else if(name == "right") {
 		World::instance()->rotate(parameters[0].toDouble());
+		
 	} else if(name == "left") {
-		World::instance()->rotate(parameters[0].toDouble());
+		World::instance()->rotate(-parameters[0].toDouble());
+		
 	} else if(name == "ifelse") {
 		if(parameters[0].toBoolean()) {
 			pair<int, int> frame= functions[functionName].blockFrames[make_pair(namePos, 0)];
@@ -370,6 +399,7 @@ LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, st
 			runCode(functionName, frame.first, frame.second);
 		}
 		iterator = functions[functionName].blockFrames[make_pair(namePos, 0)].second + 1;
+		
 	} else if(name == "while") {
 		if(parameters[0].toBoolean()) {
 			pair<int, int> frame= functions[functionName].blockFrames[make_pair(namePos, 0)];
@@ -378,7 +408,42 @@ LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, st
 		} else {
 			iterator = functions[functionName].blockFrames[make_pair(namePos, 0)].second;
 		}
-	}
+		
+	} else if(name == "repeat") {
+		pair<int, int> frame= functions[functionName].blockFrames[make_pair(namePos, 0)];
+		for(int j = 0; j < (int)parameters[0].toDouble(); j++) {	
+			runCode(functionName, frame.first, frame.second);
+		}
+		iterator = functions[functionName].blockFrames[make_pair(namePos, 0)].second;
+		
+	} else if(name == "setpencolor") {
+		World::instance()->setPenColor((int)parameters[0].toDouble());
+	
+	} /*else if(name == "mobius") {
+		vector<comp> var;
+		for(int j = 0; j < 3; j++) {
+			var.push_back(comp(parameters[2 * j].toDouble(), parameters[2 * j + 1].toDouble()));
+		}
+		World::instance()->setMobius(var[0], var[1]. var[2], var[3]);
+		
+	} else if(name == "mirror") {
+		World::instance()->setMobius(-1, 0, 0, 1);
+		
+	} else if(name == "translate") {
+		World::instance()->setMobius(1, comp(parameters[0].toDouble(), parameters[1].toDouble()), 0, 1);
+		
+	} else if(name == "inverse") {
+		comp p(parameters[0]toDouble(), parameters[1].toDouble());
+		double r = parameters[2].toDouble();
+		World::instance()->setMobius(p, - p * p + comp(r * r, 0), 1, -p);
+		
+	} else if(name == "rotate") {
+		comp p(parameters[0]toDouble(), parameters[1].toDouble());
+		double phi = parameters[2]toDouble() / 360.0 * 2 * M_PI;
+		comp eToIPhi;
+		World::instance()->setMobius(eToIPhi, p * (1 - eToIPhi), 0, 1);
+	}*/
+	
 	return LogoData();
 }
 
@@ -412,7 +477,7 @@ LogoData Interpreter::runCode(string functionName, int firstToken, int lastToken
 //		vector<string>::iterator it = script.begin() + iterator;
 		string token = code[iterator];
 		cout << "token = " << token << endl;
-		while(valuesNeeded.size() > 1 && valuesAvailable.back() == valuesNeeded.back() && !isOperator(token)) {
+		while(valuesNeeded.size() > 1 && valuesAvailable.back() == valuesNeeded.back() && !isOperator(token) && token != ")") {
 			executeLast(values, stack, valuesNeeded, valuesAvailable, functionName, iterator);
 		}
 		
@@ -429,9 +494,9 @@ LogoData Interpreter::runCode(string functionName, int firstToken, int lastToken
 			while(!stack.empty() && isOperator(code[stack.front()]) && precedence[token] <= precedence[code[stack.front()]]) {
 				executeLast(values, stack, valuesNeeded, valuesAvailable, functionName, iterator);
 			}
-			if(!stack.empty() && !isOperator(code[stack.back()]) && (valuesAvailable.back() == 0 || 
-					code[stack.back()] == "(")) {
+			if(!stack.empty() && !isOperator(code[stack.back()]) && valuesAvailable.back() == 0 ) {
 				values.push_back(LogoData("0")); // special case for leading "-"
+				cout << "Pushing magic 0" << endl;
 			}
 			stack.push_back(iterator);
 			valuesAvailable.back()--;
@@ -440,9 +505,12 @@ LogoData Interpreter::runCode(string functionName, int firstToken, int lastToken
 		} else if(token == "(") {
 			stack.push_back(iterator);
 		} else if(token == ")") {
-			while(script[stack.back()] != "(") {
+//			cout << "token == )" << endl;
+			while(code[stack.back()] != "(") {
 				executeLast(values, stack, valuesNeeded, valuesAvailable, functionName, iterator);
+//				cout << "stack back = " << stack.back() << endl;
 			}
+//			cout << "And now I should pop back" << endl;
 			stack.pop_back();
 		}
 	}

@@ -60,8 +60,8 @@ private:
 
     vector<map<string, LogoData> > variables;
  //   set<string> keywords;
-    map<string, Function> functions;
-    map<string, int> myFunctions;
+    map<string, Function> functions, transFunctions;
+//    map<string, int> myFunctions;
     map<string, int> precedence;
     
    
