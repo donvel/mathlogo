@@ -8,9 +8,13 @@ World* World::worldInstance = NULL;
 World::World() : width(300), height(300), depth(1),
 	frameTime(10), backgroundColor(255, 255, 255), 
 	paletteSize(27), mode(NORMAL), activeTurtle(0), 
-	useVoxels(false), map(NULL) {
+	useVoxels(false), changing(false), frozen(false) {
 	origin[0] = gridPoint(150, 150, 0);
 	origin[1] = gridPoint(450, 150, 0);
+	map[0] = NULL;
+	map[1] = NULL;
+	cleared[0] = true;
+	cleared[1] = true;
 	
 	palette.resize(paletteSize);
 	for(int i = 0; i < paletteSize; i++) {
@@ -19,24 +23,31 @@ World::World() : width(300), height(300), depth(1),
 }
 
 void World::createMap() { // not in use
-	map = new voxel**[width];
-	for(int i = 0; i < width; i++) {
-		map[i] = new voxel*[height];	
-		for(int j = 0; j < height; j++) {
-			map[i][j] = new voxel[depth];
+
+	
+	for(int tur = 0; tur < numViewports(); tur++) {
+		map[tur] = new voxel**[width];
+		for(int i = 0; i < width; i++) {
+			map[tur][i] = new voxel*[height];	
+			for(int j = 0; j < height; j++) {
+				map[tur][i][j] = new voxel[depth];
+			}
 		}
 	}
 }
 
-World::~World() { // not in use
-	if(map != NULL) {
-		for(int i = 0; i < width; i++) {
-			for(int j = 0; j < height; j++) {
-				delete[] map[i][j];
+World::~World() {
+	
+	for(int tur = 0; tur < numViewports(); tur++) {
+		if(map[tur] != NULL) {
+			for(int i = 0; i < width; i++) {
+				for(int j = 0; j < height; j++) {
+					delete[] map[tur][i][j];
+				}
+				delete[] map[tur][i];
 			}
-			delete[] map[i];
+			delete[] map[tur];
 		}
-		delete[] map;
 	}
 }
 
@@ -106,13 +117,18 @@ ofColor World::getBackgroundColor() {
 	return backgroundColor;
 }
 
-voxel* World::getVoxel(gridPoint gp) { // not in use
-	return &map[gp.x + origin[0].x][gp.y + origin[0].y][gp.z + origin[0].z];
+voxel* World::getVoxel(gridPoint gp, int id) {
+	return &map[id][gp.x + origin[0].x][gp.y + origin[0].y][gp.z + origin[0].z];
 }
 
-vector<segment> World::getTrace(int id) {
-	return trace[id];
+vector<segment>* World::getTrace(int id) {
+	return &trace[id];
 }
+
+vector<Filler>* World::getFiller(int id) {
+	return &filler[id];
+}
+
 
 int World::getLeft() {
 	return -origin[0].x;
@@ -163,59 +179,52 @@ bool World::crop(segment& seg) { // this function returns ture when part of the 
 //---- TURTLE handling ------------------------------//
 
 void World::updateTurtle(int id, pair<point, vect> coords) {
+	this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
 	if(turtle[id].isPenDown && !(coords.first == turtle[id].position)) {// if the turtle moved
+		//while(frozen);
+		changing = true;
 		trace[id].push_back(segment(turtle[id].position, coords.first, turtle[id].penColor)); // add new segment
+		changing = false;
 	}
 	turtle[id].position = coords.first;
 	turtle[id].direction = coords.second;
-	
-	int numVieports = 1;
-	ofBackground(getBackgroundColor());
-	if(getMode() == TRANSFORM) {// In this mode we have two viewports
-		numVieports = 2;
-		ofLine(getWidth(), 0, getWidth(), getHeight());
-		//Draws a line separating the two viewports
+}
+
+int World::numViewports() {
+	if (getMode() == TRANSFORM) return 2;
+	return 1;
+}
+
+void World::fill() {
+	for(int tur = 0; tur < numViewports(); tur++) {
+		fillOne(tur);
 	}
-	
-	for(int i = 0; i < numVieports; i++) { // NOTE: this procedure is in fact quite slow, 
-		//because for every frame it redraws entire turtle trace
-		//it could be modified as to draw only new segments
-		//however so far it is enough fast
-		gridPoint ori = getOrigin(i);
-		//We need to know the relative position of the origin, so 'Turtle coordinates' may be translated into OF coordinates
-		vector<segment> trace = getTrace(i);
-		//Entire turtle trace
-		for(int j = 0; j < (int)trace.size(); j++) {
-			ofSetColor(trace[j].color);
-//			// different parts may have different colors
-			segment cSeg = trace[j];
-			if(World::instance()->crop(cSeg)) {// Draw only the part of the segment which is visible in the viewport
-				ofLine(cSeg.a.x + ori.x, cSeg.a.y + ori.y, cSeg.b.x + ori.x, cSeg.b.y + ori.y);
-			}
-		}
-		//We get three points which define the turtle's triangular shape
-		vector<point> turtleShape = getTurtleShape(i);	
-		ofSetColor(0, 0, 0); // Let the turtle be always black
-		segment turtleSide;
-		for(int j = 0; j < 3; j++) {
-			turtleSide = segment(turtleShape[j], turtleShape[(j + 1) % 3]);
-			if(crop(turtleSide)) {// Draw only the part of the side which is visible in the viewport
-				ofLine(turtleSide.a.x + ori.x, turtleSide.a.y + ori.y, turtleSide.b.x + ori.x, turtleSide.b.y + ori.y);
-			}
-		}
-	}
+}
+
+void World::fillOne(int id) {
+	filler[id].push_back(make_pair(turtle[id].position, turtle[id].penColor));
 }
 
 void World::toggleTurtle() {
 	activeTurtle = !activeTurtle; // 0 = !1, 1 = !0
 }
 
-void World::clear() { // restores the turtle to its initial state and position
+void World::clearTransform() { // restores the turtle to its initial state and position
 	for(int i = 0; i < 2; i++) {
 		trans[i] = transformation();
 		trace[i].clear();
+		filler[i].clear();
 		turtle[i] = Turtle();
+		cleared[i] = true;
 	}
+}
+
+void World::clearScreen() { // restores the turtle to its initial state and position
+	
+	trace[activeTurtle].clear();
+	filler[activeTurtle].clear();
+	cleared[activeTurtle] = true;
+
 }
 
 void World::penDown() {// affects only one turtle
@@ -228,7 +237,7 @@ void World::penUp() {
 
 void World::setPenColor(int colId) {
 	if(colId < 0 || colId >= paletteSize) {
-		cout << "Colors shoud be in range [0, " << paletteSize << endl;
+		cout << "Colors should be in range [0, " << paletteSize << endl;
 		return;
 	}
 	turtle[activeTurtle].penColor = palette[colId];
@@ -240,6 +249,15 @@ void World::rotate(long double angle) {// in degrees
 		updateTurtle(!activeTurtle, 
 			trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction)));	
 	}
+}
+
+void World::moveTurtleTo(point p) {
+
+	if(outside(p)) return;
+
+	rotate(angle(turtle[activeTurtle].direction, vect(p) + (-vect(turtle[activeTurtle].position))) * 360 / (2 * M_PI));
+	forward(dist(turtle[activeTurtle].position, p));
+
 }
 
 void World::forward(long double distance) {
@@ -263,7 +281,7 @@ void World::forward(long double distance) {
 		currentPosition = currentPosition.translated(turtle[activeTurtle].direction);
 		if(useVoxels) {// We draw trace with segments, not with voxels
 			gridPoint visitedVoxel = currentPosition; // not used now
-			if(!outside(visitedVoxel)) getVoxel(visitedVoxel)->visit(false); 
+			if(!outside(visitedVoxel)) getVoxel(visitedVoxel, activeTurtle)->visit(false); 
 		}
 		
 		updateTurtle(activeTurtle, make_pair(currentPosition, turtle[activeTurtle].direction));
@@ -298,10 +316,19 @@ void World::setMobius(comp a, comp b, comp c, comp d) {
 	trans[activeTurtle].setValues(a, b, c, d); //f
 	trans[!activeTurtle].setValues(-d, b, c, -a); //f^-1
 	trace[!activeTurtle].clear();
+	filler[!activeTurtle].clear();
+	cleared[!activeTurtle] = true;
 	for(vector<segment>::iterator it = trace[activeTurtle].begin(); it < trace[activeTurtle].end(); it++) {
 		trace[!activeTurtle].push_back(segment(trans[activeTurtle].setPos(it->a), 
 				trans[activeTurtle].setPos(it->b), it->color));
 	} // we transform active turtle's trace to the other viewport
 	//I still wonder what should be done in this case - it is  not the only option.
+	pair<point, vect> coords = trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction));
+	turtle[!activeTurtle].position = coords.first;
+	turtle[!activeTurtle].direction = coords.second;
 }
 
+void World::debug() {
+	
+	cout << turtle[activeTurtle].position.x + origin[activeTurtle].x << " " << turtle[activeTurtle].position.y + origin[activeTurtle].y << endl; 
+}

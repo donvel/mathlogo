@@ -58,4 +58,5 @@ struct gridPoint {
 };
 
 double dist(point, point);
+double angle(vect, vect);
 bool intersect(segment a, segment b, point &p);

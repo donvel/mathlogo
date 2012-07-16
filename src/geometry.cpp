@@ -100,7 +100,7 @@ segment::segment() {}
 //----------------GRIDPOINT-----------------------------------------//
 
 gridPoint::gridPoint() {}
-gridPoint::gridPoint(const point &p) : x(p.x), y(p.y), z(p.z) {}
+gridPoint::gridPoint(const point &p) : x(round(p.x)), y(round(p.y)), z(round(p.z)) {}
 gridPoint::gridPoint(int _x, int _y, int _z) : x(_x), y(_y), z(_z) {}
 
 //----------------FUNCTIONS-----------------------------------------//
@@ -109,6 +109,11 @@ double dist(point p1, point p2) {
 	vect v1 = p1, v2 = p2, v3;
 	v3 = v1 + (-v2);
 	return v3.length();
+}
+
+double angle(vect v1, vect v2) { // in radians
+	double cp = v1.x * v2.y - v1.y * v2.x;
+	return asin(cp / (v1.length() * v2.length()));
 }
 
 double crossProductThreePoints(point a, point b, point c) {

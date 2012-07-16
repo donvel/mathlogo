@@ -1,0 +1,20 @@
+SCRIPT
+to square :side
+make "count 0
+while :count < 4
+	[make "count :count + 1
+	forward :side
+	rt 90
+	]
+end
+
+to main
+square 100
+pu
+setpencolor 5
+fd 70
+rt 90
+fd 50
+pd
+fill
+end

@@ -12,6 +12,7 @@ point transformation::setPos(point pos) {
 		cout << "division by 0" << endl; // this point is in infinity, hard to say what to do in that case
 		return pointInInfinity;
 	}
+	z = (a * z + b) / (c * z + d);
 	return point(z.real(), z.imag());
 }
 

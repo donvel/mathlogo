@@ -42,7 +42,7 @@ private:
    
     void parseScriptFile();
     void randomMoves();
-	void runCommands();
+//	void runCommands();
 	
 	void lowerCase(string &token);
 	void extend(string &token);
@@ -70,5 +70,8 @@ public:
     void loadScript(char* filename);
     void execute();
     void toggleRunning();
+	void startRunning();
+	void stopRunning();
+
 
 };

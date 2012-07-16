@@ -29,5 +29,12 @@ to sun :size
 end
 
 to main
-	sun 1
+	pu
+	rt 180
+	fd 100
+	lt 90
+	fd 100
+	rt lt 90
+	pd
+	sun 0.5
 end

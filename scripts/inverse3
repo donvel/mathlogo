@@ -1,0 +1,23 @@
+SCRIPT
+to square :side
+	repeat 4 [
+	 fd :side
+	 toggle
+	 ]
+end
+
+to main
+	pu
+	toggle 
+	pu
+	rt 180
+	fd 50
+	rt 90
+	fd 50
+	rt 90
+	pd
+	toggle
+	pd
+	inverse 0 0 71
+	square 100
+end
