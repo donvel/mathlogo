@@ -1,0 +1,34 @@
+SCRIPT
+to square :side :color
+	repeat 4 [
+		fd :side
+		rt 90
+	]
+	make "s2 :side / 2
+	pu
+	fd :s2
+	rt 90
+	fd :s2
+	setpencolor :color
+	fill
+	rt 180
+	fd :s2
+	lt 90
+	fd :s2
+	rt 180
+	pd
+end
+
+to main 
+	setxy -300 -300
+end
+to a
+	make "c 1
+	repeat 6 [
+		square 50 :c
+		fd 50
+		make "c :c + 1
+	]
+end
+
+

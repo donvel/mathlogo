@@ -14,15 +14,16 @@ using namespace boost;
 
 class logoApp : public ofBaseApp{
 	public:
-		ofColor getPixel(gridPoint p);
+//		ofColor getPixel(gridPoint p);
 		gridPoint neighbour(gridPoint p, int i);
-		void bfsFill(gridPoint p, int w, int h, ofColor targetColor);
-		void line (double x1, double y1, double x2, double y2);
+		void bfsFill(gridPoint p, ofColor targetColor, int id);
+		void line(point p1, point p2, ofColor targetColor, int id);
 		void setup();
 		void update();
 		void draw();
 		ofImage buffer[2];
 		int fillIter[2], traceIter[2];
+		int w, h;
 		
 		void keyPressed(int key);
 		/*Obsolete commands*/
