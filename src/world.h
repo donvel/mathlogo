@@ -84,8 +84,8 @@ class World {
 		// Turtle handling
 		void updateTurtle(int id, pair<point, vect> coords);
 		void moveTurtleTo(point p);
-		void rotate(long double angle);
-		void forward(long double distance);
+		void rotate(double angle);
+		void forward(double distance);
 		void toggleTurtle();
 		void penUp();
 		void penDown();

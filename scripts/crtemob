@@ -1,0 +1,63 @@
+SCRIPT
+to square :side :color
+	print :side
+	repeat 4 [
+		fd :side
+		rt 90
+	]
+	make "s2 :side / 2
+	pu
+	toggle 
+	pu
+	toggle
+	fd :s2
+	rt 90
+	fd :s2
+	setpencolor :color
+	toggle
+	setpencolor :color
+	fill
+	toggle
+	rt 180
+	fd :s2
+	lt 90
+	fd :s2
+	rt 180
+	pd
+	toggle 
+	pd
+	toggle
+end
+
+to main
+	make "s 50
+	pu
+	toggle
+	pu
+	rt 180
+	fd 280
+	rt 90
+	fd 280
+	rt 90
+	pd
+	toggle
+	pd
+	mobius (-4) 6 7 (-2) 3 (-4) 2 (-1)
+	make "c1 1
+	repeat 10 [
+		make "c1 :c1 + 1
+		make "c :c1
+		repeat 10 [
+			square :s :c
+			fd :s
+			make "c :c + 1
+		]
+		rt 180
+		fd 10 * :s
+		lt 90
+		fd :s
+		lt 90
+	]
+end
+
+

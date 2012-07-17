@@ -17,7 +17,7 @@ int main(int argnum, char **argv) {
 	} //otherwise world default values are used
 	
 	//World::instance()->createMap(); Creating voxels that may be marked as
-	//visited by the turtle may be useful int the future, but not know
+	//visited by the turtle may be useful in the future, but not now
 	
 	
 	//if the number of arguments == 2 , then argv[2] = name of the script file

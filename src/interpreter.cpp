@@ -32,7 +32,7 @@ Interpreter::Interpreter() : running(false) {
 	transFunctions["threepointsmobius"] = Function(12);
 	transFunctions["translate"] = Function(2);
 	transFunctions["inverse"] = Function(3);
-//	transFunctions["mirror"] =  Function(0);
+//	transFunctions["mirror"] =  Function(0); can't be implemented with Mobius!
 	transFunctions["rotate"] = Function(3);
 	transFunctions["homothety"] = Function(3);
 	transFunctions["cleartransform"] = Function(0);
@@ -80,7 +80,7 @@ void Interpreter::loadScript(char *filename) {
 	scriptFile.close();
 }
 
-void Interpreter::lowerCase(string &token) {
+void Interpreter::lowerCase(string &token) { // Logo does not distinguish between upper and lowercase
 	for(int i = 0; i < (int)token.size(); i++) {
 		token[i] = tolower(token[i]);
 	}
@@ -111,7 +111,7 @@ void Interpreter::parseScriptFile() {
 		string firstCharacter("#");
 		bool nextToken = false;
 		copy(token.begin(), token.begin() + 1, firstCharacter.begin());
-		while(isOperator(firstCharacter) || isBracket(firstCharacter)) {
+		while(isOperator(firstCharacter) || isBracket(firstCharacter)) { // We separate "glued" characters
 			script.push_back(firstCharacter);
 			token.erase(token.begin());
 			if(token.empty()) {
@@ -141,8 +141,8 @@ void Interpreter::parseScriptFile() {
 	}
 	script.pop_back(); // Reads last token twice (I don't know why), so we want to get rid of the duplicate.
 	
-	if(type == "COMMANDS") { // This means that the file conatains only basic commands
-		useBareCommands = true;
+	if(type == "COMMANDS") { // This means that the file contains only basic commands
+		useBareCommands = true; // we are not going to use it anymore
 	} else {
 		useBareCommands = false;
 			
@@ -265,7 +265,7 @@ void Interpreter::execute() {
 		//actually it should accept input from the console
 	} else {
 		if(useBareCommands) {
-//			thread interpreterThread(&Interpreter::runCommands, this);
+//			thread interpreterThread(&Interpreter::runCommands, this); // OBSOLETE
 		} else {
 			thread interpreterThread(&Interpreter::runCode, this, "main", 0, functions["main"].body.size() - 1, vector<LogoData>()); // TODO
 		}
@@ -297,7 +297,6 @@ void Interpreter::toggleRunning() {
 	cout << "State changed, running = " << (int)running << endl;
 }
 
-// -------------------TODO----------------------------------//
 bool Interpreter::isData(string token) {
 	return ((token[0] >= '0' && token[0] <= '9') || token[0] == '\"' || token[0] == ':');
 }
@@ -335,7 +334,8 @@ LogoData executeOperator(string oper, LogoData a, LogoData b) {
 
 void Interpreter::executeLast(vector<LogoData> &values, vector<int> &stack, 
 		vector<int> &valuesNeeded, vector<int> &valuesAvailable, string functionName, int &iterator) {
-	
+	// I would write some comments to make this code more readable
+	// But I have already forgotten what it does.
 	
 	string name = functions[functionName].body[stack.back()];
 	

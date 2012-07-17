@@ -18,7 +18,8 @@ World::World() : width(300), height(300), depth(1),
 	
 	palette.resize(paletteSize);
 	for(int i = 0; i < paletteSize; i++) {
-		palette[i] = ofColor((i / 9) * 128, ((i % 9) / 3) * 128, (i % 3) * 128); // sets different RGB values
+		palette[i] = ofColor((i / 9) * 127, ((i / 3) % 3) * 127, (i % 3) * 127); // sets different RGB values
+		cout << "color " << (i / 9) * 127 << " " << ((i / 3) % 3) * 127 << " " << (i % 3) * 127 << endl;
 	}
 }
 
@@ -243,7 +244,7 @@ void World::setPenColor(int colId) {
 	turtle[activeTurtle].penColor = palette[colId];
 }
 
-void World::rotate(long double angle) {// in degrees
+void World::rotate(double angle) {// in degrees
 	updateTurtle(activeTurtle, make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction.rotated(angle)));	
 	if(mode == TRANSFORM) { // we have to update also linked turtle's rotation
 		updateTurtle(!activeTurtle, 
@@ -251,16 +252,23 @@ void World::rotate(long double angle) {// in degrees
 	}
 }
 
-void World::moveTurtleTo(point p) {
+void World::moveTurtleTo(point p) {// Does not work as expected.
 
 	if(outside(p)) return;
-
-	rotate(angle(turtle[activeTurtle].direction, vect(p) + (-vect(turtle[activeTurtle].position))) * 360 / (2 * M_PI));
+	
+	vect oldDirection[2];
+	for(int i = 0; i < 2; i++) {
+		oldDirection[i] = turtle[activeTurtle].direction;
+	}
+	rotate(-angle(turtle[activeTurtle].direction, vect(p) + (-vect(turtle[activeTurtle].position))) * 360 / (2 * M_PI));
 	forward(dist(turtle[activeTurtle].position, p));
-
+	for(int i = 0; i < 2; i++) {
+		turtle[activeTurtle].direction = oldDirection[i];
+	}
+	
 }
 
-void World::forward(long double distance) {
+void World::forward(double distance) {
 
 	vect displacement = turtle[activeTurtle].direction * distance;
 	point newPosition = turtle[activeTurtle].position.translated(displacement); 
@@ -289,7 +297,7 @@ void World::forward(long double distance) {
 			trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction)));
 	}	
 	// We move the turtle to its final position to finish the movement
-	updateTurtle(activeTurtle, make_pair(currentPosition, turtle[activeTurtle].direction));
+	updateTurtle(activeTurtle, make_pair(newPosition, turtle[activeTurtle].direction));
 	if(mode == TRANSFORM) updateTurtle(!activeTurtle, 
 			trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction)));
 }
