@@ -7,8 +7,6 @@ void logoApp::setup(){
 	ofBackground(World::instance()->getBackgroundColor());
 	for(int i = 0; i < World::instance()->numViewports(); i++) {
 		buffer[i].allocate(w, h, OF_IMAGE_COLOR);
-		cout << "Am I allocated? " << buffer[i].isAllocated() << endl;
-		cout << "Am I using a texture? " << buffer[i].isUsingTexture() << endl;
 	}
 }
 
@@ -47,7 +45,6 @@ void logoApp::line (point p1, point p2, ofColor targetColor, int id) {
 				p1.y * (alpha / d) + p2.y * (1 - alpha / d));
 		buffer[id].setColor(round(p.x), round(p.y), targetColor);
 	}
-//	cout << "drawing line " << endl;
 }
 
 void logoApp::bfsFill(gridPoint p, ofColor targetColor, int id) {
@@ -97,7 +94,6 @@ void logoApp::draw() {
 		}
 		for(int &j = traceIter[i]; j < (int)trace->size(); j++) {
 		//	cout << (*trace)[j].a.x << " " << (*trace)[j].a.y << " " << (*trace)[j].b.x << " " << (*trace)[j].b.y << " " << (*trace)[j].color << endl;
-//			// different parts may have different colors
 			segment cSeg = (*trace)[j];
 			if(World::instance()->crop(cSeg)) {// Draw only the part of the segment which is visible in the viewport
 				line(cSeg.a.translated(ori), cSeg.b.translated(ori), (*trace)[j].color, i);
@@ -112,9 +108,6 @@ void logoApp::draw() {
 		}
 		ofSetColor(World::instance()->getBackgroundColor());
 		buffer[i].update();
-//		buffer[i].reloadTexture();
-//		cout << buffer[i].isAllocated() << endl;
-//		cout << buffer[i].isUsingTexture() << endl;
 		buffer[i].draw(i * w, 0);
 	}
 	for(int i = 0; i < numViewports; i++) { 

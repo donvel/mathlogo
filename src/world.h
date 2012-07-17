@@ -33,6 +33,7 @@ class World {
 		Mode mode;
 		int activeTurtle;
 		bool useVoxels;
+		point getTurtlePosition();
 		
 		// We need two turtles for the TRANSFORM mode
 		Turtle turtle[2];
@@ -41,7 +42,7 @@ class World {
 		transformation trans[2];
 		gridPoint origin[2]; // Origin of the coordinate system - its location on the viewport 
 		voxel ***map[2];
-
+		
 
 	public:
 		static World* instance();
@@ -80,6 +81,7 @@ class World {
 		vector<Filler >* getFiller(int id);
 		void fill();
 		void fillOne(int id);
+		void addCircle(point pos, double r);
 
 		// Turtle handling
 		void updateTurtle(int id, pair<point, vect> coords);

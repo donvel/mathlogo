@@ -18,7 +18,6 @@ mobius a b c d (complex numbers in format Re(a) Im(a))
 threepointsmobius tpm p1 p2 p3 q1 q2 q3 (points in format p.x p.y)
 translate vector (in format v.x v.y)
 inverse point radius
-mirror (no values)
 rotate point angle
 homothety point scale
 cleartransform ct (no values)

@@ -35,6 +35,7 @@ private:
     Interpreter(); // Interpreter is a singleton
     static Interpreter *interpreterInstance;
     
+	LogoData returnValue;
     bool running;
 	bool useBareCommands;
     fstream scriptFile;

@@ -24,15 +24,18 @@ Interpreter::Interpreter() : running(false) {
 	functions["setpencolor"] = Function(1);
 	functions["clearscreen"] = Function(0);
 	functions["setxy"] = Function(2);
+	functions["getx"] = Function(1);
+	functions["gety"] = Function(1);
 	functions["fill"] = Function(0);
+	functions["return"] = Function(1);
 	
 /* -------- Transformations -------------------*/
 	
 	transFunctions["mobius"] = Function(8);
 	transFunctions["threepointsmobius"] = Function(12);
 	transFunctions["translate"] = Function(2);
-	transFunctions["inverse"] = Function(3);
-//	transFunctions["mirror"] =  Function(0); can't be implemented with Mobius!
+	transFunctions["inverse"] = Function(3); //Complex inverse + mirror
+	transFunctions["mirrorX"] = Function(1); //can't be implemented with Mobius!
 	transFunctions["rotate"] = Function(3);
 	transFunctions["homothety"] = Function(3);
 	transFunctions["cleartransform"] = Function(0);
@@ -205,59 +208,6 @@ void Function::parseBody() {
 		cout << it->first.first << " " << it->first.second << " " << it->second.first << " " << it->second.second << endl;
 	}
 }
-
-//This function is obsolete
-//void Interpreter::runCommands() {
-//	int iterator = 0;
-//	while(iterator < (int)script.size()) {
-//		this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
-//		//Turtle may stop after executing every command, so we can see it moving. 
-//		//Alternatively, it could pause after each 1 px movement
-//		if(!running) continue;
-//		//This makes the turtle inactive when interpreter is not running
-//		
-//		// A long list of commands, maybe there is a mor elegant way of implementing it
-//		if(script[iterator] == "forward") {
-//			World::instance()->forward(strtod(script[++iterator].c_str(), NULL));
-//			
-//		} else if(script[iterator] == "left") {
-//			World::instance()->rotate(strtod(script[++iterator].c_str(), NULL));
-//			
-//		} else if(script[iterator] == "right") {
-//			World::instance()->rotate(-strtod(script[++iterator].c_str(), NULL));
-//			
-//		} else if(script[iterator] == "toggle") {
-//			World::instance()->toggleTurtle();
-//			
-//		} else if(script[iterator] == "mobius") {
-//			comp args[4];
-//			for (int j = 0; j < 4; j++) {
-//				args[j].real(strtod(script[++iterator].c_str(), NULL));
-//				args[j].imag(strtod(script[++iterator].c_str(), NULL));
-//			}
-//			World::instance()->setMobius(args[0], args[1], args[2], args[3]);
-//			
-//		} else if(script[iterator] == "penup") {
-//			World::instance()->penUp();
-//			
-//		} else if(script[iterator] == "pendown") {
-//			World::instance()->penDown();
-//			
-//		} else if(script[iterator] == "clear") {
-//			World::instance()->clear();
-//			
-//		} else if(script[iterator] == "setpencolor") {
-//			World::instance()->setPenColor(strtol(script[++iterator].c_str(), NULL, 10));
-//			
-//		} else { 
-//			cout << "Unknown command" << endl;
-//			toggleRunning(); // Switch off the intepreter
-//		}
-//		iterator++;
-//	}
-//	cout << "End of commands" << endl;
-////	randomMoves(); We may want the turtle to move randomly, when we have no further ideas for commands
-//}
 
 void Interpreter::execute() {
 	if(script.empty()) {
@@ -456,9 +406,19 @@ LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, st
 		World::instance()->moveTurtleTo(p);
 	
 	} else if(name == "fill") {
-		
 		World::instance()->fill();
 	
+	} else if(name == "getx") {
+		return World::instance()->getTurtlePosition().x;
+	
+	} else if(name == "gety") {
+		return World::instance()->getTurtlePosition().y;
+	
+	} else if(name == "return") {
+		returnValue = parameters[0];
+	
+//--------------------TRANSFORMATIONS------------------------------//
+		
 	} else if(name == "mobius") {
 		vector<comp> var;
 		for(int j = 0; j < 3; j++) {
@@ -466,8 +426,8 @@ LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, st
 		}
 		World::instance()->setMobius(var[0], var[1], var[2], var[3]);
 		
-	} else if(name == "mirror") {
-		//World::instance()->setMobius(-1, 0, 0, 1);// This doesn't work
+	} else if(name == "mirrorZ") {
+		World::instance()->mirror(parameters[0].toDouble());
 		
 	} else if(name == "translate") {
 		World::instance()->setMobius(1, comp(parameters[0].toDouble(), parameters[1].toDouble()), 0, 1);
@@ -476,6 +436,8 @@ LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, st
 		comp p(parameters[0].toDouble(), parameters[1].toDouble());
 		double r = parameters[2].toDouble();
 		World::instance()->setMobius(p, - p * p + comp(r * r, 0), 1, -p);
+		World::instance()->mirror(parameters[1].toDouble());
+		World::instance()->addCircle(point(p.real(), p.imag()), r);
 		
 	} else if(name == "rotate") {
 		comp p(parameters[0].toDouble(), parameters[1].toDouble());
@@ -505,7 +467,6 @@ LogoData Interpreter::runCode(string functionName, int firstToken, int lastToken
 //	int lastToken = functionFrames[name].second;
 //	if(functionName == "spiro") return LogoData();
 	vector<string> &code = functions[functionName].body;
-	
 	variables.push_back(map<string, LogoData>());
 	cout << "Setting parameters" << endl;
 	for(int i = 0; i < (int)parameters.size(); i++) {
@@ -577,7 +538,10 @@ LogoData Interpreter::runCode(string functionName, int firstToken, int lastToken
 		executeLast(values, stack, valuesNeeded, valuesAvailable, functionName, iterator);
 	}
 	cout << "Exit " << functionName << endl; 
-	if(values.empty()) return LogoData();
-	cout << "I return: " << values[0].toDouble() << endl;
-	return values[0];
+
+	if(!returnValue.empty()) cout << "I return: " << returnValue.toString() << endl;
+	
+	LogoData tmp = returnValue;
+	returnValue = LogoData();
+	return tmp;
 }

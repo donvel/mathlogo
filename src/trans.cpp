@@ -1,5 +1,7 @@
 #include "trans.h"
 
+coefficients::coefficients(comp _a, comp _b, comp _c, comp _d) : a(_a), b(_b), c(_c), d(_d) {}
+
 transformation::transformation() : a(1), b(0), c(0), d(1) {} // identity
 
 void transformation::setValues(comp _a, comp _b, comp _c, comp _d) {

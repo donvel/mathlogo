@@ -21,6 +21,7 @@ class logoApp : public ofBaseApp{
 		void setup();
 		void update();
 		void draw();
+		
 		ofImage buffer[2];
 		int fillIter[2], traceIter[2];
 		int w, h;

@@ -147,6 +147,10 @@ int World::getTop() {
 	return -origin[0].y + height;
 }
 
+point World::getTurtlePosition() {
+	return turtle[activeTurtle].position;
+}
+
 bool World::outside(gridPoint p) {
 	return p.y < getBottom() || p.y >= getTop() || p.x < getLeft() || p.x >= getRight();
 }
@@ -204,6 +208,14 @@ void World::fill() {
 
 void World::fillOne(int id) {
 	filler[id].push_back(make_pair(turtle[id].position, turtle[id].penColor));
+}
+
+void World::addCircle(point pos, double r) {
+	for(int i = 0; i < 360; i++) {
+		for(int j = 0; j < 2; j++) {
+			trace[j].push_back(segment(pos.translated(vect(r, 0).rotated(i-1)), pos.translated(vect(r, 0).rotated(i)), ofColor.red));
+		}
+	}
 }
 
 void World::toggleTurtle() {
