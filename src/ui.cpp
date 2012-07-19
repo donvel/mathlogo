@@ -8,6 +8,7 @@ void logoApp::setup(){
 	for(int i = 0; i < World::instance()->numViewports(); i++) {
 		buffer[i].allocate(w, h, OF_IMAGE_COLOR);
 	}
+	saveScreen = false;
 }
 
 //--------------------------------------------------------------
@@ -41,9 +42,12 @@ gridPoint logoApp::neighbour(gridPoint p, int i) {
 void logoApp::line (point p1, point p2, ofColor targetColor, int id) {
 	double d = dist(p1, p2);
 	for(double alpha = 0; alpha <= d + EPS; alpha += 0.5) {
-		point p = point(p1.x * (alpha / d) + p2.x * (1 - alpha / d),
+		gridPoint gp = point(p1.x * (alpha / d) + p2.x * (1 - alpha / d),
 				p1.y * (alpha / d) + p2.y * (1 - alpha / d));
-		buffer[id].setColor(round(p.x), round(p.y), targetColor);
+	
+		if(gp.x >= 0 && gp.x < w && gp.y >= 0 && gp.y < h) {
+			buffer[id].setColor(gp.x, gp.y, targetColor);
+		}
 	}
 }
 
@@ -128,6 +132,16 @@ void logoApp::draw() {
 		ofLine(w, 0, w, h);
 		//Draws a line separating the two viewports
 	}
+	if(saveScreen) {
+
+		//		saver.allocate(w, h, OF_IMAGE_COLOR);
+		saver.grabScreen(0, 0, ofGetWidth(), ofGetHeight() );
+		string saveName;
+		cin >> saveName;
+		saver.saveImage(saveName);
+		saveScreen = false;
+	}
+	
 	this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
 }
 
@@ -139,6 +153,8 @@ void logoApp::keyPressed(int key){
 	} else if(key == 'q') {
 		cout << "\"q\" pressed" << endl;
 		ofExit(0); // exit entire program
+	} else if(key == 's') {
+		saveScreen = true;
 	}
 }
 

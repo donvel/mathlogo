@@ -24,6 +24,7 @@ struct point {
 
 struct vect : point { // vector == std::vector, so it is better to use another name
 	vect(point p = point(0.0, 1.0, 0.0));
+	vect(double x, double y, double z = 0.0);
 	double length();
 	void normalize();
 	void operator*=(const double&);
@@ -58,5 +59,5 @@ struct gridPoint {
 };
 
 double dist(point, point);
-double angle(vect, vect);
+double angle(vect, vect); // in radians
 bool intersect(segment a, segment b, point &p);

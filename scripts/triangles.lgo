@@ -1,0 +1,73 @@
+SCRIPT
+
+to psu 
+	pu toggle pu toggle
+end
+
+to psd
+	pd toggle pd toggle
+end
+
+to circle :radius
+	psu
+	rt 90
+	fd :radius
+	lt 90
+	psd
+	make "step :radius * 3.14 * 2 / 360
+	repeat 360 [
+		fd :step
+		lt 1
+	]
+	psu
+	lt 90
+	fd :radius
+	rt 90
+	psd
+end
+
+to triangle :radius :angle
+	psu
+	make "x0 getx
+	make "y0 gety
+	lt :angle
+	fd :radius
+	make "x1 getx
+	make "y1 gety
+	rt 180
+	fd :radius
+	rt :angle
+	fd :radius
+	make "x2 getx
+	make "y2 gety
+	rt 180
+	psd
+	fd 2 * :radius
+	setxy :x1 :y1
+	setxy :x2 :y2
+	setxy :x0 :y0
+	psu
+	setxy :x1 :y1
+	psd
+end
+	
+
+to main
+	rt 180
+	psu
+	fd 70
+	psd
+	rt 180
+	inverse 0 (-200) 200
+	circle 65
+	triangle 65	73
+	headto 0 (-200)
+	rt 180
+	fd 200
+	
+	rt 180
+	fd 200
+	toggle
+	
+
+end

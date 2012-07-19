@@ -23,8 +23,10 @@ class logoApp : public ofBaseApp{
 		void draw();
 		
 		ofImage buffer[2];
+		ofImage saver;
 		int fillIter[2], traceIter[2];
 		int w, h;
+		bool saveScreen;
 		
 		void keyPressed(int key);
 		/*Obsolete commands*/

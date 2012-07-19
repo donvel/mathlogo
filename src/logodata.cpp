@@ -10,8 +10,8 @@ LogoData::LogoData(const string& _value) : valid(true), value(_value) {}
 
 LogoData::LogoData(double num) : valid(true) {
 	stringstream output;
-	if(num - (int)num < EPS) {
-		output << (int)num;
+	if(abs(num - round(num)) < EPS) {
+		output << (int)round(num);
 	} else {
 		cout.precision(10);
 		output << fixed << num;
@@ -32,12 +32,12 @@ double LogoData::toDouble() {
 
 LogoData LogoData::operator+(const LogoData& ld) const {
 	double res = strtod(value.c_str(), NULL) + strtod(ld.value.c_str(), NULL);
-	cout << "res = " << res << endl;
 	return LogoData(res);
 }
 
 LogoData LogoData::operator-(const LogoData& ld) const {
 	double res = strtod(value.c_str(), NULL) - strtod(ld.value.c_str(), NULL);
+	cout << res << endl;
 	return LogoData(res);
 }
 
@@ -48,6 +48,11 @@ LogoData LogoData::operator/(const LogoData& ld) const {
 
 LogoData LogoData::operator*(const LogoData& ld) const {
 	double res = strtod(value.c_str(), NULL) * strtod(ld.value.c_str(), NULL);
+	return LogoData(res);
+}
+
+LogoData LogoData::operator%(const LogoData& ld) const {
+	int res = (int)round(strtod(value.c_str(), NULL)) % (int)round(strtod(ld.value.c_str(), NULL));
 	return LogoData(res);
 }
 

@@ -1,0 +1,91 @@
+SCRIPT
+to square :side :color
+	print :side
+	repeat 4 [
+		fd :side
+		rt 90
+	]
+	make "s2 :side / 2
+	pu
+	toggle 
+	pu
+	toggle
+	fd :s2
+	rt 90
+	fd :s2
+	setpencolor :color
+	toggle
+	setpencolor :color
+	fill
+	toggle
+	rt 180
+	fd :s2
+	lt 90
+	fd :s2
+	rt 180
+	pd
+	toggle 
+	pd
+	toggle
+end
+
+to deform :size
+	make "x1 (-300) + random 600
+	make "y1 (-300) + random 600
+	make "x2 (-300) + random 600
+	make "y2 (-300) + random 600
+	make "x3 (-300) + random 600
+	make "y3 (-300) + random 600
+
+	threepointsmoebius :x1 :y1 :x2 :y2 :x3 :y3
+		:x1 - :size + random (2 * :size + 1)
+		:y1 - :size + random (2 * :size + 1)
+		:x2 - :size + random (2 * :size + 1)
+		:y2 - :size + random (2 * :size + 1)
+		:x3 - :size + random (2 * :size + 1)
+		:y3 - :size + random (2 * :size + 1)
+end
+to crate
+	make "s 50
+	pu
+	toggle
+	pu
+	rt 180
+	fd 280
+	rt 90
+	fd 280
+	rt 90
+	toggle
+	pd
+	toggle
+	pd
+	toggle
+	make "c1 1
+	repeat 10 [
+		make "c1 :c1 + 1
+		make "c :c1
+		repeat 10 [
+			square :s :c
+			fd :s
+			make "c :c + 1
+		]
+		rt 180
+		fd 10 * :s
+		lt 90
+		fd :s
+		lt 90
+	]
+end
+
+to main
+ crate
+ repeat 10
+ 	[deform 1
+		repeat 1000
+		[
+		]
+	]
+
+end
+
+

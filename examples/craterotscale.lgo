@@ -30,7 +30,6 @@ to square :side :color
 end
 
 to main
-	translate 15 15
 	make "s 50
 	pu
 	toggle
@@ -43,6 +42,9 @@ to main
 	pd
 	toggle
 	pd
+	homothety 0 0 (-0.5)
+	rotate 15 15 97
+	mirror
 	make "c1 1
 	repeat 10 [
 		make "c1 :c1 + 1

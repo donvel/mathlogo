@@ -33,7 +33,6 @@ class World {
 		Mode mode;
 		int activeTurtle;
 		bool useVoxels;
-		point getTurtlePosition();
 		
 		// We need two turtles for the TRANSFORM mode
 		Turtle turtle[2];
@@ -59,6 +58,8 @@ class World {
 		int numViewports();
 		Mode getMode();
 		bool outside(gridPoint p);
+		point getTurtlePosition();
+		double getTurtleAngle();
 		
 /// World boundaries (we assume that it is a rectangle)
 		int getLeft();
@@ -86,6 +87,7 @@ class World {
 		// Turtle handling
 		void updateTurtle(int id, pair<point, vect> coords);
 		void moveTurtleTo(point p);
+		void headTurtleTo(point p);
 		void rotate(double angle);
 		void forward(double distance);
 		void toggleTurtle();
@@ -95,7 +97,7 @@ class World {
 		void clearScreen();
 		
 		// Transform handling
-		void setMobius(comp a, comp b, comp c, comp d); // comp is a typedef complex<long double, long double>
+		vector<comp> addTransform(comp a, comp b, comp c, comp d, bool mirror = false, double y = 0); // comp is a typedef complex<long double, long double>
 		void clearTransform();
 		
 		void debug();

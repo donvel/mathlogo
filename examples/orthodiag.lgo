@@ -1,0 +1,124 @@
+SCRIPT
+
+to psu 
+	pu toggle pu toggle
+end
+
+to psd
+	pd toggle pd toggle
+end
+
+to circler :radius
+	psu
+	rt 90
+	fd :radius
+	lt 90
+	psd
+	circle :radius
+	psu
+	lt 90
+	fd :radius
+	rt 90
+	psd
+end
+
+to circle :radius
+	make "step :radius * 3.14159265 * 2 / 360
+	repeat 360 [
+		fd :step
+		lt 1
+	]
+end
+
+to setpens :col
+	setpencolor :col
+	toggle
+	setpencolor :col
+	toggle
+end
+
+to len :x :y
+	return sqrt :x * :x + :y * :y
+end
+
+to quadri :a :b :c :d
+	
+	fd :a 
+	make "x1 getx 
+	make "y1 gety 
+	fd -:a
+	rt 90
+	
+	fd :b make "x2 getx make "y2 gety fd -:b
+	rt 90
+	fd :c make "x3 getx make "y3 gety fd -:c
+	rt 90
+	fd :d make "x4 getx make "y4 gety fd -:d
+	rt 90
+
+	fd :a
+	setpens 19
+	setxy :x2 :y2
+	setxy :x3 :y3
+	setxy :x4 :y4
+	setxy :x1 :y1
+	setpens 0
+	fd -:a
+
+	circle :d
+	rt 90
+	circle :a
+	rt 90
+	circle :b
+	rt 90
+	circle :c
+	rt 90
+
+	psu
+	fd :a 
+	rt 180
+	make "ang getangle
+	headto :x2 :y2
+	make "nang getangle - :ang
+	print :nang
+	lt :nang
+	fd :a
+	circler 10 
+	psu
+	toggle
+	make "dx1 getx 
+	make "dy1 gety
+	toggle
+	setxy 0 0
+	headto :x3 :y3
+
+	fd :c 
+	rt 180
+	make "ang getangle
+	headto :x4 :y4
+	make "nang getangle - :ang
+	lt :nang
+	fd :c
+	circler 10 
+	psu
+	toggle
+	make "dx2 getx 
+	make "dy2 gety
+
+	setpens random 27
+	setxy (:dx1 + :dx2) / 2 (:dy1 + :dy2) / 2
+	make "rad (len (:dx1 - :dx2) (:dy1 - :dy2)) / 2
+	circler :rad
+	headto :dx1 :dy1
+	setpens random 27
+	fd :rad
+	rt 180
+	fd 2 * :rad	
+end
+
+to main
+	rt random 360
+	inverse 0 0 100
+	quadri 156 143 192 123
+end
+

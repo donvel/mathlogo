@@ -1,0 +1,26 @@
+SCRIPT
+
+to circle :step
+	repeat 360 [
+		fd :step
+		lt 1
+	]
+end
+
+to rosette :num :step
+	make "color 15
+	repeat :num [
+		make "color (15 + (:color + 1) % 3)
+		setpencolor :color
+		toggle
+		setpencolor :color
+		toggle
+		circle :step
+		rt 360 / :num
+	]
+end
+
+to main
+	inverse 0 0 100
+	rosette 10 1
+end

@@ -1,0 +1,30 @@
+SCRIPT
+to psu 
+	pu toggle pu toggle
+end
+
+to psd
+	pd toggle pd toggle
+end
+
+to arc :step :turn :deg
+	repeat :deg [
+		fd :step
+		lt :turn
+	]
+end
+
+to setpens :col
+	setpencolor :col
+	toggle
+	setpencolor :col
+	toggle
+end
+
+to proof :a :b
+	inverse 0 0 100
+	arc 1 :a 360
+	arc -1 :b 540
+	arc -1 :a + b :360
+	arc -1 :b 180
+	

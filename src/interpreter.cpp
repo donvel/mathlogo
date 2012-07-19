@@ -11,7 +11,9 @@ Interpreter* Interpreter::interpreterInstance = NULL;
 
 Interpreter::Interpreter() : running(false) {
 	
-	functions["if"] = Function(1);
+	srand(time(0));
+	
+	functions["ifelse"] = Function(1);
 	functions["while"] = Function(1);
 	functions["repeat"] = Function(1);
 	functions["make"] = Function(2);	
@@ -24,22 +26,27 @@ Interpreter::Interpreter() : running(false) {
 	functions["setpencolor"] = Function(1);
 	functions["clearscreen"] = Function(0);
 	functions["setxy"] = Function(2);
-	functions["getx"] = Function(1);
-	functions["gety"] = Function(1);
+	functions["headto"] = Function(2);
+	functions["getx"] = Function(0);
+	functions["gety"] = Function(0);
+	functions["getangle"] = Function(0);
 	functions["fill"] = Function(0);
 	functions["return"] = Function(1);
+	functions["random"] = Function(1);
+	functions["sqrt"] = Function(1);
 	
 /* -------- Transformations -------------------*/
 	
-	transFunctions["mobius"] = Function(8);
-	transFunctions["threepointsmobius"] = Function(12);
+	transFunctions["moebius"] = Function(8);
+	transFunctions["threepointsmoebius"] = Function(12);
 	transFunctions["translate"] = Function(2);
 	transFunctions["inverse"] = Function(3); //Complex inverse + mirror
-	transFunctions["mirrorX"] = Function(1); //can't be implemented with Mobius!
+	transFunctions["mirrorX"] = Function(1); //can't be implemented with Moebius!
 	transFunctions["rotate"] = Function(3);
 	transFunctions["homothety"] = Function(3);
 	transFunctions["cleartransform"] = Function(0);
 	transFunctions["toggle"] = Function(0);
+	
 	
 	
 	precedence["="] = 0;
@@ -49,6 +56,7 @@ Interpreter::Interpreter() : running(false) {
 	precedence["-"] = 1;
 	precedence["*"] = 2;
 	precedence["/"] = 2;
+	precedence["%"] = 2;
 	
 	if(World::instance()->getMode() == TRANSFORM) {
 		for(map<string, Function>::iterator it = transFunctions.begin(); it != transFunctions.end(); it++) {
@@ -97,7 +105,7 @@ void Interpreter::extend(string &token) {
 	if(token == "pu") token = "penup";
 	if(token == "pd") token = "pendown";
 	if(token == "ct") token = "cleartransform";
-	if(token == "tpm") token = "threepointsmobius";
+	if(token == "tpm") token = "threepointsmoebius";
 	
 }
 
@@ -276,6 +284,7 @@ LogoData executeOperator(string oper, LogoData a, LogoData b) {
 	if(oper == "-") return a - b;
 	if(oper == "/") return a / b;
 	if(oper == "*") return a * b;
+	if(oper == "%") return a % b;
 	if(oper == "=") return a == b;
 	if(oper == "<") return a < b;
 	if(oper == ">") return a > b;
@@ -342,7 +351,6 @@ void Interpreter::executeLast(vector<LogoData> &values, vector<int> &stack,
 	}
 }
 
-
 LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, string functionName, int &iterator) {
 
 	vector<string> &code = functions[functionName].body;
@@ -351,8 +359,8 @@ LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, st
 		cout << parameters[0].toString() << endl;
 		
 	} else if(name == "make") {
-		variables.back()[parameters[0].toString()] = parameters[1];
-		cout << "new variable " << parameters[0].toString() << " =  " << variables.back()[parameters[0].toString()].toString() << endl;
+		(*variables.begin())[parameters[0].toString()] = parameters[1];
+		cout << "new variable " << parameters[0].toString() << " =  " << variables.front()[parameters[0].toString()].toString() << endl;
 		
 	} else if(name == "forward") {
 		World::instance()->forward(parameters[0].toDouble());
@@ -371,7 +379,7 @@ LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, st
 			pair<int, int> frame= functions[functionName].blockFrames[make_pair(namePos, 1)];
 			runCode(functionName, frame.first, frame.second);
 		}
-		iterator = functions[functionName].blockFrames[make_pair(namePos, 0)].second + 1;
+		iterator = functions[functionName].blockFrames[make_pair(namePos, 1)].second + 1;
 		
 	} else if(name == "while") {
 		if(parameters[0].toBoolean()) {
@@ -379,7 +387,7 @@ LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, st
 			runCode(functionName, frame.first, frame.second);
 			iterator = namePos;
 		} else {
-			iterator = functions[functionName].blockFrames[make_pair(namePos, 0)].second;
+			iterator = functions[functionName].blockFrames[make_pair(namePos, 0)].second + 1;
 		}
 		
 	} else if(name == "repeat") {
@@ -387,7 +395,8 @@ LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, st
 		for(int j = 0; j < (int)parameters[0].toDouble(); j++) {	
 			runCode(functionName, frame.first, frame.second);
 		}
-		iterator = functions[functionName].blockFrames[make_pair(namePos, 0)].second;
+		iterator = functions[functionName].blockFrames[make_pair(namePos, 0)].second + 1;
+		cout << "After repeat iterator = " << iterator << endl;
 	
 	} else if(name == "penup") {
 		World::instance()->penUp();
@@ -405,6 +414,10 @@ LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, st
 		point p(parameters[0].toDouble(), parameters[1].toDouble());
 		World::instance()->moveTurtleTo(p);
 	
+	} else if(name == "headto") {
+		point p(parameters[0].toDouble(), parameters[1].toDouble());
+		World::instance()->headTurtleTo(p);
+	
 	} else if(name == "fill") {
 		World::instance()->fill();
 	
@@ -414,44 +427,82 @@ LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, st
 	} else if(name == "gety") {
 		return World::instance()->getTurtlePosition().y;
 	
+	} else if(name == "getangle") {
+		return World::instance()->getTurtleAngle();
+	
+	} else if(name == "random") {
+		return random() % (int)round(parameters[0].toDouble());
+	
+	} else if(name == "sqrt") {
+		return sqrt(parameters[0].toDouble());
+	
 	} else if(name == "return") {
 		returnValue = parameters[0];
 	
 //--------------------TRANSFORMATIONS------------------------------//
 		
-	} else if(name == "mobius") {
+	} else if(name == "moebius") {
 		vector<comp> var;
 		for(int j = 0; j < 3; j++) {
 			var.push_back(comp(parameters[2 * j].toDouble(), parameters[2 * j + 1].toDouble()));
 		}
-		World::instance()->setMobius(var[0], var[1], var[2], var[3]);
+		vector<comp> fp = World::instance()->addTransform(var[0], var[1], var[2], var[3]);
 		
 	} else if(name == "mirrorZ") {
-		World::instance()->mirror(parameters[0].toDouble());
+		World::instance()->addTransform(0, 0, 0, 0, true, parameters[0].toDouble());
 		
 	} else if(name == "translate") {
-		World::instance()->setMobius(1, comp(parameters[0].toDouble(), parameters[1].toDouble()), 0, 1);
+		World::instance()->addTransform(1, comp(parameters[0].toDouble(), parameters[1].toDouble()), 0, 1);
 		
 	} else if(name == "inverse") {
 		comp p(parameters[0].toDouble(), parameters[1].toDouble());
 		double r = parameters[2].toDouble();
-		World::instance()->setMobius(p, - p * p + comp(r * r, 0), 1, -p);
-		World::instance()->mirror(parameters[1].toDouble());
+		World::instance()->addTransform(p, - p * p + comp(r * r, 0), 1, -p);
+		World::instance()->addTransform(0, 0, 0, 0, true, parameters[1].toDouble());
 		World::instance()->addCircle(point(p.real(), p.imag()), r);
 		
 	} else if(name == "rotate") {
 		comp p(parameters[0].toDouble(), parameters[1].toDouble());
 		double phi = parameters[2].toDouble() / 360.0 * 2 * M_PI;
 		comp eToIPhi = exp(comp(0, phi));
-		World::instance()->setMobius(eToIPhi, p * (comp(1, 0) - eToIPhi), 0, 1);
+		
+		vector<comp> fp = World::instance()->addTransform(eToIPhi, p * (comp(1, 0) - eToIPhi), 0, 1);
 
 	} else if(name == "homothety") {
 		comp p(parameters[0].toDouble(), parameters[1].toDouble());
-		double k = parameters[2].toDouble();
-		World::instance()->setMobius(k,  -p * comp(k, 0) + p, 0, 1);
 
-	} else if(name == "threepointsmobius") {
+		double k = parameters[2].toDouble();
+		World::instance()->addTransform(k,  -p * comp(k, 0) + p, 0, 1);
+		World::instance()->addCircle(point(p.real(), p.imag()), 2);
+
+	} else if(name == "threepointsmoebius") {
+		vector<vector<comp> > pts(2);
+		for(int i = 0; i < 2; i++) {
+			pts[i].resize(3);
+			for(int j = 0; j < 3; j++) {
+				pts[i][j] = comp(parameters[i * 6 + j * 2].toDouble(), parameters[i * 6 + j * 2 + 1].toDouble());
+				if(i == 0) World::instance()->addCircle(point(pts[i][j].real(), pts[i][j].imag()), 2);
+			}
+		}
+		vector<vector<comp> > tr1, tr2, v;
+		tr1.resize(2);
+		tr2.resize(2);
+		vector<comp> z = pts[0], w = pts[1];
 		
+		tr1[0].push_back(z[1] - z[2]);
+		tr1[0].push_back(-z[0] * (z[1] - z[2]));
+		tr1[1].push_back(z[1] - z[0]);
+		tr1[1].push_back(-z[2] * (z[1] - z[0]));
+		
+		tr2[0].push_back(-w[2] * (w[1] - w[0]));
+		tr2[0].push_back(w[0] * (w[1] - w[2]));
+		tr2[1].push_back(-w[1] + w[0]);
+		tr2[1].push_back(w[1] - w[2]);
+		
+		v = matrixMul(tr1, tr2);
+//		World::instance()->addTransform(tr1[0][0], tr1[0][1], tr1[1][0], tr1[1][1]);
+		vector<comp> fp = World::instance()->addTransform(v[0][0], v[0][1], v[1][0], v[1][1]);
+
 	} else if(name == "cleartransform") {
 		World::instance()->clearTransform();
 		
@@ -501,11 +552,17 @@ LogoData Interpreter::runCode(string functionName, int firstToken, int lastToken
 			stack.push_back(iterator);
 			valuesAvailable.push_back(0);
 			valuesNeeded.push_back(functions[token].argNum);
+			if(functions[token].argNum == 0) {
+				executeLast(values, stack, valuesNeeded, valuesAvailable, functionName, iterator);
+			}
 		} else if(isData(token)) {
 			values.push_back(getData(token));
 			valuesAvailable.back()++;
 		} else if(isOperator(token)) {
-			while(!stack.empty() && isOperator(code[stack.front()]) && precedence[token] <= precedence[code[stack.front()]]) {
+			cout << token << " is an operator" << endl;
+
+			while(!stack.empty() && isOperator(code[stack.back()]) && precedence[token] <= precedence[code[stack.back()]]) {
+				cout << "precedence " << token << "<= precedence " << code[stack.back()] << endl;
 				executeLast(values, stack, valuesNeeded, valuesAvailable, functionName, iterator);
 			}
 			if(!stack.empty() && ((!isOperator(code[stack.back()]) && valuesAvailable.back() == 0)
@@ -543,5 +600,6 @@ LogoData Interpreter::runCode(string functionName, int firstToken, int lastToken
 	
 	LogoData tmp = returnValue;
 	returnValue = LogoData();
+	variables.pop_back();
 	return tmp;
 }

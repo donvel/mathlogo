@@ -29,5 +29,9 @@ to sun :size
 end
 
 to main
-	sun 0.5
+	inverse 0 0 100
+	arcl 2 90
+	arcr 2 90
+	rt 180
+	sun 2
 end

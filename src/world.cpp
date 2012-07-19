@@ -136,7 +136,7 @@ int World::getLeft() {
 }
 
 int World::getRight() {
-	return -origin[0].x + width;
+	return -origin[0].x + width - 1;
 }
 
 int World::getBottom() {
@@ -144,11 +144,15 @@ int World::getBottom() {
 }
 
 int World::getTop() {
-	return -origin[0].y + height;
+	return -origin[0].y + height - 1;
 }
 
 point World::getTurtlePosition() {
 	return turtle[activeTurtle].position;
+}
+
+double World::getTurtleAngle() {
+	return angle(turtle[activeTurtle].direction, vect(0, 1)) / (2 * M_PI) * 360;
 }
 
 bool World::outside(gridPoint p) {
@@ -213,9 +217,10 @@ void World::fillOne(int id) {
 void World::addCircle(point pos, double r) {
 	for(int i = 0; i < 360; i++) {
 		for(int j = 0; j < 2; j++) {
-			trace[j].push_back(segment(pos.translated(vect(r, 0).rotated(i-1)), pos.translated(vect(r, 0).rotated(i)), ofColor.red));
+			trace[j].push_back(segment(pos.translated(vect(r, 0).rotated(i-1)), pos.translated(vect(r, 0).rotated(i)), ofColor().red));
 		}
 	}
+	cout << "Adding circle " << pos.x << " " << pos.y << " " << r << endl;
 }
 
 void World::toggleTurtle() {
@@ -272,12 +277,21 @@ void World::moveTurtleTo(point p) {// Does not work as expected.
 	for(int i = 0; i < 2; i++) {
 		oldDirection[i] = turtle[activeTurtle].direction;
 	}
-	rotate(-angle(turtle[activeTurtle].direction, vect(p) + (-vect(turtle[activeTurtle].position))) * 360 / (2 * M_PI));
+	rotate(angle(turtle[activeTurtle].direction, vect(p) + (-vect(turtle[activeTurtle].position))) * 360 / (2 * M_PI));
 	forward(dist(turtle[activeTurtle].position, p));
 	for(int i = 0; i < 2; i++) {
 		turtle[activeTurtle].direction = oldDirection[i];
 	}
 	
+}
+
+void World::headTurtleTo(point p) {// Does not work as expected.
+
+	cout << "Heading turtle to " << p.x << " " << p.y << endl;
+	rotate(angle(turtle[activeTurtle].direction, vect(p) + (-vect(turtle[activeTurtle].position))) * 360 / (2 * M_PI));
+	if(getMode() == TRANSFORM) {
+		turtle[!activeTurtle].direction = trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction)).second;
+	}
 }
 
 void World::forward(double distance) {
@@ -298,7 +312,7 @@ void World::forward(double distance) {
 	while(dist(begPosition, currentPosition) <= // Note: dist is a function, while distance is a parameter
 		   	dist(begPosition, newPosition)) {
 		// Turtle makes many 1px movements to get to the target
-		currentPosition = currentPosition.translated(turtle[activeTurtle].direction);
+		currentPosition = currentPosition.translated(turtle[activeTurtle].direction * (distance > 0 ? 1 : -1));
 		if(useVoxels) {// We draw trace with segments, not with voxels
 			gridPoint visitedVoxel = currentPosition; // not used now
 			if(!outside(visitedVoxel)) getVoxel(visitedVoxel, activeTurtle)->visit(false); 
@@ -324,28 +338,44 @@ vector<point> World::getTurtleShape(int id) {
 	return res;
 }
 
-void World::setMobius(comp a, comp b, comp c, comp d) {
-	if(a * d - b * c == comp(0, 0)) {
-		cout << "a * d - b * c == 0" << endl;
-		return;
-	}
+vector<comp> World::addTransform(comp a, comp b, comp c, comp d, bool mirror, double y) {
+
+	vector<comp> fp;	
+	
 	if(outside(turtle[activeTurtle].position)) {
 		cout << "Active turtle outside viewport" << endl;
-		return;
+		return fp;
 	}
-	trans[activeTurtle].setValues(a, b, c, d); //f
-	trans[!activeTurtle].setValues(-d, b, c, -a); //f^-1
+	if(mirror) {
+		trans[activeTurtle].addMirror(y); //f
+		trans[!activeTurtle].addMirror(y); //f^-1
+	} else { // Moebius
+		if(a * d - b * c == comp(0, 0)) {
+			cout << "a * d - b * c == 0" << endl;
+			return fp;
+		}
+		cout << a << " " << b << " " << c << " " << d << endl;
+//		ofExit(0);
+		fp = trans[activeTurtle].addMoebius(a, b, c, d); //f
+		trans[!activeTurtle].addMoebius(-d, b, c, -a); //f^-1
+	}
 	trace[!activeTurtle].clear();
 	filler[!activeTurtle].clear();
 	cleared[!activeTurtle] = true;
 	for(vector<segment>::iterator it = trace[activeTurtle].begin(); it < trace[activeTurtle].end(); it++) {
 		trace[!activeTurtle].push_back(segment(trans[activeTurtle].setPos(it->a), 
 				trans[activeTurtle].setPos(it->b), it->color));
-	} // we transform active turtle's trace to the other viewport
+	}
+	for(vector<Filler>::iterator it = filler[activeTurtle].begin(); it < filler[activeTurtle].end(); it++) {
+		filler[!activeTurtle].push_back(make_pair(trans[activeTurtle].setPos(it->first), it->second));
+	}
+	// we transform active turtle's trace to the other viewport
 	//I still wonder what should be done in this case - it is  not the only option.
 	pair<point, vect> coords = trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction));
 	turtle[!activeTurtle].position = coords.first;
 	turtle[!activeTurtle].direction = coords.second;
+	
+	return fp;
 }
 
 void World::debug() {

@@ -1,0 +1,82 @@
+SCRIPT
+to psu 
+	pu toggle pu toggle
+end
+
+to psd
+	pd toggle pd toggle
+end
+
+to arc :turn :rad :deg
+	make "step :rad * 3.14159265 * 2 / 360
+	repeat :deg [
+		fd :step
+		rt :turn
+	]
+end
+
+to circle :radius
+	psu
+	rt 90
+	fd :radius
+	lt 90
+	psd
+	arc 1 :radius 360
+	psu
+	lt 90
+	fd :radius
+	rt 90
+	psd
+end
+
+to setpens :col
+	setpencolor :col
+	toggle
+	setpencolor :col
+	toggle
+end
+
+to proof :rad :irad :deg
+	psu
+	rt 90
+	fd :rad
+	rt 90
+	psd
+	arc 1 :rad 360 + :deg
+	make "invx getx
+	make "r gety / 2
+	setxy getx 0
+	headto getx (-600)
+	inverse getx gety :irad
+	setpens 16
+	arc -1 (:rad + getx) / 2 360
+	setpens 21
+	arc 1 (:rad - getx) / 2 360
+	setpens 25
+	rt 90
+	arc 1 :r 540
+	setpens 0
+	make "x getx
+	make "y gety
+	setxy -:rad 0
+	headto :x :y
+	fd -10000
+	fd 20000
+	setxy :x :y 
+	setxy :rad 0
+	headto :x :y
+	fd -10000
+	fd 20000
+	setxy :rad 0
+	setxy -:rad 0
+	toggle
+	fd 200
+	setxy :invx 0
+	lt 90
+	fd 100
+	fd -400
+end
+
+to main
+	proof 200 100 67
+end

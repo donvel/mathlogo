@@ -1,0 +1,60 @@
+SCRIPT
+
+to psu 
+	pu toggle pu toggle
+end
+
+to psd
+	pd toggle pd toggle
+end
+
+to arc :step :turn :deg
+	repeat :deg [
+		fd :step
+		lt :turn
+	]
+end
+
+to setpens :col
+	setpencolor :col
+	toggle
+	setpencolor :col
+	toggle
+end
+
+to draw :size :step :num :shift
+	inverse :shift 299 :size
+	psu
+	setxy 0 298
+	psd
+	rt 180
+	fd 1000
+	rt 180
+	fd 1000
+	rt 180
+	arc :step (-1) 180
+	rt 180
+	fd 1000
+	rt 180
+	fd 1000
+	rt 180
+	arc :step 1 90
+	make "ang (-1)
+	print :ang
+	repeat :num [
+		arc :step :ang 540
+		make "ang (-:ang)
+	]
+	ifelse (:num % 2) = 0 [
+		lt 90
+	] 
+	[
+		rt 90
+	]
+	setpens 22
+	fd 600
+end
+
+to main
+	draw 300 0.5 10 (-200) 
+end

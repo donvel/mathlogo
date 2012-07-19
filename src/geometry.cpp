@@ -29,6 +29,7 @@ point point::translated(const vect &v) {
 
 vect::vect(point p) : point(p) {}
 
+vect::vect(double x, double y, double z) : point(x, y, z) {}
 
 void vect::operator*= (const double& l) {
 	x *= l;
@@ -113,7 +114,13 @@ double dist(point p1, point p2) {
 
 double angle(vect v1, vect v2) { // in radians
 	double cp = v1.x * v2.y - v1.y * v2.x;
-	return asin(cp / (v1.length() * v2.length()));
+	double res = asin(cp / (v1.length() * v2.length()));
+	if (v1.x * v2.x + v1.y * v2.y < 0) {
+		res = M_PI - res;
+	}
+	cout << "angle " << v1.x << ", " << v1.y << " and " << v2.x << ", "
+			<< v2.y << " =  "<< res;
+	return res;
 }
 
 double crossProductThreePoints(point a, point b, point c) {
@@ -157,3 +164,4 @@ bool intersect(segment s1, segment s2, point &p) {// function returns true if s1
 	
 	return true;
 }
+

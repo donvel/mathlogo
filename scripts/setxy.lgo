@@ -1,0 +1,7 @@
+SCRIPT
+to main
+	setxy 100 100
+	setxy 50 50
+	setxy -200 150
+	setxy -10 100
+end

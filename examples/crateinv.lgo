@@ -30,7 +30,6 @@ to square :side :color
 end
 
 to main
-	rotate 0 0 37
 	make "s 50
 	pu
 	toggle
@@ -43,6 +42,7 @@ to main
 	pd
 	toggle
 	pd
+	inverse 0 0 200
 	make "c1 1
 	repeat 10 [
 		make "c1 :c1 + 1

@@ -1,0 +1,37 @@
+SCRIPT
+
+to psu 
+	pu toggle pu toggle
+end
+
+to psd
+	pd toggle pd toggle
+end
+
+to circle :step
+	repeat 360 [
+		fd :step
+		lt 1
+	]
+end
+
+to setpens :col
+	setpencolor :col
+	toggle
+	setpencolor :col
+	toggle
+end
+
+to main
+	inverse 0 100 100
+	lt 90
+	make "s 0.1
+	make "col 3
+	repeat 10 [
+		make "col :col + 2
+		make "s :s + 0.3
+		setpens :col
+		circle :s
+	]
+
+end

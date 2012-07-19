@@ -1,0 +1,46 @@
+SCRIPT
+
+to psu 
+	pu toggle pu toggle
+end
+
+to psd
+	pd toggle pd toggle
+end
+
+to circle :step
+	repeat 360 [
+		fd :step
+		lt 1
+	]
+end
+
+to setpens :col
+	setpencolor :col
+	toggle
+	setpencolor :col
+	toggle
+end
+
+to ortocircle :side :invrad
+	fd :side
+	while getx * getx + gety * gety > :invrad * :invrad 
+		[
+			rt 1
+			fd :side
+			make "path :path + 1
+		]
+end
+
+to main 
+	make "radius 100
+	inverse 0 0 :radius
+	psu
+	fd :radius
+	psd
+	make "path 0
+	while :path < 1300 [
+		ortocircle 1 :radius
+		toggle
+	]
+end

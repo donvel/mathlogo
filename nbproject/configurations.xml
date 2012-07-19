@@ -3,12 +3,18 @@
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <df name="mathlogo" root=".">
       <df name="bin">
+        <df name="data">
+        </df>
         <df name="libs">
         </df>
       </df>
       <df name="docs">
         <df name="Turtle Geometry">
         </df>
+      </df>
+      <df name="examples">
+      </df>
+      <df name="img">
       </df>
       <df name="obj">
         <df name="x86_64Release">
@@ -125,6 +131,8 @@
           </incDir>
         </ccTool>
       </item>
+      <item path="src/geometry.h" ex="true" tool="3" flavor="0">
+      </item>
       <item path="src/interpreter.cpp" ex="false" tool="1" flavor="0">
         <ccTool>
           <incDir>
@@ -133,6 +141,8 @@
           </incDir>
         </ccTool>
       </item>
+      <item path="src/interpreter.h" ex="true" tool="3" flavor="0">
+      </item>
       <item path="src/logodata.cpp" ex="false" tool="1" flavor="0">
         <ccTool>
           <incDir>
@@ -140,6 +150,8 @@
             <pElem>/usr/include/gio-unix-2.0</pElem>
           </incDir>
         </ccTool>
+      </item>
+      <item path="src/logodata.h" ex="true" tool="3" flavor="0">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor="0">
         <ccTool>
@@ -157,6 +169,8 @@
           </incDir>
         </ccTool>
       </item>
+      <item path="src/trans.h" ex="true" tool="3" flavor="0">
+      </item>
       <item path="src/turtle.cpp" ex="false" tool="1" flavor="0">
         <ccTool>
           <incDir>
@@ -164,6 +178,8 @@
             <pElem>/usr/include/gio-unix-2.0</pElem>
           </incDir>
         </ccTool>
+      </item>
+      <item path="src/turtle.h" ex="true" tool="3" flavor="0">
       </item>
       <item path="src/ui.cpp" ex="false" tool="1" flavor="0">
         <ccTool>
@@ -173,6 +189,8 @@
           </incDir>
         </ccTool>
       </item>
+      <item path="src/ui.h" ex="true" tool="3" flavor="0">
+      </item>
       <item path="src/world.cpp" ex="false" tool="1" flavor="0">
         <ccTool>
           <incDir>
@@ -180,6 +198,8 @@
             <pElem>../../Programy/of/libs/openFrameworks/</pElem>
           </incDir>
         </ccTool>
+      </item>
+      <item path="src/world.h" ex="true" tool="3" flavor="0">
       </item>
     </conf>
   </confs>

@@ -22,6 +22,7 @@ public:
 	LogoData operator+ (const LogoData &ld) const;
 	LogoData operator- (const LogoData &ld) const;
 	LogoData operator* (const LogoData &ld) const;
+	LogoData operator% (const LogoData& ld) const;
 	LogoData operator/ (const LogoData &ld) const;
 	LogoData operator== (const LogoData &ld) const;
 private:
