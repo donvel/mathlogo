@@ -22,6 +22,11 @@ class logoApp : public ofBaseApp{
 		void update();
 		void draw();
 		
+//-------------3D handling--------------//
+		void setup3D();
+		void update3D();
+		void draw3D();
+		
 		ofImage buffer[2];
 		ofImage saver;
 		int fillIter[2], traceIter[2];
@@ -38,5 +43,10 @@ class logoApp : public ofBaseApp{
 //		void windowResized(int w, int h);
 //		void dragEvent(ofDragInfo dragInfo);
 //		void gotMessage(ofMessage msg);
+		
+		ofEasyCam cam;
+//		ofMesh mesh;
+		ofVboMesh vboMesh;
+		ofImage img;
 };
 

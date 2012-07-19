@@ -16,6 +16,8 @@
       </df>
       <df name="img">
       </df>
+      <df name="meshes">
+      </df>
       <df name="obj">
         <df name="x86_64Release">
           <df name="src">
@@ -25,6 +27,8 @@
       <df name="scripts">
       </df>
       <df name="src">
+        <in>data3d.cpp</in>
+        <in>data3d.h</in>
         <in>geometry.cpp</in>
         <in>geometry.h</in>
         <in>interpreter.cpp</in>
@@ -123,7 +127,7 @@
           </ccTool>
         </makeTool>
       </makefileType>
-      <item path="src/geometry.cpp" ex="false" tool="1" flavor="0">
+      <item path="src/data3d.cpp" ex="false" tool="1" flavor="0">
         <ccTool>
           <incDir>
             <pElem>../../Programy/of/libs/openFrameworks</pElem>
@@ -131,7 +135,13 @@
           </incDir>
         </ccTool>
       </item>
-      <item path="src/geometry.h" ex="true" tool="3" flavor="0">
+      <item path="src/geometry.cpp" ex="false" tool="1" flavor="0">
+        <ccTool>
+          <incDir>
+            <pElem>../../Programy/of/libs/openFrameworks</pElem>
+            <pElem>/usr/include/gio-unix-2.0</pElem>
+          </incDir>
+        </ccTool>
       </item>
       <item path="src/interpreter.cpp" ex="false" tool="1" flavor="0">
         <ccTool>
@@ -141,8 +151,6 @@
           </incDir>
         </ccTool>
       </item>
-      <item path="src/interpreter.h" ex="true" tool="3" flavor="0">
-      </item>
       <item path="src/logodata.cpp" ex="false" tool="1" flavor="0">
         <ccTool>
           <incDir>
@@ -150,8 +158,6 @@
             <pElem>/usr/include/gio-unix-2.0</pElem>
           </incDir>
         </ccTool>
-      </item>
-      <item path="src/logodata.h" ex="true" tool="3" flavor="0">
       </item>
       <item path="src/main.cpp" ex="false" tool="1" flavor="0">
         <ccTool>
@@ -169,8 +175,6 @@
           </incDir>
         </ccTool>
       </item>
-      <item path="src/trans.h" ex="true" tool="3" flavor="0">
-      </item>
       <item path="src/turtle.cpp" ex="false" tool="1" flavor="0">
         <ccTool>
           <incDir>
@@ -179,19 +183,7 @@
           </incDir>
         </ccTool>
       </item>
-      <item path="src/turtle.h" ex="true" tool="3" flavor="0">
-      </item>
       <item path="src/ui.cpp" ex="false" tool="1" flavor="0">
-        <ccTool>
-          <incDir>
-            <pElem>../../Programy/of/libs/openFrameworks</pElem>
-            <pElem>/usr/include/gio-unix-2.0</pElem>
-          </incDir>
-        </ccTool>
-      </item>
-      <item path="src/ui.h" ex="true" tool="3" flavor="0">
-      </item>
-      <item path="src/world.cpp" ex="false" tool="1" flavor="0">
         <ccTool>
           <incDir>
             <pElem>/usr/include/gio-unix-2.0/</pElem>
@@ -199,7 +191,13 @@
           </incDir>
         </ccTool>
       </item>
-      <item path="src/world.h" ex="true" tool="3" flavor="0">
+      <item path="src/world.cpp" ex="false" tool="1" flavor="0">
+        <ccTool>
+          <incDir>
+            <pElem>../../Programy/of/libs/openFrameworks</pElem>
+            <pElem>/usr/include/gio-unix-2.0</pElem>
+          </incDir>
+        </ccTool>
       </item>
     </conf>
   </confs>

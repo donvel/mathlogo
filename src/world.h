@@ -9,6 +9,7 @@
 #include "trans.h"
 #include "turtle.h"
 #include "geometry.h"
+#include "data3d.h"
 #include "ofMain.h"
 
 using namespace std;
@@ -41,7 +42,6 @@ class World {
 		transformation trans[2];
 		gridPoint origin[2]; // Origin of the coordinate system - its location on the viewport 
 		voxel ***map[2];
-		
 
 	public:
 		static World* instance();
@@ -101,5 +101,9 @@ class World {
 		void clearTransform();
 		
 		void debug();
+		
+		// 3D
+		
+		Data3D *world3D;
 
 };

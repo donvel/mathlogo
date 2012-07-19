@@ -1,7 +1,5 @@
 #include "world.h"
-
-
-using namespace std;
+#include "data3d.h"
 
 World* World::worldInstance = NULL;
 
@@ -78,14 +76,19 @@ void World::setup(char *filename) {
 		mode = NORMAL;
 	}
 	
-	setupFile >> width >> height >> depth;
-	setupFile >> origin[0].x >> origin[0].y >> origin[0].z;
-	origin[1] = origin[0];
-	origin[1].x += width;
-	setupFile >> frameTime;
+	setupFile >> width >> height;
 	cout << "World dimensions: " << width << " " << height << " " << depth << " " << endl;
-//	cout << origin.x << " " << origin.y << " " << origin.z;
-	cout << "Frame time: " << frameTime << endl;
+	if(mode != ESCAPE) {
+		setupFile >> origin[0].x >> origin[0].y;
+		origin[1] = origin[0];
+		origin[1].x += width;
+		setupFile >> frameTime;
+	//	cout << origin.x << " " << origin.y << " " << origin.z;
+		cout << "Frame time: " << frameTime << endl;
+	} else { 
+		world3D = new Data3D();
+		world3D->setup(&setupFile);
+	}
 	setupFile.close();
 	cout << "World setup complete" << endl;
 }

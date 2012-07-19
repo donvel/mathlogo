@@ -2,6 +2,10 @@
 
 //--------------------------------------------------------------
 void logoApp::setup(){
+	if(World::instance()->getMode() == ESCAPE) {
+		setup3D();
+		return;
+	}
 	w = World::instance()->getWidth();
 	h = World::instance()->getHeight();
 	ofBackground(World::instance()->getBackgroundColor());
@@ -13,12 +17,12 @@ void logoApp::setup(){
 
 //--------------------------------------------------------------
 void logoApp::update(){
-	// Nothing to be done here.
+	if(World::instance()->getMode() == ESCAPE) {
+		update3D();
+	}
 }
 
 //--------------------------------------------------------------
-
-
 
 gridPoint logoApp::neighbour(gridPoint p, int i) {
 	switch(i) {
@@ -75,6 +79,10 @@ void logoApp::bfsFill(gridPoint p, ofColor targetColor, int id) {
 }
 
 void logoApp::draw() {
+	if(World::instance()->getMode() == ESCAPE) {
+		draw3D();
+		return;
+	}
 	
 	int numViewports = World::instance()->numViewports();
 
@@ -200,3 +208,37 @@ void logoApp::dragEvent(ofDragInfo dragInfo){
 
 }
 */
+
+void logoApp::setup3D() {
+	ofSetVerticalSync(true);
+	ofSetFrameRate(60);
+	ofBackground(10, 10, 10);
+	glEnable(GL_DEPTH_TEST);
+	vector<ofVec3f> vertices;
+	vector<int> triangles;
+	img.loadImage("white.png");
+	vboMesh.setMode(OF_PRIMITIVE_TRIANGLES);
+	World::instance()->world3D->giveMesh(vertices, triangles);
+
+	for(int i = 0; i < (int)triangles.size(); i++) {
+		vboMesh.addTexCoord(ofVec2f((i % 3 == 1) * 99, (i % 3 == 2) * 99));
+		cout << (i % 3 == 1) * 99 << " " << (i % 3 == 2) * 99 << endl;
+		vboMesh.addVertex(vertices[triangles[i]]);
+	}
+}
+
+void logoApp::draw3D() {
+
+//	img.draw(0, 0);
+	cam.begin();
+	ofRotateY(ofGetElapsedTimef() * 30); // slowly rotate the model
+	ofScale(2, 2, 2); // make everything a bit smaller
+    img.bind(); // bind the image to begin texture mapping
+	vboMesh.draw();
+	img.unbind();
+	cam.end();
+}
+
+void logoApp::update3D() {
+
+}
