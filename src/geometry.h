@@ -17,6 +17,7 @@ struct point {
 	double x, y, z; // decent precision;
 	point(double _x = 0.0, double _y = 0.0, double _z = 0.0);
 	point(const gridPoint&);
+	point(const ofVec2f);
 	bool operator==(const point&);
 	void operator+=(const vect&);	
 	point translated(const vect&);	

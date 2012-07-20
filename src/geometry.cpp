@@ -6,6 +6,7 @@
 
 point::point(double _x, double _y, double _z) : x(_x), y(_y), z(_z) {}
 point::point(const gridPoint& gp) : x(gp.x), y(gp.y), z(gp.z) {}
+point::point(const ofVec2f ov) : x(ov.x), y(ov.y) {}
 
 bool point::operator==(const point& p) {
 	return abs(x - p.x) < EPS && abs(y - p.y) < EPS && abs(z - p.z) < EPS; // two points are considered equal

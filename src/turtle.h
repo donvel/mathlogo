@@ -10,4 +10,8 @@ struct Turtle {
 	ofColor penColor;
 	bool isPenDown;
 	Turtle(point _position = point(), vect _direction = vect(), vect _zDirection = vect(point(0.0, 0.0, 1.0)));
+	
+	// needed for 3D
+	ofVec2f pos, dir;
+	int faceId;
 };

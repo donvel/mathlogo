@@ -264,14 +264,6 @@ void World::setPenColor(int colId) {
 	turtle[activeTurtle].penColor = palette[colId];
 }
 
-void World::rotate(double angle) {// in degrees
-	updateTurtle(activeTurtle, make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction.rotated(angle)));	
-	if(mode == TRANSFORM) { // we have to update also linked turtle's rotation
-		updateTurtle(!activeTurtle, 
-			trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction)));	
-	}
-}
-
 void World::moveTurtleTo(point p) {// Does not work as expected.
 
 	if(outside(p)) return;
@@ -297,49 +289,6 @@ void World::headTurtleTo(point p) {// Does not work as expected.
 	}
 }
 
-void World::forward(double distance) {
-
-	vect displacement = turtle[activeTurtle].direction * distance;
-	point newPosition = turtle[activeTurtle].position.translated(displacement); 
-	// active turtle's position after this move
-    point newPosition2 = trans[activeTurtle].setCoords(make_pair(newPosition, vect())).first;
-	// another turtle's position after this move
-    
-	if(outside(newPosition) && outside(newPosition2)) { // We want at least one turtle to stay in the viewport
-		return;
-	}
-	
-	point currentPosition = turtle[activeTurtle].position; 
-	point begPosition = currentPosition;
-	
-	while(dist(begPosition, currentPosition) <= // Note: dist is a function, while distance is a parameter
-		   	dist(begPosition, newPosition)) {
-		// Turtle makes many 1px movements to get to the target
-		currentPosition = currentPosition.translated(turtle[activeTurtle].direction * (distance > 0 ? 1 : -1));
-		if(useVoxels) {// We draw trace with segments, not with voxels
-			gridPoint visitedVoxel = currentPosition; // not used now
-			if(!outside(visitedVoxel)) getVoxel(visitedVoxel, activeTurtle)->visit(false); 
-		}
-		
-		updateTurtle(activeTurtle, make_pair(currentPosition, turtle[activeTurtle].direction));
-		if(mode == TRANSFORM) updateTurtle(!activeTurtle, 
-			trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction)));
-	}	
-	// We move the turtle to its final position to finish the movement
-	updateTurtle(activeTurtle, make_pair(newPosition, turtle[activeTurtle].direction));
-	if(mode == TRANSFORM) updateTurtle(!activeTurtle, 
-			trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction)));
-}
-
-vector<point> World::getTurtleShape(int id) {
-	vector<point> res(3);
-	res[0] = turtle[id].position.translated(turtle[id].direction * 30.0);
-	res[1] = turtle[id].position.translated(turtle[id].direction.rotated(90.0) * 10.0);
-	res[2] = turtle[id].position.translated(turtle[id].direction.rotated(-90.0) * 10.0);	
-	//the points are given in 'Turtle' coordinates, not OF coordinates
-
-	return res;
-}
 
 vector<comp> World::addTransform(comp a, comp b, comp c, comp d, bool mirror, double y) {
 
@@ -381,7 +330,68 @@ vector<comp> World::addTransform(comp a, comp b, comp c, comp d, bool mirror, do
 	return fp;
 }
 
+vector<point> World::getTurtleShape(int id) {
+	vector<point> res(3);
+	res[0] = turtle[id].position.translated(turtle[id].direction * 30.0);
+	res[1] = turtle[id].position.translated(turtle[id].direction.rotated(90.0) * 10.0);
+	res[2] = turtle[id].position.translated(turtle[id].direction.rotated(-90.0) * 10.0);	
+	//the points are given in 'Turtle' coordinates, not OF coordinates
+
+	return res;
+}
+
 void World::debug() {
 	
 	cout << turtle[activeTurtle].position.x + origin[activeTurtle].x << " " << turtle[activeTurtle].position.y + origin[activeTurtle].y << endl; 
+}
+
+void World::forward(double distance) {
+	if(mode == ESCAPE) {
+		world3D->forward(turtle[0], distance);
+		return;
+	}
+	vect displacement = turtle[activeTurtle].direction * distance;
+	point newPosition = turtle[activeTurtle].position.translated(displacement); 
+	// active turtle's position after this move
+    point newPosition2 = trans[activeTurtle].setCoords(make_pair(newPosition, vect())).first;
+	// another turtle's position after this move
+    
+	if(outside(newPosition) && outside(newPosition2)) { // We want at least one turtle to stay in the viewport
+		return;
+	}
+	
+	point currentPosition = turtle[activeTurtle].position; 
+	point begPosition = currentPosition;
+	
+	while(dist(begPosition, currentPosition) <= // Note: dist is a function, while distance is a parameter
+		   	dist(begPosition, newPosition)) {
+		// Turtle makes many 1px movements to get to the target
+		currentPosition = currentPosition.translated(turtle[activeTurtle].direction * (distance > 0 ? 1 : -1));
+		if(useVoxels) {// We draw trace with segments, not with voxels
+			gridPoint visitedVoxel = currentPosition; // not used now
+			if(!outside(visitedVoxel)) getVoxel(visitedVoxel, activeTurtle)->visit(false); 
+		}
+		
+		updateTurtle(activeTurtle, make_pair(currentPosition, turtle[activeTurtle].direction));
+		if(mode == TRANSFORM) updateTurtle(!activeTurtle, 
+			trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction)));
+	}	
+	// We move the turtle to its final position to finish the movement
+	updateTurtle(activeTurtle, make_pair(newPosition, turtle[activeTurtle].direction));
+	if(mode == TRANSFORM) updateTurtle(!activeTurtle, 
+			trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction)));
+}
+
+
+
+void World::rotate(double angle) {// in degrees
+	if(mode == ESCAPE) {
+		world3D->rotate(turtle[0], angle);
+		return;
+	}
+	updateTurtle(activeTurtle, make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction.rotated(angle)));	
+	if(mode == TRANSFORM) { // we have to update also linked turtle's rotation
+		updateTurtle(!activeTurtle, 
+			trans[activeTurtle].setCoords(make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction)));	
+	}
 }

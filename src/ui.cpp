@@ -2,6 +2,7 @@
 
 //--------------------------------------------------------------
 void logoApp::setup(){
+	saveScreen = false;
 	if(World::instance()->getMode() == ESCAPE) {
 		setup3D();
 		return;
@@ -12,7 +13,6 @@ void logoApp::setup(){
 	for(int i = 0; i < World::instance()->numViewports(); i++) {
 		buffer[i].allocate(w, h, OF_IMAGE_COLOR);
 	}
-	saveScreen = false;
 }
 
 //--------------------------------------------------------------
@@ -79,8 +79,22 @@ void logoApp::bfsFill(gridPoint p, ofColor targetColor, int id) {
 }
 
 void logoApp::draw() {
+
 	if(World::instance()->getMode() == ESCAPE) {
 		draw3D();
+	}
+	
+	if(saveScreen) {
+
+		//		saver.allocate(w, h, OF_IMAGE_COLOR);
+		saver.grabScreen(0, 0, ofGetWidth(), ofGetHeight() );
+		string saveName;
+		cin >> saveName;
+		saver.saveImage(saveName);
+		saveScreen = false;
+	}
+	
+	if(World::instance()->getMode() == ESCAPE) {
 		return;
 	}
 	
@@ -140,15 +154,7 @@ void logoApp::draw() {
 		ofLine(w, 0, w, h);
 		//Draws a line separating the two viewports
 	}
-	if(saveScreen) {
 
-		//		saver.allocate(w, h, OF_IMAGE_COLOR);
-		saver.grabScreen(0, 0, ofGetWidth(), ofGetHeight() );
-		string saveName;
-		cin >> saveName;
-		saver.saveImage(saveName);
-		saveScreen = false;
-	}
 	
 	this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
 }
@@ -163,6 +169,10 @@ void logoApp::keyPressed(int key){
 		ofExit(0); // exit entire program
 	} else if(key == 's') {
 		saveScreen = true;
+		cout << "Enter file name" << endl;
+	} else if(key == 'w') {
+		cout << "w pressed" << endl;
+		drawWireframe = !drawWireframe;
 	}
 }
 
@@ -215,28 +225,39 @@ void logoApp::setup3D() {
 	ofBackground(10, 10, 10);
 	glEnable(GL_DEPTH_TEST);
 	vector<ofVec3f> vertices;
+	vector<ofVec2f> coords;
 	vector<int> triangles;
-	img.loadImage("white.png");
+	
+//	img.loadImage("white.png");
+	img = &(World::instance()->world3D->texture);
 	vboMesh.setMode(OF_PRIMITIVE_TRIANGLES);
-	World::instance()->world3D->giveMesh(vertices, triangles);
+	World::instance()->world3D->giveMesh(vertices, coords, triangles);
 
 	for(int i = 0; i < (int)triangles.size(); i++) {
-		vboMesh.addTexCoord(ofVec2f((i % 3 == 1) * 99, (i % 3 == 2) * 99));
-		cout << (i % 3 == 1) * 99 << " " << (i % 3 == 2) * 99 << endl;
+		vboMesh.addTexCoord(coords[i]);
+		//cout << (i % 3 == 1) * 99 << " " << (i % 3 == 2) * 99 << endl;
 		vboMesh.addVertex(vertices[triangles[i]]);
 	}
 }
 
 void logoApp::draw3D() {
 
-//	img.draw(0, 0);
 	cam.begin();
-	ofRotateY(ofGetElapsedTimef() * 30); // slowly rotate the model
-	ofScale(2, 2, 2); // make everything a bit smaller
-    img.bind(); // bind the image to begin texture mapping
+//	ofRotateY(ofGetElapsedTimef() * 30); // slowly rotate the model
+	float scaleRatio = (float)min(ofGetWindowWidth(), ofGetWindowHeight()) * 0.6 * World::instance()->world3D->getScaleRatio();
+	//cout << "scaleRatio = " << scaleRatio << endl; 
+	ofScale(scaleRatio, scaleRatio, scaleRatio); // scale everything
+    img->bind(); // bind the image to begin texture mapping
+	ofSetColor(ofColor::white);
 	vboMesh.draw();
-	img.unbind();
+	if(drawWireframe) {
+		ofSetColor(0);
+		vboMesh.drawWireframe();
+	}
+	img->unbind();
 	cam.end();
+	
+	
 }
 
 void logoApp::update3D() {

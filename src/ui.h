@@ -47,6 +47,8 @@ class logoApp : public ofBaseApp{
 		ofEasyCam cam;
 //		ofMesh mesh;
 		ofVboMesh vboMesh;
-		ofImage img;
+		ofImage *img;
+		
+		bool drawWireframe;
 };
 
