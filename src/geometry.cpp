@@ -130,6 +130,8 @@ double crossProductThreePoints(point a, point b, point c) {
 
 bool intersect(segment s1, segment s2, point &p) {// function returns true if s1 and s2 intersect
 	//and sets p as the intersection point
+//	cout << "Cheing intersection " << s1.a.x << " " << s1.a.y << ", " << s1.b.x << " " << s1.b.y << 
+//			" and " << s2.a.x << " " << s2.a.y << ", " << s2.b.x << " " << s2.b.y <<  endl;
 	double c1 = crossProductThreePoints(s1.a, s1.b, s2.a);
 	double c2 = crossProductThreePoints(s1.a, s1.b, s2.b);
 	if(c1 * c2 >= 0) return false;
@@ -166,3 +168,41 @@ bool intersect(segment s1, segment s2, point &p) {// function returns true if s1
 	return true;
 }
 
+void line (point p1, point p2, ofColor targetColor, ofImage &img, bool thick) {
+	double d = dist(p1, p2);
+	for(double alpha = 0; alpha <= d + EPS; alpha += 0.5) {
+		gridPoint gp = point(p1.x * (alpha / d) + p2.x * (1 - alpha / d),
+				p1.y * (alpha / d) + p2.y * (1 - alpha / d));
+		
+		if(gp.x >= 0 && gp.x < img.getWidth() && gp.y >= 0 && gp.y < img.getHeight()) {
+			img.setColor(gp.x, gp.y, targetColor);
+		}
+		if(thick) {
+			for(int i = 0; i < 4; i++) {
+				gridPoint np = neighbour(gp, i);
+				if(np.x >= 0 && np.x < img.getWidth() && np.y >= 0 && np.y < img.getHeight()) {
+					img.setColor(np.x, np.y, targetColor);
+				}
+			}
+		}
+	}
+}
+
+gridPoint neighbour(gridPoint p, int i) {
+	switch(i) {
+		case 0:
+			return gridPoint(p.x + 1, p.y);
+		break;
+		case 1:
+			return gridPoint(p.x, p.y + 1);
+		break;
+		case 2:
+			return gridPoint(p.x - 1, p.y);
+		break;
+		case 3:
+			return gridPoint(p.x, p.y - 1);
+		break;
+		
+	}
+	return p;
+}

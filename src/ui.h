@@ -15,9 +15,9 @@ using namespace boost;
 class logoApp : public ofBaseApp{
 	public:
 //		ofColor getPixel(gridPoint p);
-		gridPoint neighbour(gridPoint p, int i);
+		
 		void bfsFill(gridPoint p, ofColor targetColor, int id);
-		void line(point p1, point p2, ofColor targetColor, int id);
+		
 		void setup();
 		void update();
 		void draw();

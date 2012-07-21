@@ -76,7 +76,7 @@ to deform :size
 end
 
 to main
- deform 100
+ deform 10
 end
 
 

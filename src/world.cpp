@@ -6,7 +6,7 @@ World* World::worldInstance = NULL;
 World::World() : width(300), height(300), depth(1),
 	frameTime(10), backgroundColor(255, 255, 255), 
 	paletteSize(27), mode(NORMAL), activeTurtle(0), 
-	useVoxels(false), changing(false), frozen(false) {
+	useVoxels(false), changing(false), frozen(false), world3D(NULL) {
 	origin[0] = gridPoint(150, 150, 0);
 	origin[1] = gridPoint(450, 150, 0);
 	map[0] = NULL;
@@ -48,6 +48,9 @@ World::~World() {
 			delete[] map[tur];
 		}
 	}
+	if(world3D != NULL) {
+		delete world3D;
+	}
 }
 
 World* World::instance() {
@@ -87,7 +90,7 @@ void World::setup(char *filename) {
 		cout << "Frame time: " << frameTime << endl;
 	} else { 
 		world3D = new Data3D();
-		world3D->setup(&setupFile);
+		world3D->setup(&setupFile, turtle[0]);
 	}
 	setupFile.close();
 	cout << "World setup complete" << endl;

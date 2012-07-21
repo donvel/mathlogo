@@ -1,0 +1,39 @@
+SCRIPT
+
+to psu 
+	pu toggle pu toggle
+end
+
+to psd
+	pd toggle pd toggle
+end
+
+to setpens :col
+	setpencolor :col
+	toggle
+	setpencolor :col
+	toggle
+end
+
+to angle :len :r
+	psu
+	setxy ((random 2 * :r) - :r) ((random 2 * :r) - :r)
+	headto ((random 2 * :r) - :r) ((random 2 * :r) - :r)
+	setpens :col
+	make "col :col + 1
+	psd
+	fd :len
+	fd -:len
+	rt random 90
+	fd :len
+	fd -:len
+end
+to main
+	inverse 0 0 100
+	make "col 17
+	repeat 5 [
+		angle 200 200
+	]
+end
+
+

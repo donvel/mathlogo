@@ -235,8 +235,8 @@ void Interpreter::randomMoves() {
 	while(true) {
 		this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
 		if(!running) continue;
-		World::instance()->forward(rand() % 3);
-		World::instance()->rotate(rand() % 6 - 3); // possible values: -3, ... 2 , so generally turns to one side
+		World::instance()->forward(1 + rand() % 3);
+		World::instance()->rotate(rand() % 7 - 3); // possible values: -3, ... 3 , so generally turns to one side
 	}
 }
 
