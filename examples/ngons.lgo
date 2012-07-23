@@ -1,0 +1,11 @@
+SCRIPT
+to ngons_z :n :ob :s :g
+ ifelse :g > 0 [
+ repeat :n [setpencolor :g fd :s ngons_z :n :ob :s / 2
+:g - 1 rt :ob * 360 / :n]
+ ] []
+end
+
+to main
+	ngons_z 5 2 200 5
+end

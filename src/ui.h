@@ -26,6 +26,7 @@ class logoApp : public ofBaseApp{
 		void setup3D();
 		void update3D();
 		void draw3D();
+		void updateTurtleMesh(ofVec3f pos, ofVec3f dir);
 		
 		ofImage buffer[2];
 		ofImage saver;
@@ -46,7 +47,7 @@ class logoApp : public ofBaseApp{
 		
 		ofEasyCam cam;
 //		ofMesh mesh;
-		ofVboMesh vboMesh;
+		ofVboMesh vboMesh, turtleMesh, turtleMeshTrans;
 		ofImage *img;
 		
 		bool drawWireframe;

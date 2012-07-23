@@ -6,12 +6,15 @@
 #include <vector>
 #include <cmath>
 #include <cassert>
+#include <boost/thread.hpp>
 
 #include "ofMain.h"
 #include "turtle.h"
 #include "geometry.h"
 
+
 using namespace std;
+using namespace boost;
 
 struct TransInfo {
 	int faceId;
@@ -22,6 +25,7 @@ struct TransInfo {
 };
 
 struct Face {
+	ofMatrix4x4 rot;
 	int v[3];
 	TransInfo nei[3];
 	ofVec2f planePoints[3];
@@ -32,16 +36,19 @@ struct Face {
 
 class Data3D {
 public:
+	Data3D(Turtle &turtleRef);
 	~Data3D();
-	void setup(fstream *setupFile, Turtle &turtle);
+	void setup(fstream *setupFile);
 	void createTexture();
 	void giveMesh(vector<ofVec3f> &vertices, vector<ofVec2f> &coordinates, vector<int> &triangles);
+	void giveTurtleMesh(vector<ofVec3f> &vertices, vector<ofVec2f> &coordinates, vector<int> &triangles);
+	void giveTurtleCoords(ofVec3f &pos, ofVec3f &dir);
 	float getScaleRatio();
 	void drawSegment(ofVec2f p1, ofVec2f p2, int faceId);
 
 	ofImage texture;
-	void forward(Turtle &turtle, double dist);
-	void rotate(Turtle &turtle, double angle);
+	void forward(double dist);
+	void rotate(double angle);
 	vector<ofVec3f> verts;
 	vector<ofVec2f> coords;
 	vector<Face> faces;
@@ -51,6 +58,7 @@ private:
 	float scaleRatio;
 	float maxDist;
 	int faceResolution;
+	Turtle &turtle;
 
 };
 

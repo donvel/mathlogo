@@ -89,8 +89,9 @@ void World::setup(char *filename) {
 	//	cout << origin.x << " " << origin.y << " " << origin.z;
 		cout << "Frame time: " << frameTime << endl;
 	} else { 
-		world3D = new Data3D();
-		world3D->setup(&setupFile, turtle[0]);
+		setupFile >> frameTime;
+		world3D = new Data3D(turtle[0]);
+		world3D->setup(&setupFile);
 	}
 	setupFile.close();
 	cout << "World setup complete" << endl;
@@ -350,7 +351,7 @@ void World::debug() {
 
 void World::forward(double distance) {
 	if(mode == ESCAPE) {
-		world3D->forward(turtle[0], distance);
+		world3D->forward(distance);
 		return;
 	}
 	vect displacement = turtle[activeTurtle].direction * distance;
@@ -389,7 +390,7 @@ void World::forward(double distance) {
 
 void World::rotate(double angle) {// in degrees
 	if(mode == ESCAPE) {
-		world3D->rotate(turtle[0], angle);
+		world3D->rotate(angle);
 		return;
 	}
 	updateTurtle(activeTurtle, make_pair(turtle[activeTurtle].position, turtle[activeTurtle].direction.rotated(angle)));	

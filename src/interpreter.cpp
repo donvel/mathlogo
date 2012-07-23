@@ -41,7 +41,7 @@ Interpreter::Interpreter() : running(false) {
 	transFunctions["threepointsmoebius"] = Function(12);
 	transFunctions["translate"] = Function(2);
 	transFunctions["inverse"] = Function(3); //Complex inverse + mirror
-	transFunctions["mirrorX"] = Function(1); //can't be implemented with Moebius!
+	transFunctions["mirror"] = Function(1); //can't be implemented with Moebius!
 	transFunctions["rotate"] = Function(3);
 	transFunctions["homothety"] = Function(3);
 	transFunctions["cleartransform"] = Function(0);
@@ -448,7 +448,7 @@ LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, st
 		}
 		vector<comp> fp = World::instance()->addTransform(var[0], var[1], var[2], var[3]);
 		
-	} else if(name == "mirrorZ") {
+	} else if(name == "mirror") {
 		World::instance()->addTransform(0, 0, 0, 0, true, parameters[0].toDouble());
 		
 	} else if(name == "translate") {

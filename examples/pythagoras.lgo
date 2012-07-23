@@ -1,0 +1,53 @@
+SCRIPT
+
+to square :side :col
+	repeat 4
+		[
+			fd :side
+			rt 90
+		]
+	pu
+	fd :side / 2
+	rt 90
+	fd :side / 2
+	setpencolor :col
+	fill
+	setpencolor 0
+	fd -:side / 2
+	lt 90
+	fd -:side / 2
+	pd
+end
+
+to main
+	pyt_tree 2 50
+end
+
+to pyt_tree :len :level
+	ifelse :level > 0 
+		[
+			square :len :level
+			pu
+			fd :len
+			lt 45
+			pd
+			pyt_tree (:len * sqrt 2) / 2 :level - 1
+			pu
+			rt 90
+			fd (:len * sqrt 2) / 2
+			pd
+			pyt_tree (:len * sqrt 2) / 2 :level - 1
+			pu
+			fd (-:len * sqrt 2) / 2
+			lt 45
+			fd -:len
+		]
+		[
+		]
+end
+
+to main
+	fd 100
+	rt 180
+	pyt_tree 50 4
+end

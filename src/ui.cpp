@@ -218,6 +218,16 @@ void logoApp::setup3D() {
 		//cout << (i % 3 == 1) * 99 << " " << (i % 3 == 2) * 99 << endl;
 		vboMesh.addVertex(vertices[triangles[i]]);
 	}
+	
+	cout << "World mesh loaded" << endl;
+	
+	World::instance()->world3D->giveTurtleMesh(vertices, coords, triangles);
+	for(int i = 0; i < (int)triangles.size(); i++) {
+		turtleMesh.addVertex(vertices[triangles[i]]);
+	}
+	turtleMeshTrans = turtleMesh;
+	
+	cout << "Turtle mesh loaded" << endl;
 }
 
 void logoApp::draw3D() {
@@ -239,6 +249,12 @@ void logoApp::draw3D() {
 	}
 	//img->unbind();
 	tex.unbind();
+	ofVec3f pos, dir;
+	World::instance()->world3D->giveTurtleCoords(pos, dir);
+	updateTurtleMesh(pos, dir);
+	ofSetColor(ofColor::red);
+	turtleMeshTrans.draw();
+	
 	cam.end();
 	
 	
@@ -246,4 +262,15 @@ void logoApp::draw3D() {
 
 void logoApp::update3D() {
 
+}
+
+void logoApp::updateTurtleMesh(ofVec3f pos, ofVec3f dir) {
+	ofMatrix4x4 trans, rot1, rot2;
+	trans.makeTranslationMatrix(pos);
+	rot1.makeRotationMatrix(ofVec3f(1, 0, 0), dir);
+	vector<ofVec3f> verts = turtleMesh.getVertices();
+	for(int i = 0; i < (int)verts.size(); i++) {
+		verts[i] = verts[i] * trans;
+	}
+	turtleMeshTrans.getVertices() = verts;
 }

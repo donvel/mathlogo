@@ -42,9 +42,7 @@ to main
 	pd
 	toggle
 	pd
-	homothety 0 0 (-0.5)
-	rotate 15 15 97
-	mirror
+	mirror 0
 	make "c1 1
 	repeat 10 [
 		make "c1 :c1 + 1
