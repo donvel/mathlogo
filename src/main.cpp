@@ -35,7 +35,7 @@ int main(int argnum, char **argv) {
 	// set width, height, mode (OF_WINDOW or OF_FULLSCREEN)
 	int width = World::instance()->getWidth();
 	int height = World::instance()->getHeight();
-	if(World::instance()->getMode() == TRANSFORM) {
+	if(World::instance()->getMode() != NORMAL) {
 		width *= 2; // In this mode we have two viewports, so overall width is doubled
 	}
 	cout << "Window width = " << width << ", height = " << height << endl;

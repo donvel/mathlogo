@@ -29,6 +29,7 @@ struct Face {
 	int v[3];
 	TransInfo nei[3];
 	ofVec2f planePoints[3];
+	ofVec3f normal;
 	Face(int a, int b, int c, vector<ofVec3f> *vec = NULL);
 //	void findNeighbours();
 };
@@ -42,12 +43,14 @@ public:
 	void createTexture();
 	void giveMesh(vector<ofVec3f> &vertices, vector<ofVec2f> &coordinates, vector<int> &triangles);
 	void giveTurtleMesh(vector<ofVec3f> &vertices, vector<ofVec2f> &coordinates, vector<int> &triangles);
-	void giveTurtleCoords(ofVec3f &pos, ofVec3f &dir);
+	void giveTurtleCoords(ofVec3f &pos, ofVec3f &dir, ofVec3f &dirUp);
 	float getScaleRatio();
-	void drawSegment(ofVec2f p1, ofVec2f p2, int faceId);
-
+	void drawSegment(ofVec2f p1, ofVec2f p2, int faceId, double step = 1.0);
+	
+	string cameraType;
 	ofImage texture;
 	void forward(double dist);
+	void forwardStep(double dist);
 	void rotate(double angle);
 	vector<ofVec3f> verts;
 	vector<ofVec2f> coords;

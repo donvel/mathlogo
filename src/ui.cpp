@@ -200,6 +200,10 @@ void logoApp::dragEvent(ofDragInfo dragInfo){
 */
 
 void logoApp::setup3D() {
+	
+	viewport2D.set(0, 0, (double)ofGetWindowWidth() / 2.0, ofGetWindowHeight());
+	viewport3D.set((double)ofGetWindowWidth() / 2.0, 0, (double)ofGetWindowWidth() / 2.0, ofGetWindowHeight());
+	
 	ofSetVerticalSync(true);
 	ofSetFrameRate(60);
 	ofBackground(10, 10, 10);
@@ -228,49 +232,78 @@ void logoApp::setup3D() {
 	turtleMeshTrans = turtleMesh;
 	
 	cout << "Turtle mesh loaded" << endl;
+	
 }
 
 void logoApp::draw3D() {
 
-	cam.begin();
 //	ofRotateY(ofGetElapsedTimef() * 30); // slowly rotate the model
-	float scaleRatio = (float)min(ofGetWindowWidth(), ofGetWindowHeight()) * 0.6 * World::instance()->world3D->getScaleRatio();
-	//cout << "scaleRatio = " << scaleRatio << endl; 
+	float scaleRatio = min(viewport3D.width, viewport3D.height) * 0.6 * World::instance()->world3D->getScaleRatio();
+	cout << "scaleRatio = " << scaleRatio << endl; 
+	cam.begin(viewport3D);
 	ofScale(scaleRatio, scaleRatio, scaleRatio); // scale everything
 //	img->update(); // Necessary??
     //img->bind(); // bind the image to begin texture mapping
 	ofImage tex = *img;
+//	if(World::instance()->world3D->cameraType == "FOLLOW") {
+//		
+//	}
+	ofVec3f pos, dir, dirUp;
+	World::instance()->world3D->giveTurtleCoords(pos, dir, dirUp);
+	updateTurtleMesh(pos, dir, dirUp);
 	tex.bind();
+
 	ofSetColor(ofColor::white);
 	vboMesh.draw();
 	if(drawWireframe) {
-		ofSetColor(0);
+		ofSetColor(ofColor::black);
 		vboMesh.drawWireframe();
 	}
 	//img->unbind();
 	tex.unbind();
-	ofVec3f pos, dir;
-	World::instance()->world3D->giveTurtleCoords(pos, dir);
-	updateTurtleMesh(pos, dir);
 	ofSetColor(ofColor::red);
 	turtleMeshTrans.draw();
 	
 	cam.end();
 	
+	drawVieport2D();
+}
+
+void logoApp::drawVieport2D() {
+	ofPushStyle();
+	ofFill();
+	ofSetColor(ofColor::white);
+	ofSetLineWidth(0);
+	ofRect(viewport2D);
+	ofPopStyle();
 	
+////	ofPushView();
+//	ofViewport(viewport2D);
+//////	ofSetupScreen();
+//	ofFill();
+//	ofSetColor(ofColor::red);
+//	ofCircle(10, 10, 10);
+////	ofPopView();
 }
 
 void logoApp::update3D() {
-
+	viewport2D.set(0, 0, (double)ofGetWindowWidth() / 2.0, ofGetWindowHeight());
+	viewport3D.set((double)ofGetWindowWidth() / 2.0, 0, (double)ofGetWindowWidth() / 2.0, ofGetWindowHeight());
 }
 
-void logoApp::updateTurtleMesh(ofVec3f pos, ofVec3f dir) {
-	ofMatrix4x4 trans, rot1, rot2;
+void logoApp::updateTurtleMesh(ofVec3f pos, ofVec3f dir, ofVec3f dirUp) {
+	ofMatrix4x4 trans, rot;
 	trans.makeTranslationMatrix(pos);
-	rot1.makeRotationMatrix(ofVec3f(1, 0, 0), dir);
+	rot.makeRotationMatrix(ofVec3f(0, 0, 1), dir);
+	ofVec3f currentUp = ofVec3f(0, 1, 0) * rot;
+	double angle = dir.getCrossed(currentUp).angle(dir.getCrossed(dirUp));
+	if(dir.getCrossed(currentUp).getCrossed(dir.getCrossed(dirUp)).angle(dir) > EPS) {
+		angle = -angle;
+	}
+	rot *= ofMatrix4x4().newRotationMatrix(angle, dir);
 	vector<ofVec3f> verts = turtleMesh.getVertices();
 	for(int i = 0; i < (int)verts.size(); i++) {
-		verts[i] = verts[i] * trans;
+		verts[i] = verts[i] * rot * trans;
 	}
 	turtleMeshTrans.getVertices() = verts;
 }

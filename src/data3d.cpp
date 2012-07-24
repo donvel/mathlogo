@@ -11,12 +11,32 @@ Face::Face(int a, int b, int c, vector<ofVec3f> *vec) {
 	if(vec != NULL && (int)vec->size() > max(a, max(b, c))) {
 		ofVec3f v1 = (*vec)[b] - (*vec)[a];
 		ofVec3f v2 = (*vec)[c] - (*vec)[a];
-		rot.makeIdentityMatrix();
+		normal = v1.getCrossed(v2);
 		planePoints[0] = ofVec2f(0, 0);
 		planePoints[1] = ofVec2f(v1.length(), 0);
 		planePoints[2] = ofVec2f(v2.length(), 0).rotated(v1.angle(v2));
 		for(int i = 0; i < 3; i++) cout << planePoints[i].x << " " << planePoints[i].y << ", ";
 		cout << endl;
+		
+		rot.makeIdentityMatrix();
+		ofVec3f w1 = planePoints[1], w2 = planePoints[2];
+		rot.makeRotationMatrix(w1, v1);
+		cout << fixed << "w1 = " << ofVec3f(planePoints[1]) << "   w2 = " << ofVec3f(planePoints[2])  << endl;
+		w1 = w1 * rot;
+		w2 = w2 * rot;
+//		ofMatrix4x4 rot2;
+		double angle = w1.getCrossed(w2).angle(v1.getCrossed(v2));
+		if(v1.angle(w1.getCrossed(w2).getCrossed(v1.getCrossed(v2))) > EPS) {
+			angle = -angle;
+		}
+		rot *= ofMatrix4x4().newRotationMatrix(angle, v1);
+		cout.precision(1);
+		cout << "angle = " << w1.getCrossed(w2).angle(v1.getCrossed(v2)) << endl;
+		cout << fixed << "w1 x w2 = " << w1.getCrossed(w2) << " v1 x v2 = " << v1.getCrossed(v2) << endl;
+		cout << fixed << "w1 = " << w1 << "   w2 = " << w2 << endl;
+		cout << fixed << "u1 = " << ofVec3f(planePoints[1]) * rot << "   u2 = " << ofVec3f(planePoints[2]) * rot << endl;
+		cout << fixed << "v1 = " << v1 << "   v2 = " << v2 << endl;
+		
 	}
 }
 
@@ -65,10 +85,10 @@ void Data3D::createTexture() {
 			coords.push_back(ofVec2f(i * faceResolution, j * faceResolution));
 			coords.push_back(ofVec2f(i * faceResolution, (j + 1) * faceResolution - 1));
 			coords.push_back(ofVec2f((i + 1) * faceResolution - 1, j * faceResolution));
-			int sz = coords.size();
-			line(coords[sz - 2], coords[sz - 1], ofColor::black, texture);
-			line(coords[sz - 3], coords[sz - 1], ofColor::black, texture);
-			line(coords[sz - 2], coords[sz - 3], ofColor::black, texture);
+//			int sz = coords.size();
+//			line(coords[sz - 2], coords[sz - 1], ofColor::black, texture);
+//			line(coords[sz - 3], coords[sz - 1], ofColor::black, texture);
+//			line(coords[sz - 2], coords[sz - 3], ofColor::black, texture);
 		}
 	}
 	
@@ -104,6 +124,7 @@ void Data3D::setup(fstream *setupFile) {
 			cout << "face " << a << " " << b << " " << c << " " << endl;
 		}
 	}
+	meshFile >> cameraType;
 	faces.pop_back(); // reads last face twice
 	for(int i = 0; i < (int)faces.size(); i++) {
 		for(int j = 0; j < (int)faces.size(); j++) if(i != j) {
@@ -201,7 +222,16 @@ ofVec2f translate(ofVec2f p, vector<ofVec2f> tr1, vector<ofVec2f> tr2) {
 	return res;
 }
 
-void Data3D::drawSegment(ofVec2f p1, ofVec2f p2, int faceId) {
+void Data3D::drawSegment(ofVec2f p1, ofVec2f p2, int faceId, double step) {
+	double dist = (p2 - p1).length();
+	while(dist > 1.0) {
+		turtle.pos += turtle.dir * step;
+		this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
+		dist -= step;
+	}
+	turtle.pos += turtle.dir * dist;
+	this_thread::sleep(posix_time::milliseconds((int)round(dist * (double)World::instance()->getFrameTime())));
+	
 	vector<ofVec2f> tr1, tr2;
 	for(int i = 0; i < 3; i++) {
 		tr1.push_back(faces[faceId].planePoints[i]);
@@ -210,10 +240,22 @@ void Data3D::drawSegment(ofVec2f p1, ofVec2f p2, int faceId) {
 	p1 = translate(p1, tr1, tr2);
 	p2 = translate(p2, tr1, tr2);
 	line(p1, p2, ofColor::red, texture, true);
-	this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
+	
 }
 
 void Data3D::forward(double dist) {
+	forwardStep(dist);
+//	double step = (dist > 0) ? 1.0 : -1.0;
+//	while(abs(dist) > 1.0) {
+//		forwardStep(step);
+//		this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
+//		dist -= step;
+//	}
+//	forwardStep(dist);
+//	this_thread::sleep(posix_time::milliseconds((int)round(dist * (double)World::instance()->getFrameTime())));
+}
+
+void Data3D::forwardStep(double dist) {
 	if(abs(dist) <= EPS) return;
 	dist = dist * maxDist / 500.0;
 	point col;
@@ -232,7 +274,7 @@ void Data3D::forward(double dist) {
 //				Interpreter::instance()->toggleRunning();
 				
 				dist -= turtle.pos.distance(ofVec2f(col.x, col.y));
-				drawSegment(turtle.pos, ofVec2f(col.x, col.y), turtle.faceId);
+				drawSegment(turtle.pos, ofVec2f(col.x, col.y), turtle.faceId, maxDist / 500.0);
 //				drawSegment((faces[turtle.faceId].planePoints[0] + faces[turtle.faceId].planePoints[1] + faces[turtle.faceId].planePoints[2]) 
 //						* (1.0 / 3.0), ofVec2f(col.x, col.y), turtle.faceId);
 				TransInfo info = faces[turtle.faceId].nei[i];
@@ -266,19 +308,34 @@ void Data3D::forward(double dist) {
 			}
 		}
 	}
-	drawSegment(turtle.pos, pos2, turtle.faceId);
+	drawSegment(turtle.pos, pos2, turtle.faceId, maxDist / 500.0);
 	turtle.pos = pos2;
 }
 
 void Data3D::rotate(double angle) {
+	double step = (angle > 0) ? 1.0 : -1.0;
+	while(abs(angle) > 1.0) {
+		turtle.dir.rotate(step);
+		this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
+		angle -= step;
+	}
 	turtle.dir.rotate(angle);
+	this_thread::sleep(posix_time::milliseconds((int)round(angle * (double)World::instance()->getFrameTime())));
 }
 
-void Data3D::giveTurtleCoords(ofVec3f &pos, ofVec3f &dir) {
+void Data3D::giveTurtleCoords(ofVec3f &pos, ofVec3f &dir, ofVec3f &dirUp) {
 	Face cFace = faces[turtle.faceId];
 //	ofVec4f v[3];
 //	for(int i = 0; i < 3; i++) v[i] = cFace.planePoints[i];
 //	ofVec4f relPos = turtle.pos;
+//	ofMatrix4x4 ref;
+//	if(secondTry) {
+//		ref.makeScaleMatrix(-1, 1, 1);
+//	} else {
+//		ref.makeIdentityMatrix();
+//	}
+//	for(int i = 0; i < 3; i++) v[i] = v[i] * ref;
+//	relPos = relPos * ref;
 //	ofMatrix4x4 rot1, rot2;
 //	rot1.makeRotationMatrix(v[1] - v[0], verts[cFace.v[1]] - verts[cFace.v[0]]);
 ////	cout << (v[1] - v[0]) * rot1 << " " << verts[cFace.v[1]] - verts[cFace.v[0]] << endl;
@@ -287,21 +344,28 @@ void Data3D::giveTurtleCoords(ofVec3f &pos, ofVec3f &dir) {
 //	}
 ////	cout << "tututu -  " << ofVec3f(v[1] - v[0]) << " " << verts[cFace.v[1]] - verts[cFace.v[0]] << endl;
 //	rot2.makeRotationMatrix(v[2] - v[0], verts[cFace.v[2]] - verts[cFace.v[0]]);
+//	for(int i = 0; i < 3; i++) {
+//		v[i] = v[i] * rot2; 
+//	}
 ////	cout << (v[1] - v[0])  << " " << verts[cFace.v[2]] - verts[cFace.v[0]] << endl;
-//	for(int i = 0; i < 2; i++) cout << (ofVec3f(cFace.planePoints[i + 1]) - ofVec3f(cFace.planePoints[0])) << "\t";
+//	if(ofVec3f(v[1] - v[0]).angle(verts[cFace.v[1]] - verts[cFace.v[0]]) > EPS && !secondTry) {
+//		giveTurtleCoords(pos, dir, true);
+//		return;
+//	}
+//	for(int i = 0; i < 2; i++) cout << (ofVec3f(cFace.planePoints[i + 1]) - ofVec3f(cFace.planePoints[0])) * ref << "\t";
 //	cout << endl;
-//	for(int i = 0; i < 2; i++) cout << (ofVec3f(cFace.planePoints[i + 1]) - ofVec3f(cFace.planePoints[0])) * rot1 << "\t";
+//	for(int i = 0; i < 2; i++) cout << (ofVec3f(cFace.planePoints[i + 1]) - ofVec3f(cFace.planePoints[0])) * ref * rot1 << "\t";
 //	cout << endl;
-//	for(int i = 0; i < 2; i++) cout << (ofVec3f(cFace.planePoints[i + 1]) - ofVec3f(cFace.planePoints[0])) * rot1 * rot2 << "\t";
+//	for(int i = 0; i < 2; i++) cout << (ofVec3f(cFace.planePoints[i + 1]) - ofVec3f(cFace.planePoints[0])) * ref * rot1 * rot2 << "\t";
 //	cout << endl;
 //	for(int i = 0; i < 2; i++) cout << verts[cFace.v[i + 1]] - verts[cFace.v[0]]<< "\t";
 //	cout << endl << endl << endl;
 //	relPos = relPos * rot1 * rot2;
 //	dir = ofVec4f(turtle.dir) * rot1 * rot2;
 //	pos = verts[cFace.v[0]] + relPos;
-	
-	pos = ofVec4f(turtle.pos) * cFace.rot + verts(cFace.v[0]);
-	dir = ofVec4f(turtle.dir) * cFace.rot;
-
+	ofVec3f tp = turtle.pos, td = turtle.dir;
+	pos = ofVec3f(tp) * cFace.rot + verts[cFace.v[0]];
+	dir = ofVec3f(td) * cFace.rot;
+	dirUp = cFace.normal;
 	
 }
