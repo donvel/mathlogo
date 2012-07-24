@@ -57,14 +57,13 @@ public:
 	vector<ofVec2f> coords;
 	vector<Face> faces;
 	Turtle &turtle;
-	vector<vector<ofVec2f > > orthoCast;
 private:
 	void calculateScaleRatio();
 	void calculateFaceResolution();
 	float scaleRatio;
 	float maxDist;
 	int faceResolution;
-	void updateCast();
+	
 
 };
 

@@ -222,8 +222,6 @@ ofVec2f translate(ofVec2f p, vector<ofVec2f> tr1, vector<ofVec2f> tr2) {
 	return res;
 }
 
-void Data3D::updateCast() {
-}
 
 void Data3D::drawSegment(ofVec2f p1, ofVec2f p2, int faceId, double step) {
 	double dist = (p2 - p1).length();
@@ -231,7 +229,6 @@ void Data3D::drawSegment(ofVec2f p1, ofVec2f p2, int faceId, double step) {
 		turtle.pos += turtle.dir * step;
 		this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
 		dist -= step;
-		updateCast();
 	}
 	turtle.pos += turtle.dir * dist;
 	this_thread::sleep(posix_time::milliseconds((int)round(dist * (double)World::instance()->getFrameTime())));

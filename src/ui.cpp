@@ -248,7 +248,6 @@ void logoApp::draw3D() {
 //	if(World::instance()->world3D->cameraType == "FOLLOW") {
 //		
 //	}
-	ofVec3f pos, dir, dirUp;
 //	World::instance()->world3D->giveTurtleCoords(pos, dir, dirUp);
 	Turtle turtle = World::instance()->world3D->turtle;
 	Face cFace = World::instance()->world3D->faces[turtle.faceId];
@@ -272,32 +271,65 @@ void logoApp::draw3D() {
 	turtleMeshTrans.draw();
 //	this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
 	cam.end();
-	
+	ofLine(viewport2D.width, 0, viewport2D.width, viewport2D.height);
 	drawVieport2D();
 	ofSetColor(ofColor::white);
-	ofLine(viewport2D.width, 0, viewport2D.width, viewport2D.height);
+	
 }
 
 void logoApp::drawVieport2D() {
-//	
-//	ofFill();
-//	ofSetColor(ofColor::white);
-//	ofSetLineWidth(0);
-//	ofRect(viewport2D);
-//	ofPopStyle();
-	ofPushStyle();
-	ofPushView();
+	
 	ofViewport(viewport2D);
+	orthoCam.begin(viewport2D);
+	ofPushMatrix();
+	ofPushStyle();
+	float scaleRatio = min(viewport3D.width, viewport3D.height) * 0.6 * World::instance()->world3D->getScaleRatio();
+//	ofTranslate(100.0, 100.0, 100.0);
+	ofScale(scaleRatio, scaleRatio, scaleRatio); // scale everything
+//
+	orthoCam.setGlobalPosition(pos * scaleRatio + 100 * dir.getCrossed(dirUp).getNormalized() * scaleRatio + dirUp.getNormalized() * scaleRatio);
+//	orthoCam.setPosition(viewport2D.width / 2.0, viewport2D.height / 2.0, 10.0);
+	
+	orthoCam.lookAt(pos * scaleRatio - dir.getNormalized() * scaleRatio, dir);
+	orthoCam.setNearClip(0.0);
+	orthoCam.enableOrtho();
 
-	ofSetupScreen();
-	ofSetLineWidth(1);
-	ofNoFill();
+
+	
+	ofImage tex = *img;
+	tex.bind();
+
+	ofSetColor(ofColor::white);
+	vboMesh.draw();
+	if(drawWireframe) {
+		ofSetColor(ofColor::black);
+		ofSetLineWidth(5);
+		vboMesh.drawWireframe();
+	}
+	tex.unbind();
+	ofSetColor(ofColor::black);
+	turtleMeshTrans.drawWireframe();
 	ofSetColor(ofColor::red);
-	ofVec2f center(viewport2D.width / 2.0, viewport2D.height / 2.0);
-	ofTriangle(center, center + ofVec2f(10, 30), center + ofVec2f(-10, 30));
-
-	ofPopView();
+	turtleMeshTrans.draw();
+	orthoCam.end();
+   
 	ofPopStyle();
+	ofPopMatrix();
+	
+//	ofPushStyle();
+//	ofPushView();
+//	ofViewport(viewport2D);
+//
+//	ofSetupScreen();
+//	ofSetLineWidth(1);
+//	ofNoFill();
+//	ofSetColor(ofColor::red);
+//	ofVec2f center(viewport2D.width / 2.0, viewport2D.height / 2.0);
+//	ofTriangle(center, center + ofVec2f(10, 30), center + ofVec2f(-10, 30));
+//
+//	ofPopView();
+//	ofPopStyle();
+	
 }
 
 void logoApp::update3D() {
@@ -319,6 +351,6 @@ void logoApp::updateTurtleMesh(ofVec3f pos, ofVec3f dir, ofVec3f dirUp) {
 	for(int i = 0; i < (int)verts.size(); i++) {
 		verts[i] = verts[i] * rot * trans;
 	}
-	cout << "pos = " << pos << "dir = " << dir << "dirUp = " << dirUp << endl;
+	cout << " pos = " << pos << " dir = " << dir << " dirUp = " << dirUp << endl;
 	turtleMeshTrans.getVertices() = verts;
 }

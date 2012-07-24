@@ -47,6 +47,8 @@ class logoApp : public ofBaseApp{
 //		void gotMessage(ofMessage msg);
 		
 		ofEasyCam cam;
+		ofCamera orthoCam;
+		ofNode orthoCamNode;
 //		ofMesh mesh;
 		ofVboMesh vboMesh, turtleMesh, turtleMeshTrans;
 		ofImage *img;
@@ -55,5 +57,6 @@ class logoApp : public ofBaseApp{
 		ofRectangle viewport3D;
 		
 		bool drawWireframe;
+		ofVec3f pos, dir, dirUp;
 };
 
