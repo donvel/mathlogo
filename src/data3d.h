@@ -47,6 +47,7 @@ public:
 	float getScaleRatio();
 	void drawSegment(ofVec2f p1, ofVec2f p2, int faceId, double step = 1.0);
 	
+	
 	string cameraType;
 	ofImage texture;
 	void forward(double dist);
@@ -55,13 +56,15 @@ public:
 	vector<ofVec3f> verts;
 	vector<ofVec2f> coords;
 	vector<Face> faces;
+	Turtle &turtle;
+	vector<vector<ofVec2f > > orthoCast;
 private:
 	void calculateScaleRatio();
 	void calculateFaceResolution();
 	float scaleRatio;
 	float maxDist;
 	int faceResolution;
-	Turtle &turtle;
+	void updateCast();
 
 };
 

@@ -239,7 +239,7 @@ void logoApp::draw3D() {
 
 //	ofRotateY(ofGetElapsedTimef() * 30); // slowly rotate the model
 	float scaleRatio = min(viewport3D.width, viewport3D.height) * 0.6 * World::instance()->world3D->getScaleRatio();
-	cout << "scaleRatio = " << scaleRatio << endl; 
+//	cout << "scaleRatio = " << scaleRatio << endl; 
 	cam.begin(viewport3D);
 	ofScale(scaleRatio, scaleRatio, scaleRatio); // scale everything
 //	img->update(); // Necessary??
@@ -249,7 +249,12 @@ void logoApp::draw3D() {
 //		
 //	}
 	ofVec3f pos, dir, dirUp;
-	World::instance()->world3D->giveTurtleCoords(pos, dir, dirUp);
+//	World::instance()->world3D->giveTurtleCoords(pos, dir, dirUp);
+	Turtle turtle = World::instance()->world3D->turtle;
+	Face cFace = World::instance()->world3D->faces[turtle.faceId];
+	pos = ofVec3f(turtle.pos) * cFace.rot + World::instance()->world3D->verts[cFace.v[0]];
+	dir = ofVec3f(turtle.dir) * cFace.rot;
+	dirUp = cFace.normal;
 	updateTurtleMesh(pos, dir, dirUp);
 	tex.bind();
 
@@ -261,29 +266,38 @@ void logoApp::draw3D() {
 	}
 	//img->unbind();
 	tex.unbind();
+	ofSetColor(ofColor::black);
+	turtleMeshTrans.drawWireframe();
 	ofSetColor(ofColor::red);
 	turtleMeshTrans.draw();
-	
+//	this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
 	cam.end();
 	
 	drawVieport2D();
+	ofSetColor(ofColor::white);
+	ofLine(viewport2D.width, 0, viewport2D.width, viewport2D.height);
 }
 
 void logoApp::drawVieport2D() {
-	ofPushStyle();
-	ofFill();
-	ofSetColor(ofColor::white);
-	ofSetLineWidth(0);
-	ofRect(viewport2D);
-	ofPopStyle();
-	
-////	ofPushView();
-//	ofViewport(viewport2D);
-//////	ofSetupScreen();
+//	
 //	ofFill();
-//	ofSetColor(ofColor::red);
-//	ofCircle(10, 10, 10);
-////	ofPopView();
+//	ofSetColor(ofColor::white);
+//	ofSetLineWidth(0);
+//	ofRect(viewport2D);
+//	ofPopStyle();
+	ofPushStyle();
+	ofPushView();
+	ofViewport(viewport2D);
+
+	ofSetupScreen();
+	ofSetLineWidth(1);
+	ofNoFill();
+	ofSetColor(ofColor::red);
+	ofVec2f center(viewport2D.width / 2.0, viewport2D.height / 2.0);
+	ofTriangle(center, center + ofVec2f(10, 30), center + ofVec2f(-10, 30));
+
+	ofPopView();
+	ofPopStyle();
 }
 
 void logoApp::update3D() {
@@ -305,5 +319,6 @@ void logoApp::updateTurtleMesh(ofVec3f pos, ofVec3f dir, ofVec3f dirUp) {
 	for(int i = 0; i < (int)verts.size(); i++) {
 		verts[i] = verts[i] * rot * trans;
 	}
+	cout << "pos = " << pos << "dir = " << dir << "dirUp = " << dirUp << endl;
 	turtleMeshTrans.getVertices() = verts;
 }

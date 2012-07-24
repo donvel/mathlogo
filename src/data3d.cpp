@@ -222,12 +222,16 @@ ofVec2f translate(ofVec2f p, vector<ofVec2f> tr1, vector<ofVec2f> tr2) {
 	return res;
 }
 
+void Data3D::updateCast() {
+}
+
 void Data3D::drawSegment(ofVec2f p1, ofVec2f p2, int faceId, double step) {
 	double dist = (p2 - p1).length();
 	while(dist > 1.0) {
 		turtle.pos += turtle.dir * step;
 		this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
 		dist -= step;
+		updateCast();
 	}
 	turtle.pos += turtle.dir * dist;
 	this_thread::sleep(posix_time::milliseconds((int)round(dist * (double)World::instance()->getFrameTime())));
@@ -325,44 +329,6 @@ void Data3D::rotate(double angle) {
 
 void Data3D::giveTurtleCoords(ofVec3f &pos, ofVec3f &dir, ofVec3f &dirUp) {
 	Face cFace = faces[turtle.faceId];
-//	ofVec4f v[3];
-//	for(int i = 0; i < 3; i++) v[i] = cFace.planePoints[i];
-//	ofVec4f relPos = turtle.pos;
-//	ofMatrix4x4 ref;
-//	if(secondTry) {
-//		ref.makeScaleMatrix(-1, 1, 1);
-//	} else {
-//		ref.makeIdentityMatrix();
-//	}
-//	for(int i = 0; i < 3; i++) v[i] = v[i] * ref;
-//	relPos = relPos * ref;
-//	ofMatrix4x4 rot1, rot2;
-//	rot1.makeRotationMatrix(v[1] - v[0], verts[cFace.v[1]] - verts[cFace.v[0]]);
-////	cout << (v[1] - v[0]) * rot1 << " " << verts[cFace.v[1]] - verts[cFace.v[0]] << endl;
-//	for(int i = 0; i < 3; i++) {
-//		v[i] = v[i] * rot1; 
-//	}
-////	cout << "tututu -  " << ofVec3f(v[1] - v[0]) << " " << verts[cFace.v[1]] - verts[cFace.v[0]] << endl;
-//	rot2.makeRotationMatrix(v[2] - v[0], verts[cFace.v[2]] - verts[cFace.v[0]]);
-//	for(int i = 0; i < 3; i++) {
-//		v[i] = v[i] * rot2; 
-//	}
-////	cout << (v[1] - v[0])  << " " << verts[cFace.v[2]] - verts[cFace.v[0]] << endl;
-//	if(ofVec3f(v[1] - v[0]).angle(verts[cFace.v[1]] - verts[cFace.v[0]]) > EPS && !secondTry) {
-//		giveTurtleCoords(pos, dir, true);
-//		return;
-//	}
-//	for(int i = 0; i < 2; i++) cout << (ofVec3f(cFace.planePoints[i + 1]) - ofVec3f(cFace.planePoints[0])) * ref << "\t";
-//	cout << endl;
-//	for(int i = 0; i < 2; i++) cout << (ofVec3f(cFace.planePoints[i + 1]) - ofVec3f(cFace.planePoints[0])) * ref * rot1 << "\t";
-//	cout << endl;
-//	for(int i = 0; i < 2; i++) cout << (ofVec3f(cFace.planePoints[i + 1]) - ofVec3f(cFace.planePoints[0])) * ref * rot1 * rot2 << "\t";
-//	cout << endl;
-//	for(int i = 0; i < 2; i++) cout << verts[cFace.v[i + 1]] - verts[cFace.v[0]]<< "\t";
-//	cout << endl << endl << endl;
-//	relPos = relPos * rot1 * rot2;
-//	dir = ofVec4f(turtle.dir) * rot1 * rot2;
-//	pos = verts[cFace.v[0]] + relPos;
 	ofVec3f tp = turtle.pos, td = turtle.dir;
 	pos = ofVec3f(tp) * cFace.rot + verts[cFace.v[0]];
 	dir = ofVec3f(td) * cFace.rot;
