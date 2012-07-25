@@ -1,0 +1,14 @@
+SCRIPT
+
+to main
+ pu
+ fd 100
+ rt 180
+ pd
+ inverse 0 0 100
+ repeat 100 [
+	fd 1.98
+ ]
+end
+
+

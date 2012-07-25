@@ -64,3 +64,9 @@ double angle(vect, vect); // in radians
 bool intersect(segment a, segment b, point &p);
 void line(point p1, point p2, ofColor targetColor, ofImage &img, bool thick = false);
 gridPoint neighbour(gridPoint p, int i);
+
+//---OF vectorts ----/
+float angle(ofVec3f v1, ofVec3f v2);
+float areaInCircle(ofVec2f p0, ofVec2f p1, ofVec2f p2, float r);
+void segmentCircleIntersection(ofVec2f v1, ofVec2f v2, float r, vector<ofVec2f> &inter);
+float crossProd(ofVec2f p1, ofVec2f p2);

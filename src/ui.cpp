@@ -238,6 +238,11 @@ void logoApp::setup3D() {
 
 void logoApp::draw3D() {
 
+	ofMesh normal;
+
+	normal.addVertex(pos);
+	normal.addVertex(pos + ofVec3f(0.01, 0, 0));
+	normal.addVertex(pos + World::instance()->world3D->orthoPlaneNormal.normalized() * 3.0);
 //	ofRotateY(ofGetElapsedTimef() * 30); // slowly rotate the model
 	float scaleRatio = min(viewport3D.width, viewport3D.height) * 0.6 * World::instance()->world3D->getScaleRatio();
 //	cout << "scaleRatio = " << scaleRatio << endl; 
@@ -250,16 +255,18 @@ void logoApp::draw3D() {
 //		
 //	}
 //	World::instance()->world3D->giveTurtleCoords(pos, dir, dirUp);
-	Turtle turtle = World::instance()->world3D->turtle;
-	Face cFace = World::instance()->world3D->faces[turtle.faceId];
-	pos = ofVec3f(turtle.pos) * cFace.rot + World::instance()->world3D->verts[cFace.v[0]];
-	dir = ofVec3f(turtle.dir) * cFace.rot;
-	dirUp = cFace.normal;
+	World::instance()->world3D->giveTurtleCoords(pos, dir, dirUp);
+//	Turtle turtle = World::instance()->world3D->turtle;
+//	Face cFace = World::instance()->world3D->faces[turtle.faceId];
+//	pos = ofVec3f(turtle.pos) * cFace.rot + World::instance()->world3D->verts[cFace.v[0]];
+//	dir = ofVec3f(turtle.dir) * cFace.rot;
+//	dirUp = cFace.normal;
 	updateTurtleMesh(pos, dir, dirUp);
 	tex.bind();
 
 	ofSetColor(ofColor::white);
 	vboMesh.draw();
+	normal.drawWireframe();
 	if(drawWireframe) {
 		ofSetColor(ofColor::black);
 		vboMesh.drawWireframe();
@@ -321,27 +328,27 @@ void logoApp::drawVieport2D() {
 //	ofPopStyle();
 //	ofPopMatrix();
 	
-	ofPushStyle();
-	ofPushView();
-	ofViewport(viewport2D);
-
-	ofSetupScreen();
-	ofSetLineWidth(1);
-	ofNoFill();
-	ofSetColor(ofColor::red);
-	ofVec2f center(viewport2D.width / 2.0, viewport2D.height / 2.0);
-	ofTriangle(center, center + ofVec2f(10, 30), center + ofVec2f(-10, 30));
-	ofFill();
-	ofSetColor(ofColor::white);
-	vector<vector<ofVec2f> > &triangles = World::instance()->world3D->orthoCast;
-	for(int i = 0; i < (int)triangles.size(); i++) {
-		ofTriangle(triangles[i][0], triangles[i][1], triangles[i][2]);
-	}
+//	ofPushStyle();
+//	ofPushView();
+//	ofViewport(viewport2D);
+//
+//	ofSetupScreen();
+//	ofSetLineWidth(1);
 //	ofNoFill();
-
-
-	ofPopView();
-	ofPopStyle();
+//	ofSetColor(ofColor::red);
+//	ofVec2f center(viewport2D.width / 2.0, viewport2D.height / 2.0);
+//	ofTriangle(center, center + ofVec2f(10, 30), center + ofVec2f(-10, 30));
+//	ofFill();
+//	ofSetColor(ofColor::white);
+//	vector<vector<ofVec2f> > &triangles = World::instance()->world3D->orthoCast;
+//	for(int i = 0; i < (int)triangles.size(); i++) {
+//		ofTriangle(triangles[i][0], triangles[i][1], triangles[i][2]);
+//	}
+////	ofNoFill();
+//
+//
+//	ofPopView();
+//	ofPopStyle();
 	
 }
 
@@ -351,42 +358,10 @@ void logoApp::update3D() {
 }
 
 void logoApp::updateTurtleMesh(ofVec3f pos, ofVec3f dir, ofVec3f dirUp) {
-	ofMatrix4x4 trans, rot;
-	dir.normalize();
-	dirUp.normalize();
-	double angle;
-	trans.makeTranslationMatrix(pos);
-	rot.makeRotationMatrix(ofVec3f(0, 0, 1), dir);
-	ofVec3f currentUp = ofVec3f(0, 1, 0) * rot;
-	ofVec3f v1 = dir.getCrossed(currentUp), v2 = dir.getCrossed(dirUp);
-	cout.precision(5);
-	cout << v1 << " " << v2 << endl;
-	cout << v1.getNormalized() << " " << -v2.getNormalized() << endl;
-	
-	if((v1.getNormalized() + v2.getNormalized()).length() < EPS) {
-		angle = 180;
-	} else if((v1.getNormalized() - v2.getNormalized()).length() < EPS) {
-		angle = 0;
-	} else {
-		angle = v1.angle(v2);
-
-		if(v1.getCrossed(v2).angle(dir) > EPS) {
-			angle = -angle;
-		}
-	} 
-	assert(!isnan(angle));
-//	cout << "rot = " << rot << endl;
-	rot *= ofMatrix4x4().newRotationMatrix(angle, dir);
 	vector<ofVec3f> verts = turtleMesh.getVertices();
 	for(int i = 0; i < (int)verts.size(); i++) {
-//		cout << verts[i] << "-->";
-//		verts[i] = verts[i] * rot * trans;
-		verts[i].map(pos, dir.getCrossed(dirUp), dirUp, dir);
-//		cout << verts[i] << endl;
+		verts[i].map(pos, dir.getCrossed(dirUp).normalized(), dirUp.normalized(), dir.normalized()); // Why do I have to normalize?
 	}
-	cout << "angle = " << angle << endl;
-
-//	orthoCamNode.setPosition(ofVec3f(0, 0, 0) * rot * trans);
 	cout << " pos = " << pos << " dir = " << dir << " dirUp = " << dirUp << endl;
 	turtleMeshTrans.getVertices() = verts;
 }

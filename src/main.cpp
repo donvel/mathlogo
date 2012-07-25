@@ -11,6 +11,20 @@ using namespace std;
 //--------------------------------------------------------------
 int main(int argnum, char **argv) { 
 	
+//	float r = 0.0;
+//	ofVec3f p[3];
+//	
+//	while(true) {
+//		cin >> r;
+//		if(r < 0) break;
+//		for(int i = 0; i < 3; i++) {
+//			cin >> p[i].x >> p[i].y;
+//		}
+//		cout << areaInCircle(p[0], p[1], p[2], r) << endl << endl;
+//	}
+//	
+//	return 0;
+	
 	//if the number of arguments >= 1 , then argv[1] = name of the config file
 	if(argnum >= 2) { // note that arg[0] is always passed, so argnum >= 1
 		World::instance()->setup(argv[1]);

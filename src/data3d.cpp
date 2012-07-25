@@ -57,6 +57,7 @@ void Data3D::calculateScaleRatio() {
 	}
 	cout << "maxDist = " << maxDist << endl;
 	scaleRatio = 1.0 / maxDist;
+	normalSphereRadius *= maxDist;
 }
 
 void Data3D::createTexture() {
@@ -377,14 +378,49 @@ void Data3D::updateOrthoCast() {
 }
 
 void Data3D::updateOrthoNormal() {
-	orthoPlaneNormal = ofVec3f(0, 0, 0);
-	for(int i = 0; i < (int)faces.size(); i++) {
-		orthoPlaneNormal = faces[i].normal.normalized() * areaInSphere(i);
-	}
+//	orthoPlaneNormal = ofVec3f(0, 0, 0);
+//	for(int i = 0; i < (int)faces.size(); i++) {
+//		orthoPlaneNormal = faces[i].normal.normalized() * areaInSphere(i);
+//	}
+	orthoPlaneNormal = faces[turtle.faceId].normal.normalized();
 	cout << "ortho normal" << orthoPlaneNormal << endl;
 }
 
 float Data3D::areaInSphere(int f) {
+	ofVec3f v1 = verts[faces[f].v[1]] - verts[faces[f].v[0]];
+	ofVec3f v2 = verts[faces[f].v[2]] - verts[faces[f].v[0]];
+	ofVec3f w = turtle.pos - verts[faces[f].v[0]];
+	ofVec3f p = v1.getPerpendicular(v2);
 	
-	return 1.0;
+	float r = normalSphereRadius * normalSphereRadius - p.dot(w) * p.dot(w);
+	if(r <= 0) return 0.0;
+	r = pow(r, 0.5);
+	
+	ofVec3f o = p.getCrossed(w).rotated(-90, ofVec3f(0, 0, 0), p);
+	ofVec3f o2 = w - p * (p.dot(w));
+//	cout << v1 << " " << v2 << " " << w << " " << p << " " << o << " " << o2 << endl;
+	assert(o.match(o2));
+	ofVec3f t1 = -o,t2 = -o + v1, t3 = -o + v2;
+	ofVec2f n(1, 0);
+	ofVec2f p1 = n * t1.length();
+	ofVec2f p2 = n.getRotated(angle(t1, t2)) * t2.length();
+	ofVec2f p3 = n.getRotated(angle(t1, t3)) * t3.length();
+	
+	if(abs((p2 - p3).length() - (t2 - t3).length()) > EPS) {
+		p3 = n.getRotated(-angle(t1, t3)) * t3.length();
+	}
+	
+	cout.precision(2);
+//	cout << t1 << " " << t2 << " " << t3 << endl;
+//	cout << p1 << " " << p2 << " " << p3 << endl;
+	
+	assert(abs((p1 - p2).length() - (t1 - t2).length()) < EPS
+			&& abs((p1 - p3).length() - (t1 - t3).length()) < EPS
+			&& abs((p2 - p3).length() - (t2 - t3).length()) < EPS
+			);
+
+	
+	
+	return areaInCircle(p1, p2, p3, r);
 }
+
