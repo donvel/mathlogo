@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include <vector>
+#include <cassert>
 #include <boost/thread.hpp>
 
 #include "ofMain.h"

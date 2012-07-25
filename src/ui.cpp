@@ -233,6 +233,7 @@ void logoApp::setup3D() {
 	
 	cout << "Turtle mesh loaded" << endl;
 	
+//	orthoCam.setParent(orthoCamNode);
 }
 
 void logoApp::draw3D() {
@@ -263,9 +264,11 @@ void logoApp::draw3D() {
 		ofSetColor(ofColor::black);
 		vboMesh.drawWireframe();
 	}
+
 	//img->unbind();
 	tex.unbind();
 	ofSetColor(ofColor::black);
+//	orthoCamNode.draw();
 	turtleMeshTrans.drawWireframe();
 	ofSetColor(ofColor::red);
 	turtleMeshTrans.draw();
@@ -278,57 +281,67 @@ void logoApp::draw3D() {
 }
 
 void logoApp::drawVieport2D() {
-	
-	ofViewport(viewport2D);
-	orthoCam.begin(viewport2D);
-	ofPushMatrix();
-	ofPushStyle();
-	float scaleRatio = min(viewport3D.width, viewport3D.height) * 0.6 * World::instance()->world3D->getScaleRatio();
-//	ofTranslate(100.0, 100.0, 100.0);
-	ofScale(scaleRatio, scaleRatio, scaleRatio); // scale everything
-//
-	orthoCam.setGlobalPosition(pos * scaleRatio + 100 * dir.getCrossed(dirUp).getNormalized() * scaleRatio + dirUp.getNormalized() * scaleRatio);
-//	orthoCam.setPosition(viewport2D.width / 2.0, viewport2D.height / 2.0, 10.0);
-	
-	orthoCam.lookAt(pos * scaleRatio - dir.getNormalized() * scaleRatio, dir);
-	orthoCam.setNearClip(0.0);
-	orthoCam.enableOrtho();
-
-
-	
-	ofImage tex = *img;
-	tex.bind();
-
-	ofSetColor(ofColor::white);
-	vboMesh.draw();
-	if(drawWireframe) {
-		ofSetColor(ofColor::black);
-		ofSetLineWidth(5);
-		vboMesh.drawWireframe();
-	}
-	tex.unbind();
-	ofSetColor(ofColor::black);
-	turtleMeshTrans.drawWireframe();
-	ofSetColor(ofColor::red);
-	turtleMeshTrans.draw();
-	orthoCam.end();
-   
-	ofPopStyle();
-	ofPopMatrix();
-	
-//	ofPushStyle();
-//	ofPushView();
+//	
 //	ofViewport(viewport2D);
+//	orthoCam.begin(viewport2D);
+////	ofPushMatrix();
+//	ofPushStyle();
+//	float scaleRatio = min(viewport2D.width, viewport2D.height) * 0.6 * World::instance()->world3D->getScaleRatio();
+////	ofTranslate(100.0, 100.0, 100.0);
+////	ofScale(scaleRatio, scaleRatio, scaleRatio); // scale everything
+////
+//	cout << pos << " " << turtleMeshTrans.getVertex(0) << endl;
+//	dirUp.normalize();
+//	orthoCam.setGlobalPosition(turtleMeshTrans.getVertex(0) + dirUp * 100);
 //
-//	ofSetupScreen();
-//	ofSetLineWidth(1);
-//	ofNoFill();
+//	
+//	orthoCam.lookAt(turtleMeshTrans.getVertex(0), dir);
+////	orthoCam.setNearClip(0.0);
+////	orthoCam.enableOrtho();
+//
+//
+//	
+//	ofImage tex = *img;
+//	tex.bind();
+//
+//	ofSetColor(ofColor::white);
+//	vboMesh.draw();
+//	if(drawWireframe) {
+//		ofSetColor(ofColor::black);
+//		ofSetLineWidth(5);
+//		vboMesh.drawWireframe();
+//	}
+//	tex.unbind();
+//	ofSetColor(ofColor::black);
+//	turtleMeshTrans.drawWireframe();
 //	ofSetColor(ofColor::red);
-//	ofVec2f center(viewport2D.width / 2.0, viewport2D.height / 2.0);
-//	ofTriangle(center, center + ofVec2f(10, 30), center + ofVec2f(-10, 30));
-//
-//	ofPopView();
+//	turtleMeshTrans.draw();
+//	orthoCam.end();
+//   
 //	ofPopStyle();
+//	ofPopMatrix();
+	
+	ofPushStyle();
+	ofPushView();
+	ofViewport(viewport2D);
+
+	ofSetupScreen();
+	ofSetLineWidth(1);
+	ofNoFill();
+	ofSetColor(ofColor::red);
+	ofVec2f center(viewport2D.width / 2.0, viewport2D.height / 2.0);
+	ofTriangle(center, center + ofVec2f(10, 30), center + ofVec2f(-10, 30));
+	ofFill();
+	ofSetColor(ofColor::white);
+	vector<vector<ofVec2f> > &triangles = World::instance()->world3D->orthoCast;
+	for(int i = 0; i < (int)triangles.size(); i++) {
+		ofTriangle(triangles[i][0], triangles[i][1], triangles[i][2]);
+	}
+//	ofNoFill();
+
+
+	ofPopView();
+	ofPopStyle();
 	
 }
 
@@ -339,18 +352,41 @@ void logoApp::update3D() {
 
 void logoApp::updateTurtleMesh(ofVec3f pos, ofVec3f dir, ofVec3f dirUp) {
 	ofMatrix4x4 trans, rot;
+	dir.normalize();
+	dirUp.normalize();
+	double angle;
 	trans.makeTranslationMatrix(pos);
 	rot.makeRotationMatrix(ofVec3f(0, 0, 1), dir);
 	ofVec3f currentUp = ofVec3f(0, 1, 0) * rot;
-	double angle = dir.getCrossed(currentUp).angle(dir.getCrossed(dirUp));
-	if(dir.getCrossed(currentUp).getCrossed(dir.getCrossed(dirUp)).angle(dir) > EPS) {
-		angle = -angle;
-	}
+	ofVec3f v1 = dir.getCrossed(currentUp), v2 = dir.getCrossed(dirUp);
+	cout.precision(5);
+	cout << v1 << " " << v2 << endl;
+	cout << v1.getNormalized() << " " << -v2.getNormalized() << endl;
+	
+	if((v1.getNormalized() + v2.getNormalized()).length() < EPS) {
+		angle = 180;
+	} else if((v1.getNormalized() - v2.getNormalized()).length() < EPS) {
+		angle = 0;
+	} else {
+		angle = v1.angle(v2);
+
+		if(v1.getCrossed(v2).angle(dir) > EPS) {
+			angle = -angle;
+		}
+	} 
+	assert(!isnan(angle));
+//	cout << "rot = " << rot << endl;
 	rot *= ofMatrix4x4().newRotationMatrix(angle, dir);
 	vector<ofVec3f> verts = turtleMesh.getVertices();
 	for(int i = 0; i < (int)verts.size(); i++) {
-		verts[i] = verts[i] * rot * trans;
+//		cout << verts[i] << "-->";
+//		verts[i] = verts[i] * rot * trans;
+		verts[i].map(pos, dir.getCrossed(dirUp), dirUp, dir);
+//		cout << verts[i] << endl;
 	}
+	cout << "angle = " << angle << endl;
+
+//	orthoCamNode.setPosition(ofVec3f(0, 0, 0) * rot * trans);
 	cout << " pos = " << pos << " dir = " << dir << " dirUp = " << dirUp << endl;
 	turtleMeshTrans.getVertices() = verts;
 }

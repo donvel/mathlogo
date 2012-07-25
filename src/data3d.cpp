@@ -11,7 +11,7 @@ Face::Face(int a, int b, int c, vector<ofVec3f> *vec) {
 	if(vec != NULL && (int)vec->size() > max(a, max(b, c))) {
 		ofVec3f v1 = (*vec)[b] - (*vec)[a];
 		ofVec3f v2 = (*vec)[c] - (*vec)[a];
-		normal = v1.getCrossed(v2);
+		normal = v1.getCrossed(v2).normalized();
 		planePoints[0] = ofVec2f(0, 0);
 		planePoints[1] = ofVec2f(v1.length(), 0);
 		planePoints[2] = ofVec2f(v2.length(), 0).rotated(v1.angle(v2));
@@ -38,6 +38,7 @@ Face::Face(int a, int b, int c, vector<ofVec3f> *vec) {
 		cout << fixed << "v1 = " << v1 << "   v2 = " << v2 << endl;
 		
 	}
+
 }
 
 Data3D::Data3D(Turtle &turtleRef) :turtle(turtleRef) {
@@ -78,6 +79,7 @@ void Data3D::createTexture() {
 //	texture.loadImage("texture.jpg");
 	
 	
+
 	for(int i = 0; i < w; i++) {
 		if(i * w >= numFaces) break;
 		for(int j = 0; j < h; j++) {
@@ -103,6 +105,7 @@ void Data3D::setup(fstream *setupFile) {
 	string meshFileName;
 	*setupFile >> meshFileName;
 	*setupFile >> faceResolution;
+	*setupFile >> normalSphereRadius;
 	fstream meshFile;
 	meshFile.open(meshFileName.c_str(), fstream::in);
 	if(!meshFile.good()) {
@@ -124,27 +127,57 @@ void Data3D::setup(fstream *setupFile) {
 			cout << "face " << a << " " << b << " " << c << " " << endl;
 		}
 	}
-	meshFile >> cameraType;
+	
 	faces.pop_back(); // reads last face twice
+	
+	//Function below is SLOW. Oh man it is!
+	
+//	for(int i = 0; i < (int)faces.size(); i++) {
+//		for(int j = 0; j < (int)faces.size(); j++) if(i != j) {
+//			for(int k = 0; k < 3; k++) {
+//				for(int l = 0; l < 3; l++) {
+//					pair<int, int> p1 = make_pair(faces[i].v[k], faces[i].v[(k + 1) % 3]);
+//					pair<int, int> p2 = make_pair(faces[j].v[l], faces[j].v[(l + 1) % 3]);
+//					bool rev = false;
+//					if((p1.first < p1.second) != (p2.first < p2.second)) {
+//						swap(p1.first, p1.second);
+//						rev = true;
+//					}		
+//					if(p1 == p2) {
+//						faces[i].nei[k] = TransInfo(j, l, rev);
+//						cout << "pair " << p1.first << " " << p1.second << " faces " << i << " and " << j << " rev = " << rev << endl;
+//					}
+//				}
+//			}
+//		}
+//	}
+	
+	adjacentFaces.resize(verts.size());
+	
+	map<pair<int, int> , int> edgeMap;
+	
 	for(int i = 0; i < (int)faces.size(); i++) {
-		for(int j = 0; j < (int)faces.size(); j++) if(i != j) {
-			for(int k = 0; k < 3; k++) {
-				for(int l = 0; l < 3; l++) {
-					pair<int, int> p1 = make_pair(faces[i].v[k], faces[i].v[(k + 1) % 3]);
-					pair<int, int> p2 = make_pair(faces[j].v[l], faces[j].v[(l + 1) % 3]);
-					bool rev = false;
-					if((p1.first < p1.second) != (p2.first < p2.second)) {
-						swap(p1.first, p1.second);
-						rev = true;
-					}		
-					if(p1 == p2) {
-						faces[i].nei[k] = TransInfo(j, l, rev);
-						cout << "pair " << p1.first << " " << p1.second << " faces " << i << " and " << j << " rev = " << rev << endl;
-					}
-				}
+		for(int j = 0; j < 3; j++) {
+			int a = faces[i].v[j], b = faces[i].v[(j + 1) % 3];
+			adjacentFaces[faces[i].v[j]].push_back(i);
+			if(edgeMap.find(make_pair(a, b)) != edgeMap.end()) {
+				int f = edgeMap[make_pair(a, b)];
+				int l = 0;
+				for(; faces[f].v[l] != a; l++);
+				faces[i].nei[j] = TransInfo(f, l, false);
+				faces[f].nei[l] = TransInfo(i, j, false);
+			} else if(edgeMap.find(make_pair(b, a)) != edgeMap.end()) {
+				int f = edgeMap[make_pair(b, a)];
+				int l = 0;
+				for(; faces[f].v[l] != b; l++);
+				faces[i].nei[j] = TransInfo(f, l, true);
+				faces[f].nei[l] = TransInfo(i, j, true);
+			} else {
+				edgeMap[make_pair(a, b)] = i;
 			}
 		}
 	}
+	
 	
 	calculateScaleRatio();
 	if(faceResolution == 0) calculateFaceResolution();
@@ -227,10 +260,12 @@ void Data3D::drawSegment(ofVec2f p1, ofVec2f p2, int faceId, double step) {
 	double dist = (p2 - p1).length();
 	while(dist > 1.0) {
 		turtle.pos += turtle.dir * step;
+		updateOrthoCast();
 		this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
 		dist -= step;
 	}
 	turtle.pos += turtle.dir * dist;
+	updateOrthoCast();
 	this_thread::sleep(posix_time::milliseconds((int)round(dist * (double)World::instance()->getFrameTime())));
 	
 	vector<ofVec2f> tr1, tr2;
@@ -297,7 +332,7 @@ void Data3D::forwardStep(double dist) {
 //				turtle.pos *= (1.0 / 3.0);
 				angle = edge1.angle(turtle.dir);
 				turtle.dir = edge2.rotated(angle);
-				turtle.pos +=turtle.dir * (maxDist / 50000.0);
+				turtle.pos += turtle.dir * (maxDist / 50000.0);
 				dist -= maxDist / 50000.0;
 				
 				turtle.faceId = info.faceId;
@@ -331,4 +366,25 @@ void Data3D::giveTurtleCoords(ofVec3f &pos, ofVec3f &dir, ofVec3f &dirUp) {
 	dir = ofVec3f(td) * cFace.rot;
 	dirUp = cFace.normal;
 	
+}
+
+void Data3D::updateOrthoCast() {
+	updateOrthoNormal();
+	orthoCast.resize(1);
+	orthoCast[0].push_back(ofVec2f(200, 200));
+	orthoCast[0].push_back(ofVec2f(400, 200));
+	orthoCast[0].push_back(ofVec2f(500, 500));
+}
+
+void Data3D::updateOrthoNormal() {
+	orthoPlaneNormal = ofVec3f(0, 0, 0);
+	for(int i = 0; i < (int)faces.size(); i++) {
+		orthoPlaneNormal = faces[i].normal.normalized() * areaInSphere(i);
+	}
+	cout << "ortho normal" << orthoPlaneNormal << endl;
+}
+
+float Data3D::areaInSphere(int f) {
+	
+	return 1.0;
 }
