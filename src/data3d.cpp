@@ -38,6 +38,7 @@ Face::Face(int a, int b, int c, vector<ofVec3f> *vec) {
 		cout << fixed << "v1 = " << v1 << "   v2 = " << v2 << endl;
 		
 	}
+	slot = 1.0;
 
 }
 
@@ -107,6 +108,7 @@ void Data3D::setup(fstream *setupFile) {
 	*setupFile >> meshFileName;
 	*setupFile >> faceResolution;
 	*setupFile >> normalSphereRadius;
+	*setupFile >> displayDistance;
 	fstream meshFile;
 	meshFile.open(meshFileName.c_str(), fstream::in);
 	if(!meshFile.good()) {
@@ -369,8 +371,44 @@ void Data3D::giveTurtleCoords(ofVec3f &pos, ofVec3f &dir, ofVec3f &dirUp) {
 	
 }
 
+void Data3D::faceBfs(int s, vector<int> &vec) {
+	faces[s].vis = true;
+	faces[s].dist = 0;
+	vec.push_back(s);
+	vector<bool> vertVis;
+	vertVis.resize(adjacentFaces.size(), false);
+	int it = 0;
+	while(it < (int)vec.size()) {
+		int f = vec[it];
+		it++;
+		for(int i = 0; i < 3; i++) {
+			if(!vertVis[faces[f].v[i]]) {
+				vertVis[faces[f].v[i]] = true;
+				for(int j = 0; j < (int)adjacentFaces[faces[f].v[i]].size(); j++) {
+					int w = adjacentFaces[faces[f].v[i]][j];
+					if(!faces[w].vis) {
+						faces[w].vis = true;
+						faces[w].dist = faces[f].dist + 1;
+						if(faces[w].dist < maxDist) {
+							vec.push_back(w);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
 void Data3D::updateOrthoCast() {
 	updateOrthoNormal();
+	vector<int> facesId;
+	faceBfs(turtle.faceId, facesId);
+	for(int i = 0; i < (int)faces.size(); i++) {
+		faces[i].slot = 0;
+	}
+		for(int i = 0; i < (int)facesId.size(); i++) {
+		faces[facesId[i]].slot = 1;
+	}
 	orthoCast.resize(1);
 	orthoCast[0].push_back(ofVec2f(200, 200));
 	orthoCast[0].push_back(ofVec2f(400, 200));
@@ -378,22 +416,31 @@ void Data3D::updateOrthoCast() {
 }
 
 void Data3D::updateOrthoNormal() {
-//	ofVec3f res(0, 0, 0);
-//	for(int i = 0; i < (int)faces.size(); i++) {
-//		res += faces[i].normal.normalized() * areaInSphere(i);
-//	}
-//	orthoPlaneNormal = res;
-	orthoPlaneNormal = faces[turtle.faceId].normal.normalized();
+	ofVec3f res(0, 0, 0);
+	for(int i = 0; i < (int)faces.size(); i++) {
+		res += faces[i].normal.normalized() * areaInSphere(i);
+//		faces[i].slot = areaInSphere(i) / (0.5 * abs(crossProd(faces[i].planePoints[1], faces[i].planePoints[2])));
+	}
+	orthoPlaneNormal = res;
+//	orthoPlaneNormal = faces[turtle.faceId].normal.normalized();
 	cout << "ortho normal" << orthoPlaneNormal << endl;
 }
 
 float Data3D::areaInSphere(int f) {
+	faces[f].vis = true;
+	cout << "face = " << f << endl;
+	ofVec3f pos = ofVec3f(turtle.pos) * faces[turtle.faceId].rot + verts[faces[turtle.faceId].v[0]];
+	
 	ofVec3f v1 = verts[faces[f].v[1]] - verts[faces[f].v[0]];
 	ofVec3f v2 = verts[faces[f].v[2]] - verts[faces[f].v[0]];
-	ofVec3f w = turtle.pos - verts[faces[f].v[0]];
-	ofVec3f p = v1.getPerpendicular(v2);
-	
+	ofVec3f w = pos - verts[faces[f].v[0]];
+	ofVec3f p = v1.getPerpendicular(v2).normalized();
+//	faces[f].slot = abs(p.dot(w));
+//	
 	float r = normalSphereRadius * normalSphereRadius - p.dot(w) * p.dot(w);
+	cout << normalSphereRadius << " " << p.dot(w) << endl;
+//	cout << v1 << " " << v2 << " " << w << " " << p << " " << r << endl;
+	
 	if(r <= 0) return 0.0;
 	r = pow(r, 0.5);
 	
@@ -407,7 +454,7 @@ float Data3D::areaInSphere(int f) {
 	ofVec2f p2 = n.getRotated(angle(t1, t2)) * t2.length();
 	ofVec2f p3 = n.getRotated(angle(t1, t3)) * t3.length();
 	
-	if(abs((p2 - p3).length() - (t2 - t3).length()) > EPS) {
+	if(abs((p2 - p3).length() - (t2 - t3).length()) > 10 * EPS) {
 		p3 = n.getRotated(-angle(t1, t3)) * t3.length();
 	}
 	
@@ -415,13 +462,16 @@ float Data3D::areaInSphere(int f) {
 //	cout << t1 << " " << t2 << " " << t3 << endl;
 //	cout << p1 << " " << p2 << " " << p3 << endl;
 	
-	assert(abs((p1 - p2).length() - (t1 - t2).length()) < EPS
-			&& abs((p1 - p3).length() - (t1 - t3).length()) < EPS
-			&& abs((p2 - p3).length() - (t2 - t3).length()) < EPS
+	assert(abs((p1 - p2).length() - (t1 - t2).length()) < 10 * EPS
+			&& abs((p1 - p3).length() - (t1 - t3).length()) < 10 * EPS
+			&& abs((p2 - p3).length() - (t2 - t3).length()) < 10 * EPS
 			);
 
 	
-	
-	return areaInCircle(p1, p2, p3, r);
+	float area = areaInCircle(p1, p2, p3, r);
+	if(area > EPS) {
+		faces[f].vis = false;
+	}
+	return area; 
 }
 

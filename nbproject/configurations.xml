@@ -132,8 +132,8 @@
       <item path="src/data3d.cpp" ex="false" tool="1" flavor="0">
         <ccTool>
           <incDir>
-            <pElem>../../Programy/of/libs/openFrameworks</pElem>
-            <pElem>/usr/include/gio-unix-2.0</pElem>
+            <pElem>/usr/include/gio-unix-2.0/</pElem>
+            <pElem>../../Programy/of/libs/openFrameworks/</pElem>
           </incDir>
         </ccTool>
       </item>
@@ -196,8 +196,8 @@
       <item path="src/world.cpp" ex="false" tool="1" flavor="0">
         <ccTool>
           <incDir>
-            <pElem>../../Programy/of/libs/openFrameworks</pElem>
-            <pElem>/usr/include/gio-unix-2.0</pElem>
+            <pElem>/usr/include/gio-unix-2.0/</pElem>
+            <pElem>../../Programy/of/libs/openFrameworks/</pElem>
           </incDir>
         </ccTool>
       </item>

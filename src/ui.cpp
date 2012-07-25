@@ -261,19 +261,40 @@ void logoApp::draw3D() {
 //	pos = ofVec3f(turtle.pos) * cFace.rot + World::instance()->world3D->verts[cFace.v[0]];
 //	dir = ofVec3f(turtle.dir) * cFace.rot;
 //	dirUp = cFace.normal;
+	this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
 	updateTurtleMesh(pos, dir, dirUp);
 	tex.bind();
 
 	ofSetColor(ofColor::white);
 	vboMesh.draw();
-	normal.drawWireframe();
+
+	
+
+	
 	if(drawWireframe) {
 		ofSetColor(ofColor::black);
 		vboMesh.drawWireframe();
+		ofSetColor(ofColor::blue);
+		ofSphere(pos.x, pos.y, pos.z, World::instance()->world3D->normalSphereRadius);
 	}
+
 
 	//img->unbind();
 	tex.unbind();
+	
+	ofSetColor(ofColor::green);
+	normal.drawWireframe();
+	
+	for(int i = 0; i < (int)World::instance()->world3D->faces.size(); i++) {
+		ofVec3f v1 = (vboMesh.getVertices()[3 * i] + vboMesh.getVertices()[3 * i + 1] + vboMesh.getVertices()[3 * i + 2]) * (1.0 / 3.0);
+		normal.clear();
+		normal.addVertex(v1);
+		normal.addVertex(v1 + 0.001);
+		normal.addVertex(v1 + World::instance()->world3D->faces[i].normal * World::instance()->world3D->faces[i].slot);
+		normal.drawWireframe();
+	}
+	
+	
 	ofSetColor(ofColor::black);
 //	orthoCamNode.draw();
 	turtleMeshTrans.drawWireframe();
@@ -289,73 +310,73 @@ void logoApp::draw3D() {
 
 void logoApp::drawVieport2D() {
 	
-//	ofViewport(viewport2D);
-	orthoCam.begin(viewport2D);
-	ofPushMatrix();
-	ofPushStyle();
-
-//
-//	cout << pos << " " << turtleMeshTrans.getVertex(0) << endl;
-		float scaleRatio = min(viewport2D.width, viewport2D.height) * 0.6 * World::instance()->world3D->getScaleRatio();
-//	ofTranslate(100.0, 100.0, 100.0);
-	ofScale(scaleRatio, scaleRatio, scaleRatio); // scale everything
-	dirUp.normalize();
-	dir.normalize();
-	ofTranslate(-(pos - dir * 0.2 + dirUp * 0.2));
-	
-
-//	orthoCam.setGlobalPosition(pos - dir + dirUp);
-	orthoCam.lookAt(2 * dir - dirUp, dirUp);
-	
-
-	
-//	orthoCam.lookAt(turtleMeshTrans.getVertex(0), dir);
-//	orthoCam.setNearClip(0.0);
-//	orthoCam.enableOrtho();
-
-
-	
-	ofImage tex = *img;
-	tex.bind();
-
-	ofSetColor(ofColor::white);
-	vboMesh.draw();
-	if(drawWireframe) {
-		ofSetColor(ofColor::black);
-		ofSetLineWidth(5);
-		vboMesh.drawWireframe();
-	}
-	tex.unbind();
-	ofSetColor(ofColor::black);
-	turtleMeshTrans.drawWireframe();
-	ofSetColor(ofColor::red);
-	turtleMeshTrans.draw();
-	orthoCam.end();
-   
-	ofPopStyle();
-	ofPopMatrix();
-	
+////	ofViewport(viewport2D);
+//	orthoCam.begin(viewport2D);
+//	ofPushMatrix();
 //	ofPushStyle();
-//	ofPushView();
-//	ofViewport(viewport2D);
 //
-//	ofSetupScreen();
-//	ofSetLineWidth(1);
-//	ofNoFill();
-//	ofSetColor(ofColor::red);
-//	ofVec2f center(viewport2D.width / 2.0, viewport2D.height / 2.0);
-//	ofTriangle(center, center + ofVec2f(10, 30), center + ofVec2f(-10, 30));
-//	ofFill();
+////
+////	cout << pos << " " << turtleMeshTrans.getVertex(0) << endl;
+//		float scaleRatio = min(viewport2D.width, viewport2D.height) * 0.6 * World::instance()->world3D->getScaleRatio();
+////	ofTranslate(100.0, 100.0, 100.0);
+//	ofScale(scaleRatio, scaleRatio, scaleRatio); // scale everything
+//	dirUp.normalize();
+//	dir.normalize();
+//	ofTranslate(-(pos + dirUp * 0.2) + dir.getCrossed(dirUp).normalized() * 3 + dir * 2);
+////	ofTranslate();
+//	
+////	orthoCam.setGlobalPosition(pos - dir + dirUp);
+//	orthoCam.lookAt(-dirUp, dir);
+//	
+//
+//	
+////	orthoCam.lookAt(turtleMeshTrans.getVertex(0), dir);
+////	orthoCam.setNearClip(0.0);
+//	orthoCam.enableOrtho();
+//
+//
+//	
+//	ofImage tex = *img;
+//	tex.bind();
+//
 //	ofSetColor(ofColor::white);
-//	vector<vector<ofVec2f> > &triangles = World::instance()->world3D->orthoCast;
-//	for(int i = 0; i < (int)triangles.size(); i++) {
-//		ofTriangle(triangles[i][0], triangles[i][1], triangles[i][2]);
+//	vboMesh.draw();
+//	if(drawWireframe) {
+//		ofSetColor(ofColor::black);
+//		ofSetLineWidth(5);
+//		vboMesh.drawWireframe();
 //	}
-////	ofNoFill();
-//
-//
-//	ofPopView();
+//	tex.unbind();
+//	ofSetColor(ofColor::black);
+//	turtleMeshTrans.drawWireframe();
+//	ofSetColor(ofColor::red);
+//	turtleMeshTrans.draw();
+//	orthoCam.end();
+//   
 //	ofPopStyle();
+//	ofPopMatrix();
+//	
+	ofPushStyle();
+	ofPushView();
+	ofViewport(viewport2D);
+
+	ofSetupScreen();
+	ofSetLineWidth(1);
+	ofNoFill();
+	ofSetColor(ofColor::red);
+	ofVec2f center(viewport2D.width / 2.0, viewport2D.height / 2.0);
+	ofTriangle(center, center + ofVec2f(10, 30), center + ofVec2f(-10, 30));
+	ofFill();
+	ofSetColor(ofColor::white);
+	vector<vector<ofVec2f> > &triangles = World::instance()->world3D->orthoCast;
+	for(int i = 0; i < (int)triangles.size(); i++) {
+		ofTriangle(triangles[i][0], triangles[i][1], triangles[i][2]);
+	}
+//	ofNoFill();
+
+
+	ofPopView();
+	ofPopStyle();
 	
 }
 
@@ -369,6 +390,6 @@ void logoApp::updateTurtleMesh(ofVec3f pos, ofVec3f dir, ofVec3f dirUp) {
 	for(int i = 0; i < (int)verts.size(); i++) {
 		verts[i].map(pos, dir.getCrossed(dirUp).normalized(), dirUp.normalized(), dir.normalized()); // Why do I have to normalize?
 	}
-	cout << " pos = " << pos << " dir = " << dir << " dirUp = " << dirUp << endl;
+//	cout << " pos = " << pos << " dir = " << dir << " dirUp = " << dirUp << endl;
 	turtleMeshTrans.getVertices() = verts;
 }

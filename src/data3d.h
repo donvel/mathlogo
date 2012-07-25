@@ -32,6 +32,9 @@ struct Face {
 	ofVec2f planePoints[3];
 	ofVec3f normal;
 	Face(int a, int b, int c, vector<ofVec3f> *vec = NULL);
+	bool vis;
+	int dist;
+	float slot; // for debuging
 //	void findNeighbours();
 };
 
@@ -67,9 +70,11 @@ private:
 	float scaleRatio;
 	float maxDist;
 	int faceResolution;
+	int displayDistance;
 	void updateOrthoCast();
 	void updateOrthoNormal();
 	vector< vector< int > > adjacentFaces;
+	void faceBfs(int s, vector<int> &vec);
 };
 
 ofVec2f translate(ofVec2f p, vector<ofVec2f> tr1, vector<ofVec2f> tr2);

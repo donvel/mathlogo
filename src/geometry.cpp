@@ -235,7 +235,7 @@ float areaInCircle(ofVec2f p0, ofVec2f p1, ofVec2f p2, float r) {
 	for(int i = 0; i < 3; i++) {
 		ofVec2f v1 = p[i];
 		ofVec2f v2 = p[(i + 1) % 3];
-		cout << (int)(v1.length() < r) << " " << (int)(v2.length() < r) << endl;
+//		cout << (int)(v1.length() < r) << " " << (int)(v2.length() < r) << endl;
 		if(v1.length() < r) {
 			points.push_back(make_pair(p[i], true));
 			if(v2.length() > r) {
@@ -255,10 +255,10 @@ float areaInCircle(ofVec2f p0, ofVec2f p1, ofVec2f p2, float r) {
 			}
 		}
 	}
-	for(int i = 0; i < (int)points.size(); i++) {
-		cout << points[i].first << " tri = " << (int)points[i].second << endl;
-	}
-	cout << endl;
+//	for(int i = 0; i < (int)points.size(); i++) {
+//		cout << points[i].first << " tri = " << (int)points[i].second << endl;
+//	}
+//	cout << endl;
 	
 	float res = 0.0;
 	float circleArea = M_PI * r * r;
@@ -289,7 +289,7 @@ void segmentCircleIntersection(ofVec2f v1, ofVec2f v2, float r, vector<ofVec2f> 
 	ofVec2f n(1, 0);
 	ofVec2f p1 = n * (v2 - v1).length();
 	ofVec2f p2 = n.rotated(angle(v2 - v1, -v1)) * v1.length();
-	cout << "p1 = " << p1 << " p2 = " << p2 << endl;
+	//cout << "p1 = " << p1 << " p2 = " << p2 << endl;
 	float dist = abs(p2.y);
 	if(dist >= r) return;
 	float len = pow(r * r - dist * dist, 0.5);
@@ -301,5 +301,5 @@ void segmentCircleIntersection(ofVec2f v1, ofVec2f v2, float r, vector<ofVec2f> 
 		inter.push_back(v1 + (v2 - v1).normalized() * i2);
 	} 
 	
-	cout << " i1 = " << i1 << " i2 = " << i2 << endl; 
+	//cout << " i1 = " << i1 << " i2 = " << i2 << endl; 
 }
