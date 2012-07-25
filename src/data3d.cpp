@@ -378,10 +378,11 @@ void Data3D::updateOrthoCast() {
 }
 
 void Data3D::updateOrthoNormal() {
-//	orthoPlaneNormal = ofVec3f(0, 0, 0);
+//	ofVec3f res(0, 0, 0);
 //	for(int i = 0; i < (int)faces.size(); i++) {
-//		orthoPlaneNormal = faces[i].normal.normalized() * areaInSphere(i);
+//		res += faces[i].normal.normalized() * areaInSphere(i);
 //	}
+//	orthoPlaneNormal = res;
 	orthoPlaneNormal = faces[turtle.faceId].normal.normalized();
 	cout << "ortho normal" << orthoPlaneNormal << endl;
 }

@@ -288,45 +288,52 @@ void logoApp::draw3D() {
 }
 
 void logoApp::drawVieport2D() {
-//	
+	
 //	ofViewport(viewport2D);
-//	orthoCam.begin(viewport2D);
-////	ofPushMatrix();
-//	ofPushStyle();
-//	float scaleRatio = min(viewport2D.width, viewport2D.height) * 0.6 * World::instance()->world3D->getScaleRatio();
-////	ofTranslate(100.0, 100.0, 100.0);
-////	ofScale(scaleRatio, scaleRatio, scaleRatio); // scale everything
-////
+	orthoCam.begin(viewport2D);
+	ofPushMatrix();
+	ofPushStyle();
+
+//
 //	cout << pos << " " << turtleMeshTrans.getVertex(0) << endl;
-//	dirUp.normalize();
-//	orthoCam.setGlobalPosition(turtleMeshTrans.getVertex(0) + dirUp * 100);
-//
-//	
+		float scaleRatio = min(viewport2D.width, viewport2D.height) * 0.6 * World::instance()->world3D->getScaleRatio();
+//	ofTranslate(100.0, 100.0, 100.0);
+	ofScale(scaleRatio, scaleRatio, scaleRatio); // scale everything
+	dirUp.normalize();
+	dir.normalize();
+	ofTranslate(-(pos - dir * 0.2 + dirUp * 0.2));
+	
+
+//	orthoCam.setGlobalPosition(pos - dir + dirUp);
+	orthoCam.lookAt(2 * dir - dirUp, dirUp);
+	
+
+	
 //	orthoCam.lookAt(turtleMeshTrans.getVertex(0), dir);
-////	orthoCam.setNearClip(0.0);
-////	orthoCam.enableOrtho();
-//
-//
-//	
-//	ofImage tex = *img;
-//	tex.bind();
-//
-//	ofSetColor(ofColor::white);
-//	vboMesh.draw();
-//	if(drawWireframe) {
-//		ofSetColor(ofColor::black);
-//		ofSetLineWidth(5);
-//		vboMesh.drawWireframe();
-//	}
-//	tex.unbind();
-//	ofSetColor(ofColor::black);
-//	turtleMeshTrans.drawWireframe();
-//	ofSetColor(ofColor::red);
-//	turtleMeshTrans.draw();
-//	orthoCam.end();
-//   
-//	ofPopStyle();
-//	ofPopMatrix();
+//	orthoCam.setNearClip(0.0);
+//	orthoCam.enableOrtho();
+
+
+	
+	ofImage tex = *img;
+	tex.bind();
+
+	ofSetColor(ofColor::white);
+	vboMesh.draw();
+	if(drawWireframe) {
+		ofSetColor(ofColor::black);
+		ofSetLineWidth(5);
+		vboMesh.drawWireframe();
+	}
+	tex.unbind();
+	ofSetColor(ofColor::black);
+	turtleMeshTrans.drawWireframe();
+	ofSetColor(ofColor::red);
+	turtleMeshTrans.draw();
+	orthoCam.end();
+   
+	ofPopStyle();
+	ofPopMatrix();
 	
 //	ofPushStyle();
 //	ofPushView();
