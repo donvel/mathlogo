@@ -1,0 +1,24 @@
+SCRIPT
+to demonstrate :radius :angle :length
+	toggle pu toggle
+	inverse 0 0 :radius
+	setpencolor 5
+	rt :angle
+	fd :length
+	pu
+	toggle
+	pd
+	make "x getx
+	make "y gety
+	setpencolor 18
+	setxy 0 0
+	pu
+	setxy :x :y
+	rt 180
+	toggle
+end
+
+to main
+	demonstrate 200 50 150
+end
+

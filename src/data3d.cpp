@@ -12,6 +12,7 @@ Face::Face(int a, int b, int c, vector<ofVec3f> *vec) {
 		ofVec3f v1 = (*vec)[b] - (*vec)[a];
 		ofVec3f v2 = (*vec)[c] - (*vec)[a];
 		normal = v1.getCrossed(v2).normalized();
+		up = v1.normalized();
 		planePoints[0] = ofVec2f(0, 0);
 		planePoints[1] = ofVec2f(v1.length(), 0);
 		planePoints[2] = ofVec2f(v2.length(), 0).rotated(v1.angle(v2));
@@ -263,13 +264,13 @@ void Data3D::drawSegment(ofVec2f p1, ofVec2f p2, int faceId, double step) {
 	double dist = (p2 - p1).length();
 	while(dist > 1.0) {
 		turtle.pos += turtle.dir * step;
-		updateOrthoCast();
-		this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
+		updateOrthoNormal();
+//		this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
 		dist -= step;
 	}
 	turtle.pos += turtle.dir * dist;
-	updateOrthoCast();
-	this_thread::sleep(posix_time::milliseconds((int)round(dist * (double)World::instance()->getFrameTime())));
+	updateOrthoNormal();
+//	this_thread::sleep(posix_time::milliseconds((int)round(dist * (double)World::instance()->getFrameTime())));
 	
 	vector<ofVec2f> tr1, tr2;
 	for(int i = 0; i < 3; i++) {
@@ -330,15 +331,17 @@ void Data3D::forwardStep(double dist) {
 					edge1 = -edge1;
 				}
 				cout << edge.x << " " << edge.y << endl;
-				turtle.pos = faces[info.faceId].planePoints[info.vertId] + edge;
+				Turtle newTurtle = turtle;
+				newTurtle.pos = faces[info.faceId].planePoints[info.vertId] + edge;
 //				turtle.pos = faces[info.faceId].planePoints[0] + faces[info.faceId].planePoints[1] + faces[info.faceId].planePoints[2];
 //				turtle.pos *= (1.0 / 3.0);
 				angle = edge1.angle(turtle.dir);
-				turtle.dir = edge2.rotated(angle);
-				turtle.pos += turtle.dir * (maxDist / 50000.0);
-				dist -= maxDist / 50000.0;
+				newTurtle.dir = edge2.rotated(angle).normalized();
+				newTurtle.pos += newTurtle.dir * (maxDist / 500000.0);
+				dist -= maxDist / 500000.0;
 				
-				turtle.faceId = info.faceId;
+				newTurtle.faceId = info.faceId;
+				turtle = newTurtle;
 				if(dist <= 0) return;
 				move = true;
 				cout << "pos = " << turtle.pos << ", dir = " << turtle.dir << ", faceId = " << turtle.faceId << endl;
@@ -348,18 +351,18 @@ void Data3D::forwardStep(double dist) {
 		}
 	}
 	drawSegment(turtle.pos, pos2, turtle.faceId, maxDist / 500.0);
-	turtle.pos = pos2;
+	//turtle.pos = pos2;
 }
 
 void Data3D::rotate(double angle) {
-	double step = (angle > 0) ? 1.0 : -1.0;
-	while(abs(angle) > 1.0) {
-		turtle.dir.rotate(step);
-		this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
-		angle -= step;
-	}
+//	double step = (angle > 0) ? 0.1 : -1.0;
+//	while(abs(angle) > 1.0) {
+//		turtle.dir.rotate(step);
+//		this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
+//		angle -= step;
+//	}
 	turtle.dir.rotate(angle);
-	this_thread::sleep(posix_time::milliseconds((int)round(angle * (double)World::instance()->getFrameTime())));
+//	this_thread::sleep(posix_time::milliseconds((int)round(angle * (double)World::instance()->getFrameTime())));
 }
 
 void Data3D::giveTurtleCoords(ofVec3f &pos, ofVec3f &dir, ofVec3f &dirUp) {
@@ -399,6 +402,24 @@ void Data3D::faceBfs(int s, vector<int> &vec) {
 	}
 }
 
+bool Data3D::depthComp(int a, int b) {
+	if(faces[a].dist == faces[b].dist) return a < b;
+	return faces[a].dist > faces[b].dist;
+}
+
+vector<ofVec2f> Data3D::triangleCast(int f) {
+	vector<ofVec3f> v;
+	vector<ofVec2f> res;
+	v.resize(3);
+	for(int i = 0; i < 3; i++) {
+		v[i] = verts[faces[f].v[i]];
+		v[i] = v[i] * rot;
+		res[i] = ofVec2f(v[i].x, v[i].y);
+	}
+	
+	return res;
+}
+
 void Data3D::updateOrthoCast() {
 	updateOrthoNormal();
 	vector<int> facesId;
@@ -406,29 +427,52 @@ void Data3D::updateOrthoCast() {
 	for(int i = 0; i < (int)faces.size(); i++) {
 		faces[i].slot = 0;
 	}
-		for(int i = 0; i < (int)facesId.size(); i++) {
+	for(int i = 0; i < (int)facesId.size(); i++) {
 		faces[facesId[i]].slot = 1;
 	}
-	orthoCast.resize(1);
-	orthoCast[0].push_back(ofVec2f(200, 200));
-	orthoCast[0].push_back(ofVec2f(400, 200));
-	orthoCast[0].push_back(ofVec2f(500, 500));
+	
+//	sort(facesId.begin(), facesId.end(), depthComp);
+//	
+	for(int i = 0; i < (int)facesId.size(); i++) {
+//		vector<ofVec2f> tri = triangleCast(facesId[i]);
+//		orthoCast.push_back(tri);
+	}
+//	
+//	orthoCast.resize(1);
+//	orthoCast[0].push_back(ofVec2f(200, 200));
+//	orthoCast[0].push_back(ofVec2f(400, 200));
+//	orthoCast[0].push_back(ofVec2f(500, 500));
 }
 
 void Data3D::updateOrthoNormal() {
-	ofVec3f res(0, 0, 0);
+	ofVec3f res(0, 0, 0), resUp(0, 0, 0);
 	for(int i = 0; i < (int)faces.size(); i++) {
-		res += faces[i].normal.normalized() * areaInSphere(i);
+		float area = areaInSphere(i);
+		res += faces[i].normal * area;
+		resUp += faces[i].up * area;
 //		faces[i].slot = areaInSphere(i) / (0.5 * abs(crossProd(faces[i].planePoints[1], faces[i].planePoints[2])));
 	}
+	res.normalize();
+	resUp.normalize();
 	orthoPlaneNormal = res;
+	orthoPlaneUp = res.getCrossed(resUp).normalized();
+	rot.makeRotationMatrix(orthoPlaneNormal, ofVec3f(0, 1, 0));
+	ofVec3f newUp = orthoPlaneUp * rot;
+	double ang = angle(ofVec3f(1, 0, 0), newUp);
+	if(angle(ofVec3f(1, 0, 0), newUp.getCrossed(ofVec3f(0, 1, 0))) > EPS) {
+		ang = -ang;
+		cout << "REVERSING" << endl;
+	} else {
+		cout << "NOT REVERSING" << endl;
+	}
+	rot *= ofMatrix4x4().newRotationMatrix(ang, ofVec3f(0, 1, 0));
 //	orthoPlaneNormal = faces[turtle.faceId].normal.normalized();
 	cout << "ortho normal" << orthoPlaneNormal << endl;
 }
 
 float Data3D::areaInSphere(int f) {
 	faces[f].vis = true;
-	cout << "face = " << f << endl;
+//	cout << "face = " << f << endl;
 	ofVec3f pos = ofVec3f(turtle.pos) * faces[turtle.faceId].rot + verts[faces[turtle.faceId].v[0]];
 	
 	ofVec3f v1 = verts[faces[f].v[1]] - verts[faces[f].v[0]];
@@ -438,7 +482,7 @@ float Data3D::areaInSphere(int f) {
 //	faces[f].slot = abs(p.dot(w));
 //	
 	float r = normalSphereRadius * normalSphereRadius - p.dot(w) * p.dot(w);
-	cout << normalSphereRadius << " " << p.dot(w) << endl;
+//	cout << normalSphereRadius << " " << p.dot(w) << endl;
 //	cout << v1 << " " << v2 << " " << w << " " << p << " " << r << endl;
 	
 	if(r <= 0) return 0.0;
@@ -450,21 +494,31 @@ float Data3D::areaInSphere(int f) {
 	assert(o.match(o2));
 	ofVec3f t1 = -o,t2 = -o + v1, t3 = -o + v2;
 	ofVec2f n(1, 0);
+	if(t1.length() < EPS) {
+		swap(t1, t2);
+	}
+	if(t3.length() < EPS) {
+		swap(t3, t2);
+	}
 	ofVec2f p1 = n * t1.length();
 	ofVec2f p2 = n.getRotated(angle(t1, t2)) * t2.length();
 	ofVec2f p3 = n.getRotated(angle(t1, t3)) * t3.length();
-	
-	if(abs((p2 - p3).length() - (t2 - t3).length()) > 10 * EPS) {
+	cout.precision(4);
+	cout << p1 << " " << p2 << " " << p3 << endl;
+	if(abs((p2 - p3).length() - (t2 - t3).length()) >  EPS) {
 		p3 = n.getRotated(-angle(t1, t3)) * t3.length();
+		cout << (p2 - p3).length() << " " << (t2 - t3).length() << endl;
+		cout << angle(t1, t3) << endl;
+		cout << (p2 - p3).length() << " " << (t2 - t3).length() << endl;
 	}
 	
-	cout.precision(2);
-//	cout << t1 << " " << t2 << " " << t3 << endl;
-//	cout << p1 << " " << p2 << " " << p3 << endl;
+	cout << p1 << " " << p2 << " " << p3 << endl;
+	cout << t1 << " " << t2 << " " << t3 << endl;
 	
-	assert(abs((p1 - p2).length() - (t1 - t2).length()) < 10 * EPS
-			&& abs((p1 - p3).length() - (t1 - t3).length()) < 10 * EPS
-			&& abs((p2 - p3).length() - (t2 - t3).length()) < 10 * EPS
+	
+	assert(abs((p1 - p2).length() - (t1 - t2).length()) < EPS
+			&& abs((p1 - p3).length() - (t1 - t3).length()) < EPS
+			&& abs((p2 - p3).length() - (t2 - t3).length()) < EPS
 			);
 
 	

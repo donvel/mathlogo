@@ -42,6 +42,7 @@ class World {
 		transformation trans[2];
 		gridPoint origin[2]; // Origin of the coordinate system - its location on the viewport 
 		voxel ***map[2];
+		string circleStyle;
 
 	public:
 		static World* instance();

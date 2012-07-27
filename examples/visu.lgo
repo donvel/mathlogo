@@ -1,0 +1,51 @@
+SCRIPT
+
+to pensup
+	penup
+	toggle
+	penup
+	toggle
+end
+
+to pensdown 
+	pendown
+	toggle
+	pendown
+	toggle
+end
+
+to setpenscolor :color
+	setpencolor :color
+	toggle
+	setpencolor :color
+	toggle
+end
+
+to arc :turn :rad :deg
+	make "step :rad * 3.14159265 * 2 / 360
+	repeat :deg [
+		fd :step
+		rt :turn
+	]
+end
+
+to main 
+	inverse 0 0 100
+	pensup
+	setxy -170 150
+	lt 90 + 60
+	pensdown
+	setpenscolor 20
+	arc 1 100 360
+	setpenscolor 16
+	fd 400
+	setpenscolor 14
+	headto 0 0
+	fd 150
+	setpenscolor 8
+	lt 54
+	fd 150
+	lt 170
+	setpenscolor 4
+	fd 100
+end

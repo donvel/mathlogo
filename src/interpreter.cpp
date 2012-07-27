@@ -14,6 +14,7 @@ Interpreter::Interpreter() : running(false) {
 	srand(time(0));
 	
 	functions["ifelse"] = Function(1);
+	functions["if"] = Function(1);
 	functions["while"] = Function(1);
 	functions["repeat"] = Function(1);
 	functions["make"] = Function(2);	
@@ -199,7 +200,7 @@ void Function::parseBody() {
 	vector<pair<int, int> > waitingKeywords; 
 	for(int i = 0; i < (int)body.size(); i++) {
 		token = body[i];
-		if(token == "while" || token == "repeat") {
+		if(token == "while" || token == "repeat" || token == "if") {
 			waitingKeywords.push_back(make_pair(i, 0));
 		} else if(token == "ifelse") {
 			waitingKeywords.push_back(make_pair(i, 1));
@@ -389,6 +390,14 @@ LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, st
 		} else {
 			iterator = functions[functionName].blockFrames[make_pair(namePos, 0)].second + 1;
 		}
+		
+	} else if(name == "if") {
+		if(parameters[0].toBoolean()) {
+			pair<int, int> frame= functions[functionName].blockFrames[make_pair(namePos, 0)];
+			runCode(functionName, frame.first, frame.second);
+		}
+
+		iterator = functions[functionName].blockFrames[make_pair(namePos, 0)].second + 1;
 		
 	} else if(name == "repeat") {
 		pair<int, int> frame= functions[functionName].blockFrames[make_pair(namePos, 0)];

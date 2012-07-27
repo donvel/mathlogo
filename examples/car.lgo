@@ -21,6 +21,15 @@ to setpenscolor :color
 	toggle
 end
 
+to arc :turn :rad :deg
+	make "step :rad * 3.14159265 * 2 / 360
+	repeat :deg [
+		fd :step
+		rt :turn
+	]
+end
+
+
 to square :side :color
 	repeat 4 [
 		fd :side
@@ -45,37 +54,6 @@ to square :side :color
 	pensdown
 end
 
-to crate :s :num :startcol
-	pensup
-	fd :num * :s / 2
-	rt 90
-	fd :num * :s / 2
-	rt 90
-	pensdown
-	
-	make "c1 :startcol
-	repeat :num [
-		make "c1 :c1 + 1
-		if :c1 = 26 [
-			make "c1 1
-		]
-		make "c :c1
-		repeat :num [
-			square :s :c
-			fd :s
-			make "c :c + 1
-			if :c = 26 [
-				make "c 1
-			]
-		]
-		rt 180
-		fd :num * :s
-		lt 90
-		fd :s
-		lt 90
-	]
-end
-
 to deform :size
 	make "x1 (-300) + random 600
 	make "y1 (-300) + random 600
@@ -91,6 +69,17 @@ to deform :size
 		:y2 - :size + random (2 * :size + 1)
 		:x3 - :size + random (2 * :size + 1)
 		:y3 - :size + random (2 * :size + 1)
+end
+
+to car
+	setpenscolor 6
+	fd 100
+	lt 90
+	arc 1 50 180
+	lt 90
+	fd 20
+
+
 end
 
 to main 

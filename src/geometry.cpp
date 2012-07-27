@@ -210,7 +210,7 @@ gridPoint neighbour(gridPoint p, int i) {
 float angle(ofVec3f v1, ofVec3f v2) {
 	float angle = v1.angle(v2);
 	if(isnan(angle)) {
-		if(v1.x * v2.x > 0) return 0;
+		if(v1.x * v2.x > -EPS && v1.y * v2.y > -EPS && v1.y * v2.y > -EPS) return 0;
 		return 180;
 	}
 	return angle;

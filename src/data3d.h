@@ -30,7 +30,7 @@ struct Face {
 	int v[3];
 	TransInfo nei[3];
 	ofVec2f planePoints[3];
-	ofVec3f normal;
+	ofVec3f normal, up;
 	Face(int a, int b, int c, vector<ofVec3f> *vec = NULL);
 	bool vis;
 	int dist;
@@ -63,7 +63,10 @@ public:
 	vector<Face> faces;
 	Turtle &turtle;
 	ofVec3f orthoPlaneNormal;
+	ofVec3f orthoPlaneUp;
+	ofMatrix4x4 rot;
 	vector< vector< ofVec2f > > orthoCast;
+	bool depthComp(int a, int b);
 private:
 	void calculateScaleRatio();
 	void calculateFaceResolution();
@@ -75,6 +78,8 @@ private:
 	void updateOrthoNormal();
 	vector< vector< int > > adjacentFaces;
 	void faceBfs(int s, vector<int> &vec);
+
+	vector<ofVec2f> triangleCast(int f);
 };
 
 ofVec2f translate(ofVec2f p, vector<ofVec2f> tr1, vector<ofVec2f> tr2);

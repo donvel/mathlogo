@@ -91,7 +91,7 @@ void logoApp::draw() {
 			//	cout << (*trace)[j].a.x << " " << (*trace)[j].a.y << " " << (*trace)[j].b.x << " " << (*trace)[j].b.y << " " << (*trace)[j].color << endl;
 				segment cSeg = (*trace)[j];
 				if(World::instance()->crop(cSeg)) {// Draw only the part of the segment which is visible in the viewport
-					line(cSeg.a.translated(ori), cSeg.b.translated(ori), (*trace)[j].color, buffer[i]);
+					line(cSeg.a.translated(ori), cSeg.b.translated(ori), (*trace)[j].color, buffer[i], true);
 				}
 			}
 
@@ -115,7 +115,11 @@ void logoApp::draw() {
 			for(int j = 0; j < 3; j++) {
 				turtleSide = segment(turtleShape[j], turtleShape[(j + 1) % 3]);
 				if(World::instance()->crop(turtleSide)) {// Draw only the part of the side which is visible in the viewport
+//					ofPushStyle();
+					ofSetLineWidth(3.0);
 					ofLine(turtleSide.a.x + ori.x, turtleSide.a.y + ori.y, turtleSide.b.x + ori.x, turtleSide.b.y + ori.y);
+					ofSetLineWidth(1.0);
+//					ofPopStyle();
 				}
 			}
 		}
@@ -144,8 +148,10 @@ void logoApp::keyPressed(int key){
 		Interpreter::instance()->toggleRunning();
 	} else if(key == 'q') {
 		cout << "\"q\" pressed" << endl;
-		cout << "Saving texture..." << endl;
-		img->saveImage("texture.jpg");
+		if(World::instance()->getMode() == ESCAPE) {
+			cout << "Saving texture..." << endl;
+			img->saveImage("texture.jpg");
+		}
 		ofExit(0); // exit entire program
 	} else if(key == 's') {
 		saveScreen = true;
@@ -285,6 +291,17 @@ void logoApp::draw3D() {
 	ofSetColor(ofColor::green);
 	normal.drawWireframe();
 	
+	for(int i = 0; i < 3; i++) normal.getVertices()[i] = normal.getVertices()[i] *  World::instance()->world3D->rot;
+	normal.drawWireframe();
+	
+	normal.clear();
+	normal.addVertex(pos);
+	normal.addVertex(pos + ofVec3f(0.01, 0, 0));
+	normal.addVertex(pos + World::instance()->world3D->orthoPlaneUp.normalized() * 3.0);
+	normal.drawWireframe();
+		for(int i = 0; i < 3; i++) normal.getVertices()[i] = normal.getVertices()[i] *  World::instance()->world3D->rot;
+	normal.drawWireframe();
+	
 	for(int i = 0; i < (int)World::instance()->world3D->faces.size(); i++) {
 		ofVec3f v1 = (vboMesh.getVertices()[3 * i] + vboMesh.getVertices()[3 * i + 1] + vboMesh.getVertices()[3 * i + 2]) * (1.0 / 3.0);
 		normal.clear();
@@ -310,73 +327,85 @@ void logoApp::draw3D() {
 
 void logoApp::drawVieport2D() {
 	
-////	ofViewport(viewport2D);
-//	orthoCam.begin(viewport2D);
-//	ofPushMatrix();
-//	ofPushStyle();
+//	ofViewport(viewport2D);
+	orthoCam.begin(viewport2D);
+	ofPushMatrix();
+	ofPushStyle();
+	ofVec3f ortho = World::instance()->world3D->orthoPlaneNormal;
+	ofVec3f up = World::instance()->world3D->orthoPlaneUp;
 //
-////
-////	cout << pos << " " << turtleMeshTrans.getVertex(0) << endl;
-//		float scaleRatio = min(viewport2D.width, viewport2D.height) * 0.6 * World::instance()->world3D->getScaleRatio();
-////	ofTranslate(100.0, 100.0, 100.0);
-//	ofScale(scaleRatio, scaleRatio, scaleRatio); // scale everything
-//	dirUp.normalize();
-//	dir.normalize();
-//	ofTranslate(-(pos + dirUp * 0.2) + dir.getCrossed(dirUp).normalized() * 3 + dir * 2);
-////	ofTranslate();
-//	
-////	orthoCam.setGlobalPosition(pos - dir + dirUp);
-//	orthoCam.lookAt(-dirUp, dir);
-//	
-//
-//	
-////	orthoCam.lookAt(turtleMeshTrans.getVertex(0), dir);
-////	orthoCam.setNearClip(0.0);
-//	orthoCam.enableOrtho();
-//
-//
-//	
-//	ofImage tex = *img;
-//	tex.bind();
-//
-//	ofSetColor(ofColor::white);
-//	vboMesh.draw();
-//	if(drawWireframe) {
-//		ofSetColor(ofColor::black);
-//		ofSetLineWidth(5);
-//		vboMesh.drawWireframe();
-//	}
-//	tex.unbind();
+//	cout << pos << " " << turtleMeshTrans.getVertex(0) << endl;
+		float scaleRatio = min(viewport2D.width, viewport2D.height) * 0.6 * World::instance()->world3D->getScaleRatio();
+		scaleRatio = 1000;
+//	ofTranslate(100.0, 100.0, 100.0);
+	ofScale(scaleRatio, scaleRatio, scaleRatio); // scale everything
+	dirUp.normalize();
+	dir.normalize();
+	ofTranslate(-pos  + up.normalized() * (viewport2D.height / (2 *  scaleRatio)) - 
+			ortho.getCrossed(up).normalized() * (viewport2D.width / (2 *  scaleRatio)
+			) - ortho);
+//	ofTranslate();
+	
+//	orthoCam.setGlobalPosition(pos - dir + dirUp);
+	orthoCam.lookAt(-ortho, up);
+	
+
+	
+//	orthoCam.lookAt(turtleMeshTrans.getVertex(0), dir);
+	orthoCam.setNearClip(0.0);
+	orthoCam.setFarClip(100000.0);
+	orthoCam.enableOrtho();
+
+
+	
+	ofImage tex = *img;
+	tex.bind();
+
+	ofSetColor(ofColor::white);
+	vboMesh.draw();
+	if(drawWireframe) {
+		ofSetColor(ofColor::black);
+		ofSetLineWidth(5);
+		vboMesh.drawWireframe();
+	}
+	tex.unbind();
 //	ofSetColor(ofColor::black);
 //	turtleMeshTrans.drawWireframe();
 //	ofSetColor(ofColor::red);
 //	turtleMeshTrans.draw();
-//	orthoCam.end();
-//   
-//	ofPopStyle();
-//	ofPopMatrix();
-//	
-	ofPushStyle();
-	ofPushView();
-	ofViewport(viewport2D);
-
-	ofSetupScreen();
-	ofSetLineWidth(1);
-	ofNoFill();
-	ofSetColor(ofColor::red);
-	ofVec2f center(viewport2D.width / 2.0, viewport2D.height / 2.0);
-	ofTriangle(center, center + ofVec2f(10, 30), center + ofVec2f(-10, 30));
-	ofFill();
-	ofSetColor(ofColor::white);
-	vector<vector<ofVec2f> > &triangles = World::instance()->world3D->orthoCast;
-	for(int i = 0; i < (int)triangles.size(); i++) {
-		ofTriangle(triangles[i][0], triangles[i][1], triangles[i][2]);
-	}
-//	ofNoFill();
-
-
-	ofPopView();
+	orthoCam.end();
+   
 	ofPopStyle();
+	ofPopMatrix();
+	
+//	ofPushStyle();
+//	ofPushView();
+//	ofViewport(viewport2D);
+//
+//	ofSetupScreen();
+//	ofSetLineWidth(1);
+//	ofNoFill();
+//	ofSetColor(ofColor::red);
+//	ofVec2f center(viewport2D.width / 2.0, viewport2D.height / 2.0);
+//	ofTriangle(center, center + ofVec2f(10, 30), center + ofVec2f(-10, 30));
+//	ofFill();
+//	ofSetColor(ofColor::white);
+//	vector<vector<ofVec2f> > &triangles = World::instance()->world3D->orthoCast;
+//	for(int i = 0; i < (int)triangles.size(); i++) {
+//		ofTriangle(triangles[i][0], triangles[i][1], triangles[i][2]);
+//	}
+//	if(drawWireframe) {
+//		ofNoFill();
+//		ofSetColor(ofColor::black);
+//		for(int i = 0; i < (int)triangles.size(); i++) {
+//			ofTriangle(triangles[i][0], triangles[i][1], triangles[i][2]);
+//		}
+//	}
+////	ofNoFill();
+//
+//
+//	ofPopView();
+//	ofPopStyle();
 	
 }
 

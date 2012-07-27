@@ -1,63 +1,76 @@
 SCRIPT
+
+to pensup
+	penup
+	toggle
+	penup
+	toggle
+end
+
+to pensdown 
+	pendown
+	toggle
+	pendown
+	toggle
+end
+
+to setpenscolor :color
+	setpencolor :color
+	toggle
+	setpencolor :color
+	toggle
+end
+
 to square :side :color
-	print :side
 	repeat 4 [
 		fd :side
 		rt 90
 	]
 	make "s2 :side / 2
-	pu
-	toggle 
-	pu
-	toggle
+	
+	pensup
 	fd :s2
 	rt 90
 	fd :s2
-	setpencolor :color
-	toggle
-	setpencolor :color
+
+	setpenscolor :color
 	fill
-	toggle
+
 	rt 180
 	fd :s2
 	lt 90
 	fd :s2
+
 	rt 180
-	pd
-	toggle 
-	pd
-	toggle
+	pensdown
 end
 
-to main
-	translate 15 15
-	make "s 50
-	pu
-	toggle
-	pu
-	rt 180
-	fd 280
+to crate :s :num
+	pensup
+	fd :num * :s / 2
 	rt 90
-	fd 280
+	fd :num * :s / 2
 	rt 90
-	pd
-	toggle
-	pd
+	pensdown
+	
 	make "c1 1
-	repeat 10 [
+	repeat :num [
 		make "c1 :c1 + 1
 		make "c :c1
-		repeat 10 [
+		repeat :num [
 			square :s :c
 			fd :s
 			make "c :c + 1
 		]
 		rt 180
-		fd 10 * :s
+		fd :num * :s
 		lt 90
 		fd :s
 		lt 90
 	]
 end
 
-
+to main 
+	translate -100 80
+	crate 35 10
+end

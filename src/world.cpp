@@ -86,6 +86,10 @@ void World::setup(char *filename) {
 		origin[1] = origin[0];
 		origin[1].x += width;
 		setupFile >> frameTime;
+		if(mode == TRANSFORM) {
+			setupFile >> circleStyle;
+//			drawCircles = boolValue == "true";
+		}
 	//	cout << origin.x << " " << origin.y << " " << origin.z;
 		cout << "Frame time: " << frameTime << endl;
 	} else { 
@@ -222,9 +226,18 @@ void World::fillOne(int id) {
 }
 
 void World::addCircle(point pos, double r) {
-	for(int i = 0; i < 360; i++) {
-		for(int j = 0; j < 2; j++) {
-			trace[j].push_back(segment(pos.translated(vect(r, 0).rotated(i-1)), pos.translated(vect(r, 0).rotated(i)), ofColor().red));
+	if(circleStyle == "false") return;
+	if(circleStyle == "full") {
+		for(int i = 0; i < 360; i++) {
+			for(int j = 0; j < 2; j++) {
+				trace[j].push_back(segment(pos.translated(vect(r, 0).rotated(i-1)), pos.translated(vect(r, 0).rotated(i)), ofColor().red));
+			}
+		}
+	} else {
+		for(int i = 0; i < 120; i++) {
+			for(int j = 0; j < 2; j++) {
+				trace[j].push_back(segment(pos.translated(vect(r, 0).rotated(3 * i-1)), pos.translated(vect(r, 0).rotated(3 * i)), ofColor().red));
+			}
 		}
 	}
 	cout << "Adding circle " << pos.x << " " << pos.y << " " << r << endl;
@@ -336,9 +349,9 @@ vector<comp> World::addTransform(comp a, comp b, comp c, comp d, bool mirror, do
 
 vector<point> World::getTurtleShape(int id) {
 	vector<point> res(3);
-	res[0] = turtle[id].position.translated(turtle[id].direction * 30.0);
-	res[1] = turtle[id].position.translated(turtle[id].direction.rotated(90.0) * 10.0);
-	res[2] = turtle[id].position.translated(turtle[id].direction.rotated(-90.0) * 10.0);	
+	res[0] = turtle[id].position.translated(turtle[id].direction * 60.0);
+	res[1] = turtle[id].position.translated(turtle[id].direction.rotated(90.0) * 20.0);
+	res[2] = turtle[id].position.translated(turtle[id].direction.rotated(-90.0) * 20.0);	
 	//the points are given in 'Turtle' coordinates, not OF coordinates
 
 	return res;
