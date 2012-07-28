@@ -4,6 +4,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <vector>
+#include <map>
 #include <boost/thread.hpp>
 
 #include "trans.h"
@@ -30,7 +31,6 @@ class World {
 		int frameTime;
 		ofColor backgroundColor;
 		int paletteSize;
-		vector<ofColor> palette;
 		Mode mode;
 		int activeTurtle;
 		bool useVoxels;
@@ -41,10 +41,12 @@ class World {
 		vector<Filler > filler[2];
 		transformation trans[2];
 		gridPoint origin[2]; // Origin of the coordinate system - its location on the viewport 
-		voxel ***map[2];
+		voxel ***voxelMap[2];
 		string circleStyle;
 
 	public:
+		map<int, int> revPalette;
+		vector<ofColor> palette;
 		static World* instance();
 		bool changing;
 		bool frozen;

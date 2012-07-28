@@ -62,7 +62,7 @@ struct gridPoint {
 double dist(point, point);
 double angle(vect, vect); // in radians
 bool intersect(segment a, segment b, point &p);
-void line(point p1, point p2, ofColor targetColor, ofImage &img, bool thick = false);
+void line(point p1, point p2, ofColor targetColor, ofImage &img, bool thick = false, gridPoint forbidden = gridPoint(100000, 100000));
 gridPoint neighbour(gridPoint p, int i);
 
 //---OF vectorts ----/

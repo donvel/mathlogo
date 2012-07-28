@@ -148,8 +148,8 @@
       <item path="src/interpreter.cpp" ex="false" tool="1" flavor="0">
         <ccTool>
           <incDir>
-            <pElem>/usr/include/gio-unix-2.0/</pElem>
-            <pElem>../../Programy/of/libs/openFrameworks/</pElem>
+            <pElem>../../Programy/of/libs/openFrameworks</pElem>
+            <pElem>/usr/include/gio-unix-2.0</pElem>
           </incDir>
         </ccTool>
       </item>
@@ -164,8 +164,8 @@
       <item path="src/main.cpp" ex="false" tool="1" flavor="0">
         <ccTool>
           <incDir>
-            <pElem>/usr/include/gio-unix-2.0/</pElem>
-            <pElem>../../Programy/of/libs/openFrameworks/</pElem>
+            <pElem>../../Programy/of/libs/openFrameworks</pElem>
+            <pElem>/usr/include/gio-unix-2.0</pElem>
           </incDir>
         </ccTool>
       </item>
@@ -188,16 +188,16 @@
       <item path="src/ui.cpp" ex="false" tool="1" flavor="0">
         <ccTool>
           <incDir>
-            <pElem>/usr/include/gio-unix-2.0/</pElem>
-            <pElem>../../Programy/of/libs/openFrameworks/</pElem>
+            <pElem>../../Programy/of/libs/openFrameworks</pElem>
+            <pElem>/usr/include/gio-unix-2.0</pElem>
           </incDir>
         </ccTool>
       </item>
       <item path="src/world.cpp" ex="false" tool="1" flavor="0">
         <ccTool>
           <incDir>
-            <pElem>/usr/include/gio-unix-2.0/</pElem>
-            <pElem>../../Programy/of/libs/openFrameworks/</pElem>
+            <pElem>../../Programy/of/libs/openFrameworks</pElem>
+            <pElem>/usr/include/gio-unix-2.0</pElem>
           </incDir>
         </ccTool>
       </item>

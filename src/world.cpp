@@ -9,15 +9,17 @@ World::World() : width(300), height(300), depth(1),
 	useVoxels(false), changing(false), frozen(false), world3D(NULL) {
 	origin[0] = gridPoint(150, 150, 0);
 	origin[1] = gridPoint(450, 150, 0);
-	map[0] = NULL;
-	map[1] = NULL;
+	voxelMap[0] = NULL;
+	voxelMap[1] = NULL;
 	cleared[0] = true;
 	cleared[1] = true;
 	
 	palette.resize(paletteSize);
 	for(int i = 0; i < paletteSize; i++) {
-		palette[i] = ofColor((i / 9) * 127, ((i / 3) % 3) * 127, (i % 3) * 127); // sets different RGB values
-		cout << "color " << (i / 9) * 127 << " " << ((i / 3) % 3) * 127 << " " << (i % 3) * 127 << endl;
+		ofColor col = ofColor((i / 9) * 127, ((i / 3) % 3) * 127, (i % 3) * 127);// sets different RGB values
+		palette[i] = col; 
+		revPalette[col.getHex()] = i;
+//		cout << "color " << (i / 9) * 127 << " " << ((i / 3) % 3) * 127 << " " << (i % 3) * 127 << endl;
 	}
 }
 
@@ -25,11 +27,11 @@ void World::createMap() { // not in use
 
 	
 	for(int tur = 0; tur < numViewports(); tur++) {
-		map[tur] = new voxel**[width];
+		voxelMap[tur] = new voxel**[width];
 		for(int i = 0; i < width; i++) {
-			map[tur][i] = new voxel*[height];	
+			voxelMap[tur][i] = new voxel*[height];	
 			for(int j = 0; j < height; j++) {
-				map[tur][i][j] = new voxel[depth];
+				voxelMap[tur][i][j] = new voxel[depth];
 			}
 		}
 	}
@@ -38,14 +40,14 @@ void World::createMap() { // not in use
 World::~World() {
 	
 	for(int tur = 0; tur < numViewports(); tur++) {
-		if(map[tur] != NULL) {
+		if(voxelMap[tur] != NULL) {
 			for(int i = 0; i < width; i++) {
 				for(int j = 0; j < height; j++) {
-					delete[] map[tur][i][j];
+					delete[] voxelMap[tur][i][j];
 				}
-				delete[] map[tur][i];
+				delete[] voxelMap[tur][i];
 			}
-			delete[] map[tur];
+			delete[] voxelMap[tur];
 		}
 	}
 	if(world3D != NULL) {
@@ -130,7 +132,7 @@ ofColor World::getBackgroundColor() {
 }
 
 voxel* World::getVoxel(gridPoint gp, int id) {
-	return &map[id][gp.x + origin[0].x][gp.y + origin[0].y][gp.z + origin[0].z];
+	return &voxelMap[id][gp.x + origin[0].x][gp.y + origin[0].y][gp.z + origin[0].z];
 }
 
 vector<segment>* World::getTrace(int id) {

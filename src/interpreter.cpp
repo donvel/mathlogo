@@ -37,6 +37,7 @@ Interpreter::Interpreter() : running(false), endFunction(false) {
 	functions["sqrt"] = Function(1);
 	functions["sin"] = Function(1);
 	functions["cos"] = Function(1);
+	functions["not"] = Function(1);
 	
 /* -------- Transformations -------------------*/
 	
@@ -50,7 +51,7 @@ Interpreter::Interpreter() : running(false), endFunction(false) {
 	transFunctions["cleartransform"] = Function(0);
 	transFunctions["toggle"] = Function(0);
 	
-	3DFunctions["getcolor"] = Function(0);
+	escapeFunctions["getcolor"] = Function(0);
 	
 	precedence["="] = 0;
 	precedence["<"] = 0;
@@ -63,6 +64,12 @@ Interpreter::Interpreter() : running(false), endFunction(false) {
 	
 	if(World::instance()->getMode() == TRANSFORM) {
 		for(map<string, Function>::iterator it = transFunctions.begin(); it != transFunctions.end(); it++) {
+			functions.insert(*it);
+		}
+	}
+	
+	if(World::instance()->getMode() == ESCAPE) {
+		for(map<string, Function>::iterator it = escapeFunctions.begin(); it != escapeFunctions.end(); it++) {
 			functions.insert(*it);
 		}
 	}
@@ -457,6 +464,13 @@ LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, st
 	
 	} else if(name == "cos") {
 		return cos(parameters[0].toDouble() / 360.0 * (2 * M_PI));
+	
+	} else if(name == "not") {
+		if (!parameters[0].toBoolean()) {
+			return LogoData("true");
+		} else {
+			return LogoData("false");
+		}
 		
 	} else if(name == "return") {
 		returnValue = parameters[0];
@@ -531,6 +545,8 @@ LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, st
 		
 	} else if(name == "toggle") {
 		World::instance()->toggleTurtle();
+	} else if(name == "getcolor") {
+		return World::instance()->world3D->getColor();
 	}
 
 	return LogoData();

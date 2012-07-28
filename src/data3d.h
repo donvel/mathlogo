@@ -68,7 +68,9 @@ public:
 	vector< vector< ofVec2f > > orthoCast;
 	bool depthComp(int a, int b);
 	bool debug;
+	int getColor();
 private:
+	ofVec2f getTurtleTexturePos();
 	void calculateScaleRatio();
 	void calculateFaceResolution();
 	float scaleRatio;

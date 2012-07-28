@@ -16,13 +16,13 @@ Face::Face(int a, int b, int c, vector<ofVec3f> *vec) {
 		planePoints[0] = ofVec2f(0, 0);
 		planePoints[1] = ofVec2f(v1.length(), 0);
 		planePoints[2] = ofVec2f(v2.length(), 0).rotated(v1.angle(v2));
-		for(int i = 0; i < 3; i++) cout << planePoints[i].x << " " << planePoints[i].y << ", ";
-		cout << endl;
+//		for(int i = 0; i < 3; i++) cout << planePoints[i].x << " " << planePoints[i].y << ", ";
+//		cout << endl;
 		
 		rot.makeIdentityMatrix();
 		ofVec3f w1 = planePoints[1], w2 = planePoints[2];
 		rot.makeRotationMatrix(w1, v1);
-		cout << fixed << "w1 = " << ofVec3f(planePoints[1]) << "   w2 = " << ofVec3f(planePoints[2])  << endl;
+//		cout << fixed << "w1 = " << ofVec3f(planePoints[1]) << "   w2 = " << ofVec3f(planePoints[2])  << endl;
 		w1 = w1 * rot;
 		w2 = w2 * rot;
 //		ofMatrix4x4 rot2;
@@ -31,12 +31,12 @@ Face::Face(int a, int b, int c, vector<ofVec3f> *vec) {
 			angle = -angle;
 		}
 		rot *= ofMatrix4x4().newRotationMatrix(angle, v1);
-		cout.precision(1);
-		cout << "angle = " << w1.getCrossed(w2).angle(v1.getCrossed(v2)) << endl;
-		cout << fixed << "w1 x w2 = " << w1.getCrossed(w2) << " v1 x v2 = " << v1.getCrossed(v2) << endl;
-		cout << fixed << "w1 = " << w1 << "   w2 = " << w2 << endl;
-		cout << fixed << "u1 = " << ofVec3f(planePoints[1]) * rot << "   u2 = " << ofVec3f(planePoints[2]) * rot << endl;
-		cout << fixed << "v1 = " << v1 << "   v2 = " << v2 << endl;
+//		cout.precision(1);
+//		cout << "angle = " << w1.getCrossed(w2).angle(v1.getCrossed(v2)) << endl;
+//		cout << fixed << "w1 x w2 = " << w1.getCrossed(w2) << " v1 x v2 = " << v1.getCrossed(v2) << endl;
+//		cout << fixed << "w1 = " << w1 << "   w2 = " << w2 << endl;
+//		cout << fixed << "u1 = " << ofVec3f(planePoints[1]) * rot << "   u2 = " << ofVec3f(planePoints[2]) * rot << endl;
+//		cout << fixed << "v1 = " << v1 << "   v2 = " << v2 << endl;
 		
 	}
 	slot = 1.0;
@@ -57,7 +57,7 @@ void Data3D::calculateScaleRatio() {
 			maxDist = max(maxDist, verts[i].distance(verts[j]));
 		}
 	}
-	cout << "maxDist = " << maxDist << endl;
+//	cout << "maxDist = " << maxDist << endl;
 	scaleRatio = 1.0 / maxDist;
 	normalSphereRadius *= maxDist;
 }
@@ -68,7 +68,7 @@ void Data3D::createTexture() {
 	int h = numFaces / w;
 	assert(w != 0);
 	while(h * w < numFaces) w++;
-	cout << "w = " << w << " h = " << h << "numFaces = " << numFaces << endl;
+//	cout << "w = " << w << " h = " << h << "numFaces = " << numFaces << endl;
 	texture.allocate(w * faceResolution, h * faceResolution, OF_IMAGE_COLOR);
 	for(int i = 0; i < texture.width; i++) {
 		for(int j = 0; j < texture.height; j++) {
@@ -289,8 +289,33 @@ void Data3D::drawSegment(ofVec2f p1, ofVec2f p2, int faceId, double step) {
 	}
 	p1 = translate(p1, tr1, tr2);
 	p2 = translate(p2, tr1, tr2);
-	line(p1, p2, ofColor::red, texture, true);
+	ofVec2f p3 = getTurtleTexturePos();
+	line(p1, p2, turtle.penColor, texture, true, gridPoint((int)round(p3.x), (int)round(p3.y)));
 	
+}
+
+ofVec2f Data3D::getTurtleTexturePos() {
+	vector<ofVec2f> tr1, tr2;
+	for(int i = 0; i < 3; i++) {
+		tr1.push_back(faces[turtle.faceId].planePoints[i]);
+		tr2.push_back(coords[3 * turtle.faceId + i]);
+	}
+	return translate(turtle.pos, tr1, tr2);
+}
+
+int Data3D::getColor() {
+	ofVec2f pos = getTurtleTexturePos();
+	cout << texture.getColor((int)round(pos.x), (int)round(pos.y)) << endl;
+	int res;
+	map<int, int>::iterator iter = World::instance()->revPalette.find(texture.getColor((int)round(pos.x), (int)round(pos.y)).getHex());
+	if(iter != World::instance()->revPalette.end()) {
+		res = iter->second;
+	} else {
+		res = -1;
+	}
+	cout << res << endl;
+	
+	return res;
 }
 
 void Data3D::forward(double dist) {
@@ -320,7 +345,7 @@ void Data3D::forwardStep(double dist) {
 					faces[turtle.faceId].planePoints[i], 
 					faces[turtle.faceId].planePoints[(i + 1) % 3]
 					), col)) {
-				cout << "intersection " << col.x << ", " << col.y << endl;
+//				cout << "intersection " << col.x << ", " << col.y << endl;
 //				Interpreter::instance()->toggleRunning();
 				
 				dist -= turtle.pos.distance(ofVec2f(col.x, col.y));
@@ -333,14 +358,14 @@ void Data3D::forwardStep(double dist) {
 				ofVec2f edge2 = faces[info.faceId].planePoints[(info.vertId + 1) % 3] - faces[info.faceId].planePoints[info.vertId];
 				ofVec2f edge = edge2;
 				float angle;
-				cout << "edges " << edge1.x << " " << edge1.y << ", " << edge2.x << " " << edge2.y << endl;
+//				cout << "edges " << edge1.x << " " << edge1.y << ", " << edge2.x << " " << edge2.y << endl;
 				if(!info.reversed) {
 					edge.scale(faces[turtle.faceId].planePoints[i].distance(ofVec2f(col.x, col.y)));
 				} else {
 					edge.scale(faces[turtle.faceId].planePoints[(i + 1) % 3].distance(ofVec2f(col.x, col.y)));
 					edge1 = -edge1;
 				}
-				cout << edge.x << " " << edge.y << endl;
+//				cout << edge.x << " " << edge.y << endl;
 				Turtle newTurtle = turtle;
 				newTurtle.pos = faces[info.faceId].planePoints[info.vertId] + edge;
 //				turtle.pos = faces[info.faceId].planePoints[0] + faces[info.faceId].planePoints[1] + faces[info.faceId].planePoints[2];
@@ -354,7 +379,7 @@ void Data3D::forwardStep(double dist) {
 				turtle = newTurtle;
 				if(dist <= 0) return;
 				move = true;
-				cout << "pos = " << turtle.pos << ", dir = " << turtle.dir << ", faceId = " << turtle.faceId << endl;
+//				cout << "pos = " << turtle.pos << ", dir = " << turtle.dir << ", faceId = " << turtle.faceId << endl;
 				break;
 
 			}
@@ -471,13 +496,13 @@ void Data3D::updateOrthoNormal() {
 	double ang = angle(ofVec3f(1, 0, 0), newUp);
 	if(angle(ofVec3f(1, 0, 0), newUp.getCrossed(ofVec3f(0, 1, 0))) > EPS) {
 		ang = -ang;
-		cout << "REVERSING" << endl;
-	} else {
-		cout << "NOT REVERSING" << endl;
+//		cout << "REVERSING" << endl;
+//	} else {
+//		cout << "NOT REVERSING" << endl;
 	}
 	rot *= ofMatrix4x4().newRotationMatrix(ang, ofVec3f(0, 1, 0));
 //	orthoPlaneNormal = faces[turtle.faceId].normal.normalized();
-	cout << "ortho normal" << orthoPlaneNormal << endl;
+//	cout << "ortho normal" << orthoPlaneNormal << endl;
 }
 
 float Data3D::areaInSphere(int f) {
@@ -514,16 +539,16 @@ float Data3D::areaInSphere(int f) {
 	ofVec2f p2 = n.getRotated(angle(t1, t2)) * t2.length();
 	ofVec2f p3 = n.getRotated(angle(t1, t3)) * t3.length();
 	cout.precision(4);
-	cout << p1 << " " << p2 << " " << p3 << endl;
+//	cout << p1 << " " << p2 << " " << p3 << endl;
 	if(abs((p2 - p3).length() - (t2 - t3).length()) >  EPS) {
 		p3 = n.getRotated(-angle(t1, t3)) * t3.length();
-		cout << (p2 - p3).length() << " " << (t2 - t3).length() << endl;
-		cout << angle(t1, t3) << endl;
-		cout << (p2 - p3).length() << " " << (t2 - t3).length() << endl;
+//		cout << (p2 - p3).length() << " " << (t2 - t3).length() << endl;
+//		cout << angle(t1, t3) << endl;
+//		cout << (p2 - p3).length() << " " << (t2 - t3).length() << endl;
 	}
 	
-	cout << p1 << " " << p2 << " " << p3 << endl;
-	cout << t1 << " " << t2 << " " << t3 << endl;
+//	cout << p1 << " " << p2 << " " << p3 << endl;
+//	cout << t1 << " " << t2 << " " << t3 << endl;
 	
 	
 	assert(abs((p1 - p2).length() - (t1 - t2).length()) < EPS
