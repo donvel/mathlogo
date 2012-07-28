@@ -23,7 +23,10 @@ to setpens :col
 end
 
 to main
-	inverse 0 100 100
+	psu
+	fd -30
+	psd
+	inverse 0 120 150
 	lt 90
 	make "s 0.1
 	make "col 3

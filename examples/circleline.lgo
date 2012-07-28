@@ -1,0 +1,7 @@
+SCRIPT
+
+to main
+	inverse 0 0 100
+	rt 90
+	repeat 360 + 180 [fd 1 rt 1]
+end

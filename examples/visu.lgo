@@ -36,7 +36,9 @@ to main
 	lt 90 + 60
 	pensdown
 	setpenscolor 20
-	arc 1 100 360
+	arc 1 90 360
+	setpenscolor 22
+	arc 1 70 360
 	setpenscolor 16
 	fd 400
 	setpenscolor 14

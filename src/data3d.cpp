@@ -110,12 +110,22 @@ void Data3D::setup(fstream *setupFile) {
 	*setupFile >> faceResolution;
 	*setupFile >> normalSphereRadius;
 	*setupFile >> displayDistance;
+
+	string debugMode;
+	*setupFile >> debugMode;
+	if(debugMode == "debug") {
+		debug = true;
+	} else {
+		debug = false;
+	}
+
 	fstream meshFile;
 	meshFile.open(meshFileName.c_str(), fstream::in);
 	if(!meshFile.good()) {
 		cout << "Corrupted mesh file." << endl;
 		ofExit(1);
 	}
+	
 	string type;
 	while(!meshFile.eof()) {
 		meshFile >> type;
@@ -450,7 +460,7 @@ void Data3D::updateOrthoNormal() {
 		float area = areaInSphere(i);
 		res += faces[i].normal * area;
 		resUp += faces[i].up * area;
-//		faces[i].slot = areaInSphere(i) / (0.5 * abs(crossProd(faces[i].planePoints[1], faces[i].planePoints[2])));
+		faces[i].slot = areaInSphere(i) / (0.5 * abs(crossProd(faces[i].planePoints[1], faces[i].planePoints[2])));
 	}
 	res.normalize();
 	resUp.normalize();

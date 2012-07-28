@@ -56,5 +56,5 @@ to draw :size :step :num :shift
 end
 
 to main
-	draw 300 0.5 10 (-200) 
+	draw 300 0.5 100 (-200) 
 end

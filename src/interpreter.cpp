@@ -9,7 +9,7 @@ Function::Function(int _argNum, bool _builtin, vector<string> _args, vector<stri
 
 Interpreter* Interpreter::interpreterInstance = NULL;
 
-Interpreter::Interpreter() : running(false) {
+Interpreter::Interpreter() : running(false), endFunction(false) {
 	
 	srand(time(0));
 	
@@ -35,6 +35,8 @@ Interpreter::Interpreter() : running(false) {
 	functions["return"] = Function(1);
 	functions["random"] = Function(1);
 	functions["sqrt"] = Function(1);
+	functions["sin"] = Function(1);
+	functions["cos"] = Function(1);
 	
 /* -------- Transformations -------------------*/
 	
@@ -48,7 +50,7 @@ Interpreter::Interpreter() : running(false) {
 	transFunctions["cleartransform"] = Function(0);
 	transFunctions["toggle"] = Function(0);
 	
-	
+	3DFunctions["getcolor"] = Function(0);
 	
 	precedence["="] = 0;
 	precedence["<"] = 0;
@@ -279,7 +281,7 @@ LogoData Interpreter::getData(string token) {
 	return LogoData(token);
 }
 
-LogoData executeOperator(string oper, LogoData a, LogoData b) {
+LogoData Interpreter::executeOperator(string oper, LogoData a, LogoData b) {
 	cout << a.toString() << " :" << oper << ": " << b.toString() << endl;
 	if(oper == "+") return a + b;
 	if(oper == "-") return a - b;
@@ -294,9 +296,10 @@ LogoData executeOperator(string oper, LogoData a, LogoData b) {
 
 void Interpreter::executeLast(vector<LogoData> &values, vector<int> &stack, 
 		vector<int> &valuesNeeded, vector<int> &valuesAvailable, string functionName, int &iterator) {
+	if(endFunction) return;
 	// I would write some comments to make this code more readable
 	// But I have already forgotten what it does.
-	
+	if(endFunction) return;
 	string name = functions[functionName].body[stack.back()];
 	
 	cout << "executeLast " << name << " in " << functionName << ", iterator = " << iterator << endl;
@@ -353,7 +356,9 @@ void Interpreter::executeLast(vector<LogoData> &values, vector<int> &stack,
 }
 
 LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, string functionName, int &iterator) {
-
+	if(endFunction) {
+		return LogoData();
+	}
 	vector<string> &code = functions[functionName].body;
 	string name = code[namePos];
 	if(name == "print") {
@@ -386,6 +391,7 @@ LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, st
 		if(parameters[0].toBoolean()) {
 			pair<int, int> frame= functions[functionName].blockFrames[make_pair(namePos, 0)];
 			runCode(functionName, frame.first, frame.second);
+			if(endFunction) return LogoData();
 			iterator = namePos;
 		} else {
 			iterator = functions[functionName].blockFrames[make_pair(namePos, 0)].second + 1;
@@ -403,6 +409,7 @@ LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, st
 		pair<int, int> frame= functions[functionName].blockFrames[make_pair(namePos, 0)];
 		for(int j = 0; j < (int)parameters[0].toDouble(); j++) {	
 			runCode(functionName, frame.first, frame.second);
+			if(endFunction) return LogoData();
 		}
 		iterator = functions[functionName].blockFrames[make_pair(namePos, 0)].second + 1;
 		cout << "After repeat iterator = " << iterator << endl;
@@ -444,9 +451,16 @@ LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, st
 	
 	} else if(name == "sqrt") {
 		return sqrt(parameters[0].toDouble());
+		
+	} else if(name == "sin") {
+		return sin(parameters[0].toDouble() / 360.0 * (2 * M_PI));
 	
+	} else if(name == "cos") {
+		return cos(parameters[0].toDouble() / 360.0 * (2 * M_PI));
+		
 	} else if(name == "return") {
 		returnValue = parameters[0];
+		endFunction = true;
 	
 //--------------------TRANSFORMATIONS------------------------------//
 		
@@ -523,6 +537,7 @@ LogoData Interpreter::runMyFunction(int namePos, vector<LogoData> parameters, st
 }
 
 LogoData Interpreter::runCode(string functionName, int firstToken, int lastToken, vector<LogoData> parameters) {
+
 //	if(myFunctions.find(name) != myFunctions.end()) return runMyFunction(name, firstToken, parameters);
 //	int lastToken = functionFrames[name].second;
 //	if(functionName == "spiro") return LogoData();
@@ -598,10 +613,15 @@ LogoData Interpreter::runCode(string functionName, int firstToken, int lastToken
 //			cout << "And now I should pop back" << endl;
 			stack.pop_back();
 		}
+		if(endFunction) {
+			break;
+		}
 	}
 	
-	while(valuesNeeded.size() > 1 && valuesAvailable.back() == valuesNeeded.back()) {
-		executeLast(values, stack, valuesNeeded, valuesAvailable, functionName, iterator);
+	if(!endFunction) {
+		while(valuesNeeded.size() > 1 && valuesAvailable.back() == valuesNeeded.back()) {
+			executeLast(values, stack, valuesNeeded, valuesAvailable, functionName, iterator);
+		}
 	}
 	cout << "Exit " << functionName << endl; 
 
@@ -610,5 +630,6 @@ LogoData Interpreter::runCode(string functionName, int firstToken, int lastToken
 	LogoData tmp = returnValue;
 	returnValue = LogoData();
 	variables.pop_back();
+	endFunction = false;
 	return tmp;
 }

@@ -48,11 +48,11 @@ to proof :rad :irad :deg
 	setxy getx 0
 	headto getx (-600)
 	inverse getx gety :irad
-	setpens 2
+	setpens 16
 	arc -1 (:rad + getx) / 2 360
 	setpens 21
 	arc 1 (:rad - getx) / 2 360
-	setpens 3
+	setpens 25
 	rt 90
 	arc 1 :r 540
 	setpens 0
@@ -70,16 +70,13 @@ to proof :rad :irad :deg
 	setxy :rad 0
 	setxy -:rad 0
 	toggle
-	fd 200 + :irad
+	fd 200
 	setxy :invx 0
 	lt 90
-	fd 100 + :irad
-	fd -(400 + :irad)
-	toggle
-	fd -(400 + :irad)
-	fd (400 + :irad)
+	fd 100
+	fd -400
 end
 
 to main
-	proof 200 150 67
+	proof 200 100 67
 end

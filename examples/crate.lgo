@@ -94,6 +94,6 @@ to deform :size
 end
 
 to main 
-	homothety 0 0 0.5
+	inverse 0 0 180
 	crate 50 10 10
 end

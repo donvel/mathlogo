@@ -67,6 +67,7 @@ public:
 	ofMatrix4x4 rot;
 	vector< vector< ofVec2f > > orthoCast;
 	bool depthComp(int a, int b);
+	bool debug;
 private:
 	void calculateScaleRatio();
 	void calculateFaceResolution();

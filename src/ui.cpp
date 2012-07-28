@@ -244,11 +244,7 @@ void logoApp::setup3D() {
 
 void logoApp::draw3D() {
 
-	ofMesh normal;
-
-	normal.addVertex(pos);
-	normal.addVertex(pos + ofVec3f(0.01, 0, 0));
-	normal.addVertex(pos + World::instance()->world3D->orthoPlaneNormal.normalized() * 3.0);
+	
 //	ofRotateY(ofGetElapsedTimef() * 30); // slowly rotate the model
 	float scaleRatio = min(viewport3D.width, viewport3D.height) * 0.6 * World::instance()->world3D->getScaleRatio();
 //	cout << "scaleRatio = " << scaleRatio << endl; 
@@ -280,37 +276,42 @@ void logoApp::draw3D() {
 	if(drawWireframe) {
 		ofSetColor(ofColor::black);
 		vboMesh.drawWireframe();
-		ofSetColor(ofColor::blue);
-		ofSphere(pos.x, pos.y, pos.z, World::instance()->world3D->normalSphereRadius);
+		if(World::instance()->world3D->debug) {
+			ofSetColor(ofColor::green);
+			ofSphere(pos.x, pos.y, pos.z, World::instance()->world3D->normalSphereRadius);
+		}
 	}
 
 
 	//img->unbind();
 	tex.unbind();
 	
-	ofSetColor(ofColor::green);
-	normal.drawWireframe();
-	
-	for(int i = 0; i < 3; i++) normal.getVertices()[i] = normal.getVertices()[i] *  World::instance()->world3D->rot;
-	normal.drawWireframe();
-	
-	normal.clear();
-	normal.addVertex(pos);
-	normal.addVertex(pos + ofVec3f(0.01, 0, 0));
-	normal.addVertex(pos + World::instance()->world3D->orthoPlaneUp.normalized() * 3.0);
-	normal.drawWireframe();
-		for(int i = 0; i < 3; i++) normal.getVertices()[i] = normal.getVertices()[i] *  World::instance()->world3D->rot;
-	normal.drawWireframe();
-	
-	for(int i = 0; i < (int)World::instance()->world3D->faces.size(); i++) {
-		ofVec3f v1 = (vboMesh.getVertices()[3 * i] + vboMesh.getVertices()[3 * i + 1] + vboMesh.getVertices()[3 * i + 2]) * (1.0 / 3.0);
-		normal.clear();
-		normal.addVertex(v1);
-		normal.addVertex(v1 + 0.001);
-		normal.addVertex(v1 + World::instance()->world3D->faces[i].normal * World::instance()->world3D->faces[i].slot);
+	if(World::instance()->world3D->debug) {
+		ofMesh normal;
+
+		normal.addVertex(pos);
+		normal.addVertex(pos + ofVec3f(0.01, 0, 0));
+		normal.addVertex(pos + World::instance()->world3D->orthoPlaneNormal.normalized() * 3.0);
+		ofSetColor(ofColor::green);
 		normal.drawWireframe();
-	}
 	
+		normal.clear();
+		normal.addVertex(pos);
+		normal.addVertex(pos + ofVec3f(0.01, 0, 0));
+		normal.addVertex(pos + World::instance()->world3D->orthoPlaneUp.normalized() * 3.0);
+		normal.drawWireframe();
+
+
+		for(int i = 0; i < (int)World::instance()->world3D->faces.size(); i++) {
+			ofVec3f v1 = (vboMesh.getVertices()[3 * i] + vboMesh.getVertices()[3 * i + 1] + vboMesh.getVertices()[3 * i + 2]) * (1.0 / 3.0);
+			normal.clear();
+			normal.addVertex(v1);
+			normal.addVertex(v1 + 0.001);
+			normal.addVertex(v1 + World::instance()->world3D->faces[i].normal * World::instance()->world3D->faces[i].slot);
+			normal.drawWireframe();
+		}
+	}
+
 	
 	ofSetColor(ofColor::black);
 //	orthoCamNode.draw();

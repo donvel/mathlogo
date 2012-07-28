@@ -118,7 +118,7 @@ end
 
 to main
 	rt random 360
-	inverse 0 0 100
+	inverse 0 0 150
 	quadri 156 143 192 123
 end
 

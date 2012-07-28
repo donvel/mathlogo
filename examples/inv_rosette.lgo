@@ -1,26 +1,55 @@
 SCRIPT
 
+to pensup
+	penup
+	toggle
+	penup
+	toggle
+end
+
+to pensdown 
+	pendown
+	toggle
+	pendown
+	toggle
+end
+
+to setpenscolor :color
+	setpencolor :color
+	toggle
+	setpencolor :color
+	toggle
+end
+
 to circle :step
+	pensdown
 	repeat 360 [
 		fd :step
 		lt 1
 	]
+	pensup
 end
 
-to rosette :num :step
-	make "color 15
+to rosette :num :step :start :len
+	make "s 0
+	pensup
 	repeat :num [
-		make "color (15 + (:color + 1) % 3)
-		setpencolor :color
-		toggle
-		setpencolor :color
-		toggle
+		make "color (:start + (:s % 3) * 3)
+		make "s :s + 1
+		setpenscolor :color
+		rt 90
+		fd :len
+		lt 90
 		circle :step
+		rt 90
+		fd -:len
+		lt 90
 		rt 360 / :num
 	]
 end
 
 to main
-	inverse 0 0 100
-	rosette 10 1
+	inverse 0 0 150
+	rosette 12 2 14 (-20)
+	rosette 6 1 18 10
 end

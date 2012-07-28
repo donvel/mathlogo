@@ -28,25 +28,14 @@ to ortocircle :side :invrad
 		[
 			rt 1
 			fd :side
-			make "path :path + :side
-			if :path = :len [return 0]
 		]
 end
 
 to main 
-	make "radius 160
+	make "radius 100
 	inverse 0 0 :radius
 	psu
 	fd :radius
 	psd
-	make "path 0
-	make "len 2000
-	make "color 11
-	while :path < :len [
-		make "color (:color + 1) % 26
-		setpens 3 + random 23 
-		make "rad (random 20) + 1
-		ortocircle :rad / 10 :radius
-		toggle
-	]
+	ortocircle 2 :radius
 end

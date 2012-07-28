@@ -38,6 +38,7 @@ private:
 	LogoData returnValue;
     bool running;
 	bool useBareCommands;
+	bool endFunction;
     fstream scriptFile;
     vector<string> script;
    
@@ -54,6 +55,7 @@ private:
     LogoData getData(string token);
     LogoData runCode(string functionName, int firstToken, int lastToken, vector<LogoData> parameters = vector<LogoData>());
     LogoData runMyFunction(int namePos, vector<LogoData> parameters, string functionName, int &iterator);
+	LogoData executeOperator(string oper, LogoData a, LogoData b);
 
     void executeLast(vector<LogoData> &values, vector<int> &stack, vector<int> &valuesNeeded, 
 		vector<int> &valuesAvailable, string functionName, int &iterator);
