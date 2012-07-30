@@ -118,6 +118,14 @@ void Data3D::setup(fstream *setupFile) {
 	} else {
 		debug = false;
 	}
+	
+	int numViewports;
+	*setupFile >> numViewports;
+	if(numViewports == 1) {
+		oneViewport = true;
+	} else {
+		oneViewport = false;
+	}
 
 	fstream meshFile;
 	meshFile.open(meshFileName.c_str(), fstream::in);
@@ -289,8 +297,10 @@ void Data3D::drawSegment(ofVec2f p1, ofVec2f p2, int faceId, double step) {
 	}
 	p1 = translate(p1, tr1, tr2);
 	p2 = translate(p2, tr1, tr2);
-	ofVec2f p3 = getTurtleTexturePos();
-	line(p1, p2, turtle.penColor, texture, true, gridPoint((int)round(p3.x), (int)round(p3.y)));
+
+	if(turtle.isPenDown) {
+		line(p1, p2, turtle.penColor, texture, true);
+	}
 	
 }
 
@@ -480,6 +490,7 @@ void Data3D::updateOrthoCast() {
 }
 
 void Data3D::updateOrthoNormal() {
+	if(oneViewport) return; 
 	ofVec3f res(0, 0, 0), resUp(0, 0, 0);
 	for(int i = 0; i < (int)faces.size(); i++) {
 		float area = areaInSphere(i);
@@ -506,6 +517,7 @@ void Data3D::updateOrthoNormal() {
 }
 
 float Data3D::areaInSphere(int f) {
+
 	faces[f].vis = true;
 //	cout << "face = " << f << endl;
 	ofVec3f pos = ofVec3f(turtle.pos) * faces[turtle.faceId].rot + verts[faces[turtle.faceId].v[0]];
@@ -550,11 +562,11 @@ float Data3D::areaInSphere(int f) {
 //	cout << p1 << " " << p2 << " " << p3 << endl;
 //	cout << t1 << " " << t2 << " " << t3 << endl;
 	
-	
-	assert(abs((p1 - p2).length() - (t1 - t2).length()) < EPS
-			&& abs((p1 - p3).length() - (t1 - t3).length()) < EPS
-			&& abs((p2 - p3).length() - (t2 - t3).length()) < EPS
-			);
+//	
+//	assert(abs((p1 - p2).length() - (t1 - t2).length()) < EPS
+//			&& abs((p1 - p3).length() - (t1 - t3).length()) < EPS
+//			&& abs((p2 - p3).length() - (t2 - t3).length()) < EPS
+//			);
 
 	
 	float area = areaInCircle(p1, p2, p3, r);

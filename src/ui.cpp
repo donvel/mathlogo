@@ -133,12 +133,16 @@ void logoApp::draw() {
 	}
 		
 	if(saveScreen) {
-		saver.grabScreen(0, 0, ofGetWidth(), ofGetHeight() );
-		string saveName;
-		cin >> saveName;
-		saver.saveImage(saveName);
-		saveScreen = false;
+		screenshot();
 	}
+}
+
+void logoApp::screenshot() {
+	saver.grabScreen(0, 0, ofGetWidth(), ofGetHeight() );
+	string saveName;
+	cin >> saveName;
+	saver.saveImage(saveName);
+	saveScreen = false;
 }
 
 //--------------------------------------------------------------
@@ -154,11 +158,19 @@ void logoApp::keyPressed(int key){
 		}
 		ofExit(0); // exit entire program
 	} else if(key == 's') {
+		
 		saveScreen = true;
+		screenshot();
 		cout << "Enter file name" << endl;
 	} else if(key == 'w') {
 		cout << "w pressed" << endl;
 		drawWireframe = !drawWireframe;
+	} else if(key == 'p') {
+		cout << "p pressed" << endl;
+		drawSphere = !drawSphere;
+	} else if(key == 'n') {
+		cout << "n pressed" << endl;
+		scaleNor = !scaleNor;
 	}
 }
 
@@ -207,8 +219,9 @@ void logoApp::dragEvent(ofDragInfo dragInfo){
 
 void logoApp::setup3D() {
 	
-	viewport2D.set(0, 0, (double)ofGetWindowWidth() / 2.0, ofGetWindowHeight());
-	viewport3D.set((double)ofGetWindowWidth() / 2.0, 0, (double)ofGetWindowWidth() / 2.0, ofGetWindowHeight());
+	update3D();
+//	viewport2D.set(0, 0, (double)ofGetWindowWidth() / 2.0, ofGetWindowHeight());
+//	viewport3D.set((double)ofGetWindowWidth() / 2.0, 0, (double)ofGetWindowWidth() / 2.0, ofGetWindowHeight());
 	
 	ofSetVerticalSync(true);
 	ofSetFrameRate(60);
@@ -263,7 +276,7 @@ void logoApp::draw3D() {
 //	pos = ofVec3f(turtle.pos) * cFace.rot + World::instance()->world3D->verts[cFace.v[0]];
 //	dir = ofVec3f(turtle.dir) * cFace.rot;
 //	dirUp = cFace.normal;
-	this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
+//	this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
 	updateTurtleMesh(pos, dir, dirUp);
 	tex.bind();
 
@@ -277,8 +290,10 @@ void logoApp::draw3D() {
 		ofSetColor(ofColor::black);
 		vboMesh.drawWireframe();
 		if(World::instance()->world3D->debug) {
-			ofSetColor(ofColor::green);
-			ofSphere(pos.x, pos.y, pos.z, World::instance()->world3D->normalSphereRadius);
+			ofSetColor(ofColor::red);
+			if(drawSphere) {
+				ofSphere(pos.x, pos.y, pos.z, World::instance()->world3D->normalSphereRadius);
+			}
 		}
 	}
 
@@ -295,11 +310,11 @@ void logoApp::draw3D() {
 		ofSetColor(ofColor::green);
 		normal.drawWireframe();
 	
-		normal.clear();
-		normal.addVertex(pos);
-		normal.addVertex(pos + ofVec3f(0.01, 0, 0));
-		normal.addVertex(pos + World::instance()->world3D->orthoPlaneUp.normalized() * 3.0);
-		normal.drawWireframe();
+//		normal.clear();
+//		normal.addVertex(pos);
+//		normal.addVertex(pos + ofVec3f(0.01, 0, 0));
+//		normal.addVertex(pos + World::instance()->world3D->orthoPlaneUp.normalized() * 3.0);
+//		normal.drawWireframe();
 
 
 		for(int i = 0; i < (int)World::instance()->world3D->faces.size(); i++) {
@@ -307,7 +322,11 @@ void logoApp::draw3D() {
 			normal.clear();
 			normal.addVertex(v1);
 			normal.addVertex(v1 + 0.001);
-			normal.addVertex(v1 + World::instance()->world3D->faces[i].normal * World::instance()->world3D->faces[i].slot);
+			if(scaleNor) {
+				normal.addVertex(v1 + World::instance()->world3D->faces[i].normal * World::instance()->world3D->faces[i].slot);
+			} else {
+				normal.addVertex(v1 + World::instance()->world3D->faces[i].normal);
+			}
 			normal.drawWireframe();
 		}
 	}
@@ -320,8 +339,11 @@ void logoApp::draw3D() {
 	turtleMeshTrans.draw();
 //	this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
 	cam.end();
-	ofLine(viewport2D.width, 0, viewport2D.width, viewport2D.height);
-	drawVieport2D();
+	
+	if(!World::instance()->world3D->oneViewport) {
+		ofLine(viewport2D.width, 0, viewport2D.width, viewport2D.height);
+		drawVieport2D();
+	}
 	ofSetColor(ofColor::white);
 	
 }
@@ -336,7 +358,7 @@ void logoApp::drawVieport2D() {
 	ofVec3f up = World::instance()->world3D->orthoPlaneUp;
 //
 //	cout << pos << " " << turtleMeshTrans.getVertex(0) << endl;
-		float scaleRatio = min(viewport2D.width, viewport2D.height) * 0.6 * World::instance()->world3D->getScaleRatio();
+		float scaleRatio = min(viewport2D.width, viewport2D.height) * 10 * World::instance()->world3D->getScaleRatio();
 		scaleRatio = 1000;
 //	ofTranslate(100.0, 100.0, 100.0);
 	ofScale(scaleRatio, scaleRatio, scaleRatio); // scale everything
@@ -411,8 +433,13 @@ void logoApp::drawVieport2D() {
 }
 
 void logoApp::update3D() {
-	viewport2D.set(0, 0, (double)ofGetWindowWidth() / 2.0, ofGetWindowHeight());
-	viewport3D.set((double)ofGetWindowWidth() / 2.0, 0, (double)ofGetWindowWidth() / 2.0, ofGetWindowHeight());
+	if(World::instance()->world3D->oneViewport) {
+//		viewport2D.set(0, 0, 0, ofGetWindowHeight());
+		viewport3D.set(0, 0, (double)ofGetWindowWidth(), ofGetWindowHeight());
+	} else {
+		viewport2D.set(0, 0, (double)ofGetWindowWidth() / 2.0, ofGetWindowHeight());
+		viewport3D.set((double)ofGetWindowWidth() / 2.0, 0, (double)ofGetWindowWidth() / 2.0, ofGetWindowHeight());
+	}
 }
 
 void logoApp::updateTurtleMesh(ofVec3f pos, ofVec3f dir, ofVec3f dirUp) {

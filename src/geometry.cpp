@@ -168,21 +168,19 @@ bool intersect(segment s1, segment s2, point &p) {// function returns true if s1
 	return true;
 }
 
-void line (point p1, point p2, ofColor targetColor, ofImage &img, bool thick, gridPoint forbidden) {
+void line (point p1, point p2, ofColor targetColor, ofImage &img, bool thick) {
 	double d = dist(p1, p2);
 	for(double alpha = 0; alpha <= d + EPS; alpha += 0.5) {
 		gridPoint gp = point(p1.x * (alpha / d) + p2.x * (1 - alpha / d),
 				p1.y * (alpha / d) + p2.y * (1 - alpha / d));
 		
-		if(gp.x >= 0 && gp.x < img.getWidth() && gp.y >= 0 && gp.y < img.getHeight() && 
-				(gp.x != forbidden.x || gp.y != forbidden.y)) {
+		if(gp.x >= 0 && gp.x < img.getWidth() && gp.y >= 0 && gp.y < img.getHeight()) {
 			img.setColor(gp.x, gp.y, targetColor);
 		}
 		if(thick) {
 			for(int i = 0; i < 4; i++) {
 				gridPoint np = neighbour(gp, i);
-				if(np.x >= 0 && np.x < img.getWidth() && np.y >= 0 && np.y < img.getHeight() && 
-						(np.x != forbidden.x || np.y != forbidden.y)) {
+				if(np.x >= 0 && np.x < img.getWidth() && np.y >= 0 && np.y < img.getHeight()) {
 					img.setColor(np.x, np.y, targetColor);
 				}
 			}

@@ -145,12 +145,12 @@ to face
 	rt 90
 	setpenscolor 4
 	pensup
-	curlarc 230 30 180 360 25 0.8 40
+	curlarc 250 30 180 360 25 0.75 40
 	pensup
 	fd 1
 end
 
-to main
-	deform 200 
+to main 
+	translate -60 100
 	face
 end

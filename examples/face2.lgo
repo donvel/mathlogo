@@ -29,12 +29,12 @@ to arc :turn :rad :deg
 	]
 end
 
-to curlarc :rad :rad1 :deg1 :deg2 :num :sc
+to curlarc :rad :rad1 :deg1 :deg2 :num :sc :lift
 	make "t :deg1
 	make "t1 0
 	while :t < :deg2 [
 		setxy :sc * ( :rad * (cos :t) + :rad1 * (sin :t1) )
-		:rad * (sin :t) + :rad1 * (cos :t1)
+		:rad * (sin :t) + :rad1 * (cos :t1) + :lift
 		make "t :t + 1
 		make "t1 :t1 + :num
 		pensdown
@@ -83,11 +83,11 @@ to deform :size
 end
 
 to face
-	pensup
-	setxy 0 100
+	penup
+	setxy 0 180
 	lt 90
-	pensdown
-	setpenscolor 18
+	pendown
+	setpencolor 18
 	arc -1 20 90
 	fd 20
 	rt 180
@@ -110,37 +110,35 @@ to face
 	fd 60
 	lt 90
 
-	pensup
+	penup
 	fd 200
 	rt 90
 	fd 30
 	lt 45
-	pensdown
-	setpenscolor 0
+	pendown
+	setpencolor 0
 	arc 1 50 90
-	pensup
+	penup
 	rt 180
 	arc -1 50 90
 	rt 45
 	fd 60
 	rt 45
-	pensdown
+	pendown
 	arc -1 50 90
 	
 	rt 180
-	pensup
+	penup
 	arc 1 50 90
 	lt 45
 	fd 30
 	lt 90
 	fd 60
 	rt 90
-	setpenscolor 0
-	pensup
-	curlarc 250 40 120 360 + 60 30 0.8
-	
+	setpencolor 4
 end
 
 to main 
+	deform 200
 	face
 end

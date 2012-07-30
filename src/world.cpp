@@ -99,6 +99,12 @@ void World::setup(char *filename) {
 		world3D = new Data3D(turtle[0]);
 		world3D->setup(&setupFile);
 	}
+	setupFile >> tmpString;
+	if(tmpString == "true") {
+		recordVideo = true;
+	} else {
+		recordVideo = false;
+	}
 	setupFile.close();
 	cout << "World setup complete" << endl;
 }
@@ -236,9 +242,9 @@ void World::addCircle(point pos, double r) {
 			}
 		}
 	} else {
-		for(int i = 0; i < 120; i++) {
+		for(int i = 0; i < 60; i++) {
 			for(int j = 0; j < 2; j++) {
-				trace[j].push_back(segment(pos.translated(vect(r, 0).rotated(3 * i-1)), pos.translated(vect(r, 0).rotated(3 * i)), ofColor().red));
+				trace[j].push_back(segment(pos.translated(vect(r, 0).rotated(6 * i-1)), pos.translated(vect(r, 0).rotated(6 * i)), ofColor().red));
 			}
 		}
 	}

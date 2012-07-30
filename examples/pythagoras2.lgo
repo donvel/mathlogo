@@ -1,19 +1,32 @@
 SCRIPT
 
 to square :side :col
-	setpencolor :col
 	repeat 4
 		[
 			fd :side
 			rt 90
 		]
+	pu
+	fd :side / 2
+	rt 90
+	fd :side / 2
+	setpencolor :col
+	fill
+	setpencolor 0
+	fd -:side / 2
+	lt 90
+	fd -:side / 2
+	pd
 end
 
+to main
+	pyt_tree 2 50
+end
 
 to pyt_tree :len :level
-	if :level > 0 
+	ifelse :level > 0 
 		[
-			square :len :level + 4
+			square :len :level
 			pu
 			fd :len
 			lt 45
@@ -25,20 +38,16 @@ to pyt_tree :len :level
 			pd
 			pyt_tree (:len * sqrt 2) / 2 :level - 1
 			pu
-			rt 180
-			fd (:len * sqrt 2) / 2
-			rt 180
+			fd (-:len * sqrt 2) / 2
 			lt 45
-			rt 180
-			fd :len
-			rt 180
+			fd -:len
+		]
+		[
 		]
 end
 
 to main
-	penup
 	fd 100
 	rt 180
-	pendown
 	pyt_tree 50 4
 end

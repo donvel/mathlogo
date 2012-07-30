@@ -30,7 +30,7 @@ end
 to main
 	inverse 0 0 100
 	make "col 17
-	repeat 1 [
+	repeat 3 [
 		angle 200 200
 	]
 end

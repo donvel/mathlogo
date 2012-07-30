@@ -150,7 +150,7 @@ to face
 	fd 1
 end
 
-to main
-	deform 200 
+to main 
+	homothety 0 0 0.4
 	face
 end

@@ -1,18 +1,29 @@
 SCRIPT
 to main
+	make "right "true
 	rt 13
-	setpencolor 5
 	penup
-	while "true [
-		fd 4
-		if getcolor = 5 [
-			return 0
-		]
+	setpencolor 5
+	make "cnt 0
+	while not getcolor = 5 [
 		rt 180
-		fd 5
+		fd 3
 		rt 180
 		pendown
-		fd 4
+		fd 1
 		penup
+		fd 3
+		make "cnt :cnt + 1
+		if :cnt = 400
+			[
+			make "cnt 0
+			ifelse :right [
+				rt 90
+				make "right "false
+				] [
+				lt 90
+				make "right "true
+				]
+			]
 	]
 end

@@ -1,0 +1,10 @@
+SCRIPT
+to main
+ repeat 100
+ 	[	
+		fd 200
+		rt 90
+
+	]
+
+end

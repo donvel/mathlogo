@@ -68,6 +68,7 @@ public:
 	vector< vector< ofVec2f > > orthoCast;
 	bool depthComp(int a, int b);
 	bool debug;
+	bool oneViewport;
 	int getColor();
 private:
 	ofVec2f getTurtleTexturePos();

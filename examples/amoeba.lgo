@@ -1,0 +1,50 @@
+SCRIPT
+
+to pensdown
+	pd toggle pd toggle
+end
+
+to pensup
+	pu toggle pu toggle
+end
+to setpenscolor :col
+	setpencolor :col
+	toggle
+	setpencolor :col
+	toggle
+end
+
+to halfcircle :step
+    fd :step
+    while getx * getx + gety * gety > :refrad * :refrad 
+        [
+            rt 1
+            fd :step
+            make "path_length :path_length + :step
+        ]
+end
+
+to amoeba :rad :len
+
+	make "refrad :rad
+	make "max_length :len
+	make "path_length 0
+
+	inverse 0 0 :refrad
+	pensup
+	forward :refrad
+	pensdown
+
+	while :path_length < :max_length [
+		setpenscolor random 26
+		make "radius ((random 20) + 1) / 10
+		halfcircle :radius
+		toggle 
+	]
+end
+
+to main
+	amoeba 160 2000
+end
+
+

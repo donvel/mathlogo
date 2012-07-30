@@ -151,6 +151,6 @@ to face
 end
 
 to main
-	deform 200 
+	mirror 0 
 	face
 end

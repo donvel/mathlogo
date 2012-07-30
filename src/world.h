@@ -34,6 +34,7 @@ class World {
 		Mode mode;
 		int activeTurtle;
 		bool useVoxels;
+		bool recordVideo;
 		
 		// We need two turtles for the TRANSFORM mode
 		Turtle turtle[2];
