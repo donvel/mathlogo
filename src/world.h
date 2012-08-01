@@ -34,7 +34,7 @@ class World {
 		Mode mode;
 		int activeTurtle;
 		bool useVoxels;
-		bool recordVideo;
+		
 		
 		// We need two turtles for the TRANSFORM mode
 		Turtle turtle[2];
@@ -51,6 +51,9 @@ class World {
 		static World* instance();
 		bool changing;
 		bool frozen;
+		bool recordVideo;
+		string videoName;
+		string frameType;
 		
 		void setup(char* filename);
 		void createMap(); 

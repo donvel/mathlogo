@@ -1,0 +1,115 @@
+SCRIPT
+
+to arc :turn :rad :deg
+	make "step :rad * 3.14159265 * 2 / 360
+	repeat :deg [
+		fd :step
+		rt :turn
+	]
+end
+
+to leftman 
+	rt 60
+	fd 5
+	lt 60
+	fd 22
+	rt 90
+	fd 7
+	rt 60
+	fd 3
+	lt 60
+	if :col [
+			fd 4
+			setpencolor random 25 + 1
+			if ((random 3) = 0) [
+				if :f [
+
+				fill
+				]
+			]
+			fd -4
+
+		]
+	lt 90
+	fd 10
+	lt 90
+	fd 13
+	rt 90
+	fd 25
+	rt 90
+	fd 5
+	rt 90
+	fd 18
+	lt 90
+
+	make "x getx
+	make "y gety
+
+	fd 10
+	lt 90
+	fd 10
+	arc 1 6 180
+	fd 8
+	lt 90
+	fd 10
+	ifelse :cont [
+	penup
+	setxy :x :y
+	if not :col [
+	pendown
+	]
+	lt 90
+	] [
+	rt 90
+	fd 22
+	rt 60
+	fd 5
+	lt 60
+	rt 180
+	
+	]
+end
+
+to main 
+	make "col "false
+	make "num 12
+	penup
+	setxy -299 340
+	pendown
+	rt 180
+	repeat :num [
+		make "x1 getx
+		make "y1 gety
+		make "cont "true
+		repeat :num [
+			leftman
+		]
+		penup
+		setxy :x1 :y1
+		pendown
+		make "cont "false
+		leftman
+	]
+	penup
+	setxy -299 340 
+	 	make "col "true
+	repeat :num - 1 [
+		make "x1 getx
+		make "y1 gety
+		make "cont "true
+		make "f "false
+		repeat :num [
+			leftman
+			make "f "true
+		]
+		make "f "false
+		penup
+		setxy :x1 :y1
+		make "cont "false
+		leftman
+	]
+	penup
+	setxy 300 (-340)
+	setpencolor 2
+	fill
+end

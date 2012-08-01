@@ -102,6 +102,12 @@ void World::setup(char *filename) {
 	setupFile >> tmpString;
 	if(tmpString == "true") {
 		recordVideo = true;
+		cout << "Please enter video name... ";
+		cin >> videoName;
+		cout << endl << "Please enter frame type... ";
+		cin >> frameType;
+		videoName = "video/" + videoName;
+		cout << endl << "prefix = " << videoName << endl;
 	} else {
 		recordVideo = false;
 	}

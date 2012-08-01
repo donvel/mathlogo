@@ -1,0 +1,13 @@
+SCRIPT
+
+to circle :step
+    repeat 360 [
+	    forward :step
+        right 1
+    ]
+end
+
+to main 
+	setpencolor 21
+	circle 1
+end

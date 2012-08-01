@@ -30,12 +30,14 @@ class logoApp : public ofBaseApp{
 		void drawVieport2D();
 		void updateTurtleMesh(ofVec3f pos, ofVec3f dir, ofVec3f dirUp);
 		void screenshot();
+	
 		
 		ofImage buffer[2];
 		ofImage saver;
 		int fillIter[2], traceIter[2];
 		int w, h;
 		bool saveScreen;
+		int frameNum;
 		
 		void keyPressed(int key);
 		/*Obsolete commands*/

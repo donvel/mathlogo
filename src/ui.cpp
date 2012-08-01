@@ -2,7 +2,8 @@
 
 //--------------------------------------------------------------
 void logoApp::setup(){
-	saveScreen = false;
+//	saveScreen = false;
+	frameNum = 0;
 	if(World::instance()->getMode() == ESCAPE) {
 		setup3D();
 		return;
@@ -17,6 +18,7 @@ void logoApp::setup(){
 
 //--------------------------------------------------------------
 void logoApp::update(){
+	frameNum++;
 	if(World::instance()->getMode() == ESCAPE) {
 		update3D();
 	}
@@ -132,17 +134,23 @@ void logoApp::draw() {
 	//	this_thread::sleep(posix_time::milliseconds(World::instance()->getFrameTime()));
 	}
 		
-	if(saveScreen) {
+	if(World::instance()->recordVideo) {
 		screenshot();
 	}
 }
 
 void logoApp::screenshot() {
-	saver.grabScreen(0, 0, ofGetWidth(), ofGetHeight() );
 	string saveName;
-	cin >> saveName;
+	if(World::instance()->recordVideo) {
+		char num[100];
+		sprintf(num, "%d", frameNum);
+		saveName = World::instance()->videoName + num + "." + World::instance()->frameType;
+	} else {
+		cin >> saveName;
+	}
+	saver.grabScreen(0, 0, ofGetWidth(), ofGetHeight() );
 	saver.saveImage(saveName);
-	saveScreen = false;
+//	saveScreen = false;
 }
 
 //--------------------------------------------------------------
@@ -157,11 +165,11 @@ void logoApp::keyPressed(int key){
 			img->saveImage("texture.jpg");
 		}
 		ofExit(0); // exit entire program
-	} else if(key == 's') {
+	} else if(key == 's' && !World::instance()->recordVideo) {
 		
-		saveScreen = true;
-		screenshot();
+//		saveScreen = true;
 		cout << "Enter file name" << endl;
+		screenshot();
 	} else if(key == 'w') {
 		cout << "w pressed" << endl;
 		drawWireframe = !drawWireframe;
@@ -307,9 +315,9 @@ void logoApp::draw3D() {
 		normal.addVertex(pos);
 		normal.addVertex(pos + ofVec3f(0.01, 0, 0));
 		normal.addVertex(pos + World::instance()->world3D->orthoPlaneNormal.normalized() * 3.0);
-		ofSetColor(ofColor::green);
+		ofSetColor(ofColor::red);
 		normal.drawWireframe();
-	
+		ofSetColor(ofColor::green);
 //		normal.clear();
 //		normal.addVertex(pos);
 //		normal.addVertex(pos + ofVec3f(0.01, 0, 0));
@@ -323,9 +331,9 @@ void logoApp::draw3D() {
 			normal.addVertex(v1);
 			normal.addVertex(v1 + 0.001);
 			if(scaleNor) {
-				normal.addVertex(v1 + World::instance()->world3D->faces[i].normal * World::instance()->world3D->faces[i].slot);
+				normal.addVertex(v1 + World::instance()->world3D->faces[i].normal * World::instance()->world3D->faces[i].slot * 0.5);
 			} else {
-				normal.addVertex(v1 + World::instance()->world3D->faces[i].normal);
+				normal.addVertex(v1 + World::instance()->world3D->faces[i].normal * 0.5);
 			}
 			normal.drawWireframe();
 		}

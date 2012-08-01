@@ -2,14 +2,23 @@ SCRIPT
 
 to pensup
 	penup
+	toggle
+	penup
+	toggle
 end
 
 to pensdown 
 	pendown
+	toggle
+	pendown
+	toggle
 end
 
 to setpenscolor :color
 	setpencolor :color
+	toggle
+	setpencolor :color
+	toggle
 end
 
 to square :side :col
@@ -48,6 +57,7 @@ to pyt_tree :len :level
 end
 
 to main
+	inverse 0 0 100
 	make "plus 14
 	pensup
 	fd 200
@@ -55,6 +65,5 @@ to main
 	fd 50
 	rt 90
 	pensdown
-	pyt_tree 50 5
-	print :plus
+	pyt_tree 100 5
 end

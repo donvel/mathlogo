@@ -4,6 +4,8 @@
     <df name="mathlogo" root=".">
       <df name="bin">
         <df name="data">
+          <df name="video">
+          </df>
         </df>
         <df name="libs">
         </df>
@@ -17,6 +19,8 @@
       <df name="examples">
       </df>
       <df name="img">
+        <df name="video">
+        </df>
       </df>
       <df name="meshes">
       </df>

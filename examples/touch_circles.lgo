@@ -52,9 +52,15 @@ to draw :size :step :num :shift
 		rt 90
 	]
 	setpens 22
-	fd 600
+	repeat 100 * :num [
+		fd 1
+	]
+	rt 180
+	repeat 100 * :num [
+		fd 1
+	]
 end
 
 to main
-	draw 300 0.5 100 (-200) 
+	draw 300 0.5 30 (-200) 
 end
