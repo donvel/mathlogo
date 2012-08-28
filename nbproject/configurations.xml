@@ -1,13 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<configurationDescriptor version="80">
+<configurationDescriptor version="84">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <df name="mathlogo" root=".">
       <df name="bin">
         <df name="libs">
-        </df>
-      </df>
-      <df name="docs">
-        <df name="Turtle Geometry">
         </df>
       </df>
       <df name="obj">
@@ -26,7 +22,6 @@
         <in>main.cpp</in>
         <in>trans.cpp</in>
         <in>trans.h</in>
-        <in>transform.h</in>
         <in>turtle.cpp</in>
         <in>turtle.h</in>
         <in>ui.cpp</in>
@@ -53,6 +48,8 @@
         <remote-sources-mode>LOCAL_SOURCES</remote-sources-mode>
         <compilerSet>default</compilerSet>
       </toolsSet>
+      <codeAssistance>
+      </codeAssistance>
       <makefileType>
         <makeTool>
           <buildCommandWorkingDir>.</buildCommandWorkingDir>
@@ -61,125 +58,64 @@
           <executablePath>bin/mathlogo</executablePath>
           <ccTool>
             <incDir>
-              <pElem>../../Programy/of/libs/openFrameworks/video</pElem>
-              <pElem>../../Programy/of/libs/fmodex/include</pElem>
-              <pElem>../../Programy/of/libs/openFrameworks/utils</pElem>
-              <pElem>../../Programy/of/libs/openFrameworks/events</pElem>
-              <pElem>../../Programy/of/libs/cairo/include/cairo</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/openFrameworks/graphics</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/glu/include</pElem>
+              <pElem>/usr/include/gio-unix-2.0/</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/cairo/include/cairo</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/fmodex/include</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/openFrameworks/types</pElem>
               <pElem>/usr/include/gdk-pixbuf-2.0</pElem>
-              <pElem>../../Programy/of/libs/cairo/include/libpng15</pElem>
-              <pElem>../../Programy/of/libs/glew/include/GL</pElem>
-              <pElem>../../Programy/of/libs/kiss/include</pElem>
               <pElem>/usr/include/freetype2</pElem>
-              <pElem>../../Programy/of/libs/poco/include</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/glew/include</pElem>
               <pElem>/usr/include/atk-1.0</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/freetype/include/freetype2</pElem>
               <pElem>/usr/include/libpng12</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/kiss/include</pElem>
               <pElem>/usr/include/libxml2</pElem>
-              <pElem>../../Programy/of/libs/freetype/include/freetype2</pElem>
-              <pElem>../../Programy/of/libs/glew/include</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/openFrameworks/app</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/tess2/include</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/assimp/include/Compiler</pElem>
               <pElem>.</pElem>
-              <pElem>../../Programy/of/libs/tess2/include</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/openFrameworks/events</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/openFrameworks</pElem>
               <pElem>/usr/include/pango-1.0</pElem>
-              <pElem>../../Programy/of/libs/assimp/include</pElem>
-              <pElem>../../Programy/of/libs/glu/include</pElem>
-              <pElem>../../Programy/of/libs/assimp/include/Compiler</pElem>
-              <pElem>../../Programy/of/libs/openFrameworks/3d</pElem>
-              <pElem>../../Programy/of/libs/freetype/include/freetype2/freetype/internal/services</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/freetype/include</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/freetype/include/freetype2/freetype</pElem>
               <pElem>/opt/local/include</pElem>
-              <pElem>../../Programy/of/libs/openFrameworks/math</pElem>
               <pElem>/usr/include/gstreamer-0.10</pElem>
               <pElem>/usr/include/gtk-2.0</pElem>
-              <pElem>../../Programy/of/libs/openFrameworks/communication</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/openFrameworks/gl</pElem>
               <pElem>/usr/include/cairo</pElem>
               <pElem>/usr/lib/x86_64-linux-gnu/glib-2.0/include</pElem>
               <pElem>/usr/include/pixman-1</pElem>
-              <pElem>../../Programy/of/libs/openFrameworks/graphics</pElem>
-              <pElem>../../Programy/of/libs/freetype/include/freetype2/freetype/internal</pElem>
-              <pElem>../../Programy/of/libs/FreeImage/include</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/openFrameworks/sound</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/openFrameworks/video</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/openFrameworks/3d</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/portaudio/include</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/freetype/include/freetype2/freetype/config</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/cairo/include/libpng15</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/FreeImage/include</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/glew/include/GL</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/openFrameworks/utils</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/freetype/include/freetype2/freetype/internal/services</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/poco/include</pElem>
               <pElem>/usr/lib/x86_64-linux-gnu/gtk-2.0/include</pElem>
-              <pElem>../../Programy/of/libs/openFrameworks/app</pElem>
-              <pElem>../../Programy/of/libs/freetype/include/freetype2/freetype/config</pElem>
-              <pElem>../../Programy/of/libs/portaudio/include</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/cairo/include</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/assimp/include</pElem>
               <pElem>/usr/include/glib-2.0</pElem>
-              <pElem>../../Programy/of/libs/openFrameworks/gl</pElem>
-              <pElem>../../Programy/of/libs/cairo/include</pElem>
-              <pElem>../../Programy/of/libs/rtAudio/include</pElem>
-              <pElem>../../Programy/of/libs/cairo/include/pixman-1</pElem>
-              <pElem>../../Programy/of/libs/freetype/include</pElem>
-              <pElem>../../Programy/of/libs/openFrameworks/types</pElem>
-              <pElem>../../Programy/of/libs/freetype/include/freetype2/freetype</pElem>
-              <pElem>../../Programy/of/libs/openFrameworks/sound</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/rtAudio/include</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/freetype/include/freetype2/freetype/internal</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/cairo/include/pixman-1</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/openFrameworks/communication</pElem>
+              <pElem>../../Programs/OpenFrameworks/libs/openFrameworks/math</pElem>
             </incDir>
             <preprocessorList>
               <Elem>OF_USING_GTK</Elem>
+              <Elem>OF_USING_MPG123</Elem>
             </preprocessorList>
           </ccTool>
         </makeTool>
       </makefileType>
-      <item path="src/geometry.cpp" ex="false" tool="1" flavor="0">
-        <ccTool>
-          <incDir>
-            <pElem>/usr/include/gio-unix-2.0/</pElem>
-            <pElem>../../Programy/of/libs/openFrameworks/</pElem>
-          </incDir>
-        </ccTool>
-      </item>
-      <item path="src/interpreter.cpp" ex="false" tool="1" flavor="0">
-        <ccTool>
-          <incDir>
-            <pElem>/usr/include/gio-unix-2.0/</pElem>
-            <pElem>../../Programy/of/libs/openFrameworks/</pElem>
-          </incDir>
-        </ccTool>
-      </item>
-      <item path="src/logodata.cpp" ex="false" tool="1" flavor="0">
-        <ccTool>
-          <incDir>
-            <pElem>../../Programy/of/libs/openFrameworks</pElem>
-            <pElem>/usr/include/gio-unix-2.0</pElem>
-          </incDir>
-        </ccTool>
-      </item>
-      <item path="src/main.cpp" ex="false" tool="1" flavor="0">
-        <ccTool>
-          <incDir>
-            <pElem>/usr/include/gio-unix-2.0/</pElem>
-            <pElem>../../Programy/of/libs/openFrameworks/</pElem>
-          </incDir>
-        </ccTool>
-      </item>
-      <item path="src/trans.cpp" ex="false" tool="1" flavor="0">
-        <ccTool>
-          <incDir>
-            <pElem>/usr/include/gio-unix-2.0/</pElem>
-            <pElem>../../Programy/of/libs/openFrameworks/</pElem>
-          </incDir>
-        </ccTool>
-      </item>
-      <item path="src/turtle.cpp" ex="false" tool="1" flavor="0">
-        <ccTool>
-          <incDir>
-            <pElem>/usr/include/gio-unix-2.0/</pElem>
-            <pElem>../../Programy/of/libs/openFrameworks/</pElem>
-          </incDir>
-        </ccTool>
-      </item>
-      <item path="src/ui.cpp" ex="false" tool="1" flavor="0">
-        <ccTool>
-          <incDir>
-            <pElem>/usr/include/gio-unix-2.0/</pElem>
-            <pElem>../../Programy/of/libs/openFrameworks/</pElem>
-          </incDir>
-        </ccTool>
-      </item>
-      <item path="src/world.cpp" ex="false" tool="1" flavor="0">
-        <ccTool>
-          <incDir>
-            <pElem>/usr/include/gio-unix-2.0/</pElem>
-            <pElem>../../Programy/of/libs/openFrameworks/</pElem>
-          </incDir>
-        </ccTool>
-      </item>
     </conf>
   </confs>
 </configurationDescriptor>
